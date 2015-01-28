@@ -1,0 +1,7 @@
+language: java
+
+install:
+    - git clone https://github.com/openworm/org.geppetto.simulator.external.git -b $TRAVIS_BRANCH
+    - cd org.geppetto.simulator.external
+    - mvn install
+    - cd ..

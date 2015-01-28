@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:osgi="http://www.springframework.org/schema/osgi"	
+		xmlns:aop="http://www.springframework.org/schema/aop"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans
+							http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+							http://www.springframework.org/schema/osgi
+							http://www.springframework.org/schema/osgi/spring-osgi-1.2.xsd
+							http://www.springframework.org/schema/aop 
+       						http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
+
+	<!-- Exports the service implementation to other bundles by its service interface -->
+	<osgi:service id="NeuronSimulatorExporter" ref="neuronSimulatorService" interface="org.geppetto.core.simulator.ISimulator">
+		<osgi:service-properties>
+			<entry key="discoverableID" value="neuronSimulator" />
+		</osgi:service-properties>
+	</osgi:service>
+	<bean id="neuronSimulatorService" scope="thread" class="org.geppetto.simulator.external.NeuronSimulatorService">
+	<aop:scoped-proxy proxy-target-class="false"/>
+	</bean>
+</beans>
