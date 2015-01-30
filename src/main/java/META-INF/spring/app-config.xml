@@ -15,5 +15,6 @@
 	<bean id="neuronSimulatorConfig" class="org.geppetto.core.beans.SimulatorConfig"> 
 		<property name="simulatorName" value="Neuron Simulator" />
 		<property name="simulatorID" value="neuronSimulator" />
+		<property name="simulatorID" value="neuronSimulator" />
 	</bean>
 </beans>
