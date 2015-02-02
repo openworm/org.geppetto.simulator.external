@@ -38,7 +38,10 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	@Override
 	public void initialize(List<IModel> models, ISimulatorCallbackListener listener) throws GeppettoInitializationException, GeppettoExecutionException
 	{
-		this.createProcessCommand(null);
+		for(IModel m : models){
+			ModelWrapper wrapper = (ModelWrapper) m;
+			this.createProcessCommand(wrapper.getModel("process").toString());
+		}
 	}
 	
 	@Override
@@ -52,6 +55,7 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	}
 
 	public void createProcessCommand(String originalFileName){
+		_logger.info("Creating command to run " + originalFileName);
 
 		try{
 			File filePath = new File(originalFileName);
