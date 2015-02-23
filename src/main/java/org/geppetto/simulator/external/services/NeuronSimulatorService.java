@@ -9,13 +9,8 @@ import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.SimulatorConfig;
 import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.common.GeppettoInitializationException;
-import org.geppetto.core.externalprocesses.ExternalProcessWatcher;
 import org.geppetto.core.model.IModel;
-import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.model.RecordingModel;
-import org.geppetto.core.model.runtime.AspectNode;
-import org.geppetto.core.simulation.IRunConfiguration;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.core.simulator.AExternalProcessSimulator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +35,7 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	{
 		for(IModel m : models){
 			ModelWrapper wrapper = (ModelWrapper) m;
-			this.createProcessCommand(wrapper.getModel("process").toString());
+			this.processCommand(wrapper.getModel("process").toString());
 		}
 	}
 	
@@ -54,7 +49,12 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 		return this.neuronSimulatorConfig.getSimulatorID();
 	}
 
-	public void createProcessCommand(String originalFileName){
+	/**
+	 * Creates command to be executed by an external process
+	 * 
+	 * @param originalFileName
+	 */
+	public void processCommand(String originalFileName){
 		_logger.info("Creating command to run " + originalFileName);
 
 		try{
@@ -95,6 +95,8 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 				_logger.info("From directory : " + directoryToExecuteFrom);
 			}
 
+			//send command, directory where execution is happening, and path 
+			//to original file script to exceture
 			this.runExternalProcess(command, directoryToExecuteFrom, originalFileName);
 		}
 		catch(IOException e){
