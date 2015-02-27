@@ -33,6 +33,9 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	@Override
 	public void initialize(List<IModel> models, ISimulatorCallbackListener listener) throws GeppettoInitializationException, GeppettoExecutionException
 	{
+		/**
+		 * Creates command from model wrapper's neuron script
+		 */
 		for(IModel m : models){
 			ModelWrapper wrapper = (ModelWrapper) m;
 			this.processCommand(wrapper.getModel("process").toString());
