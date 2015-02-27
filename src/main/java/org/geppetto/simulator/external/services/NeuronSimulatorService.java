@@ -10,7 +10,10 @@ import org.geppetto.core.beans.SimulatorConfig;
 import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.common.GeppettoInitializationException;
 import org.geppetto.core.model.IModel;
+import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.core.model.runtime.AspectNode;
+import org.geppetto.core.simulation.IRunConfiguration;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.core.simulator.AExternalProcessSimulator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,5 +108,18 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 		catch(IOException e){
 
 		}
+	}
+	
+	@Override
+	public void simulate(IRunConfiguration runConfiguration, AspectNode aspect)
+			throws GeppettoExecutionException {
+		
+	}
+
+	@Override
+	public boolean populateVisualTree(AspectNode aspectNode)
+			throws ModelInterpreterException, GeppettoExecutionException {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

@@ -9,12 +9,11 @@
 	<!--  <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>--> 
 	<!-- Instructs Spring to scan for internal service components to instantiate and configure -->
 	<context:annotation-config/>	
-	<context:component-scan base-package="org.geppetto.simulator.external" />
+	<context:component-scan base-package="org.geppetto.simulator.external.services" />
 		
 	<!-- Add flag for Simulation Run Mode --> 
 	<bean id="neuronSimulatorConfig" class="org.geppetto.core.beans.SimulatorConfig"> 
 		<property name="simulatorName" value="Neuron Simulator" />
-		<property name="simulatorID" value="neuronSimulator" />
 		<property name="simulatorID" value="neuronSimulator" />
 	</bean>
 </beans>
