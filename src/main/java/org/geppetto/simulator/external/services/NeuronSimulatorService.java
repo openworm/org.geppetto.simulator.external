@@ -2,6 +2,7 @@ package org.geppetto.simulator.external.services;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -13,6 +14,8 @@ import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
+import org.geppetto.core.services.ModelFormat;
+import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.IRunConfiguration;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.core.simulator.AExternalProcessSimulator;
@@ -31,7 +34,8 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	@Autowired
 	private SimulatorConfig neuronSimulatorConfig;
 
-	private String NEURON_HOME = "/usr/bin/nrn";
+//	private String NEURON_HOME = "/usr/bin/nrn";
+	private String NEURON_HOME = "/usr/local/bin/nrngui/";
 	
 	@Override
 	public void initialize(List<IModel> models, ISimulatorCallbackListener listener) throws GeppettoInitializationException, GeppettoExecutionException
@@ -41,7 +45,7 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 		 */
 		for(IModel m : models){
 			ModelWrapper wrapper = (ModelWrapper) m;
-			this.processCommand(wrapper.getModel("process").toString());
+			this.processCommand(wrapper.getModel("Neuron").toString());
 		}
 	}
 	
@@ -70,10 +74,12 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 			String directoryToExecuteFrom = filePath.getCanonicalPath();
 
 			if(filePath.isDirectory()){
+//				command = NEURON_HOME
+//						+ System.getProperty("file.separator")
+//						+ "bin"
+//						+ System.getProperty("file.separator")
+//						+ "nrnivmodl";
 				command = NEURON_HOME
-						+ System.getProperty("file.separator")
-						+ "bin"
-						+ System.getProperty("file.separator")
 						+ "nrnivmodl";
 			}else{
 				String extension = "";
@@ -87,14 +93,17 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 
 				directoryToExecuteFrom = filePath.getParentFile().getAbsolutePath();
 				if(extension.equals("hoc")){
+//					command = NEURON_HOME
+//							+ System.getProperty("file.separator")
+//							+ "bin"
+//							+ System.getProperty("file.separator")
+//							+ "nrngui " + filePath.getAbsolutePath();
 					command = NEURON_HOME
-							+ System.getProperty("file.separator")
-							+ "bin"
-							+ System.getProperty("file.separator")
 							+ "nrngui " + filePath.getAbsolutePath();
 				}
 				else if(extension.equals("py")){
-					command = "python " + filePath.getAbsolutePath();
+					//command = "python " + filePath.getAbsolutePath();
+					command = "nrniv -python " + filePath.getAbsolutePath();
 				}
 
 				_logger.info("Command to Execute: " + command + " ...");
@@ -121,5 +130,14 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 			throws ModelInterpreterException, GeppettoExecutionException {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public void registerGeppettoService()
+	{
+		List<ModelFormat> modelFormatList = new ArrayList<ModelFormat>();
+		modelFormatList.add(new ModelFormat("Neuron"));
+		ServicesRegistry.registerSimulatorService(this, modelFormatList);
+		
 	}
 }
