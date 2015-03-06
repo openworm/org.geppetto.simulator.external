@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.SimulatorConfig;
 import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.common.GeppettoInitializationException;
+import org.geppetto.core.externalprocesses.ExternalProcess;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
@@ -121,5 +122,12 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 			throws ModelInterpreterException, GeppettoExecutionException {
 		// TODO Auto-generated method stub
 		return false;
+	}
+	
+	@Override
+	public void processDone(String processCommand) {
+		super.processDone(processCommand);
+		ExternalProcess process = this.getExternalProccesses().get(processCommand);
+		//TODO Process has command that returns DAT Files
 	}
 }
