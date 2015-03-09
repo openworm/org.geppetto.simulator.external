@@ -132,7 +132,7 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	}
 
 	@Override
-	public void processDone(String processCommand) {
+	public void processDone(String[] processCommand) {
 		super.processDone(processCommand);
 		ExternalProcess process = this.getExternalProccesses().get(processCommand);
 		//TODO Process has command that returns DAT Files
