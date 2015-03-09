@@ -14,7 +14,7 @@ import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
-import org.geppetto.core.services.ModelFormat;
+import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.IRunConfiguration;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
@@ -35,17 +35,20 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	private SimulatorConfig neuronSimulatorConfig;
 
 //	private String NEURON_HOME = "/usr/bin/nrn";
-	private String NEURON_HOME = "/usr/local/bin/nrngui/";
+//	private String NEURON_HOME = "/usr/local/bin/nrngui/";
+	private String NEURON_HOME = "/home/adrian/Programs/neuron/nrn/x86_64/bin/";
+			
 	
 	@Override
 	public void initialize(List<IModel> models, ISimulatorCallbackListener listener) throws GeppettoInitializationException, GeppettoExecutionException
 	{
+		super.initialize(models, listener);
 		/**
 		 * Creates command from model wrapper's neuron script
 		 */
 		for(IModel m : models){
 			ModelWrapper wrapper = (ModelWrapper) m;
-			this.processCommand(wrapper.getModel("Neuron").toString());
+			this.processCommand(wrapper.getModel(ModelFormat.NEURON).toString());
 		}
 	}
 	
@@ -69,18 +72,12 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 
 		try{
 			File filePath = new File(originalFileName);
-			String command = null;
+			String[] commands = null;
 
 			String directoryToExecuteFrom = filePath.getCanonicalPath();
 
 			if(filePath.isDirectory()){
-//				command = NEURON_HOME
-//						+ System.getProperty("file.separator")
-//						+ "bin"
-//						+ System.getProperty("file.separator")
-//						+ "nrnivmodl";
-				command = NEURON_HOME
-						+ "nrnivmodl";
+				commands = new String[]{NEURON_HOME + "nrnivmodl"};
 			}else{
 				String extension = "";
 
@@ -93,26 +90,19 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 
 				directoryToExecuteFrom = filePath.getParentFile().getAbsolutePath();
 				if(extension.equals("hoc")){
-//					command = NEURON_HOME
-//							+ System.getProperty("file.separator")
-//							+ "bin"
-//							+ System.getProperty("file.separator")
-//							+ "nrngui " + filePath.getAbsolutePath();
-					command = NEURON_HOME
-							+ "nrngui " + filePath.getAbsolutePath();
+					commands =  new String[]{NEURON_HOME + "nrngui " + filePath.getAbsolutePath()};
 				}
 				else if(extension.equals("py")){
-					//command = "python " + filePath.getAbsolutePath();
-					command = "nrniv -python " + filePath.getAbsolutePath();
+					commands = new String[]{NEURON_HOME + "nrnivmodl", "mkdir results", NEURON_HOME + "nrniv -python " + filePath.getAbsolutePath()};
 				}
 
-				_logger.info("Command to Execute: " + command + " ...");
+				_logger.info("Command to Execute: " + commands + " ...");
 				_logger.info("From directory : " + directoryToExecuteFrom);
 			}
 
 			//send command, directory where execution is happening, and path 
 			//to original file script to exceture
-			this.runExternalProcess(command, directoryToExecuteFrom, originalFileName);
+			this.runExternalProcess(commands, directoryToExecuteFrom, originalFileName);
 		}
 		catch(IOException e){
 
@@ -135,9 +125,8 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	@Override
 	public void registerGeppettoService()
 	{
-		List<ModelFormat> modelFormatList = new ArrayList<ModelFormat>();
-		modelFormatList.add(new ModelFormat("Neuron"));
+		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
+		modelFormatList.add(ModelFormat.NEURON);
 		ServicesRegistry.registerSimulatorService(this, modelFormatList);
-		
 	}
 }
