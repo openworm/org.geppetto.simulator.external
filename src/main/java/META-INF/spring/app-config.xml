@@ -16,4 +16,9 @@
 		<property name="simulatorName" value="Neuron Simulator" />
 		<property name="simulatorID" value="neuronSimulator" />
 	</bean>
+	
+	<!-- Add flag for External Simulation Run Mode --> 
+	<bean id="neuronExternalSimulatorConfig" class="org.geppetto.simulator.external.services.ExternalSimulatorConfig"> 
+		<property name="simulatorPath" value="/usr/bin/nrn" />
+	</bean>
 </beans>
