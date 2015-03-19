@@ -20,6 +20,7 @@ import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.IRunConfiguration;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.core.simulator.AExternalProcessSimulator;
+import org.geppetto.simulator.external.converters.ConvertDATToRecording;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -83,14 +84,15 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 			String directoryToExecuteFrom = filePath.getCanonicalPath();
 
 			if(filePath.isDirectory()){
-				commands = new String[]{getSimulatorPath() + "nrnivmodl"};
-			}else{
-				String extension = "";
-
-				int i = filePath.getAbsolutePath().lastIndexOf('.');
-				if (i > 0) {
-					extension = filePath.getAbsolutePath().substring(i+1);
+				if(Utilities.isWindows()){
+					commands = new String[]{getSimulatorPath()+ "rxvt.exe -e "+
+							getSimulatorPath()+ "sh " +getSimulatorPath().replace("/bin/","/lib/")+ "mknrndll.sh"};
+				}else{
+					commands = new String[]{getSimulatorPath() + "nrnivmodl"};
 				}
+				
+			}else{
+				String extension = Utilities.extension(filePath);
 
 				_logger.info("File with extension " + extension + " detected");
 
@@ -99,7 +101,13 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 					commands =  new String[]{getSimulatorPath() + "nrngui " + filePath.getAbsolutePath()};
 				}
 				else if(extension.equals("py")){
-					commands = new String[]{getSimulatorPath() + "nrnivmodl", "mkdir results", getSimulatorPath() + "nrniv -python " + filePath.getAbsolutePath()};
+					if(Utilities.isWindows()){
+						commands = new String[]{getSimulatorPath()+ "rxvt.exe -e "+
+								getSimulatorPath()+ "sh " +getSimulatorPath().replace("/bin/","/lib/")+ "mknrndll.sh",
+								getSimulatorPath()+"mkdir.exe results", getSimulatorPath() + "nrniv.exe -python " + filePath.getAbsolutePath()};
+					}else{
+						commands = new String[]{getSimulatorPath() + "nrnivmodl", "mkdir results", getSimulatorPath() + "nrniv -python " + filePath.getAbsolutePath()};
+					}
 				}
 
 				_logger.info("Command to Execute: " + commands + " ...");
@@ -140,7 +148,24 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	public void processDone(String[] processCommand) {
 		super.processDone(processCommand);
 		ExternalProcess process = this.getExternalProccesses().get(processCommand);
-		//TODO Process has command that returns DAT Files
+		File results = new File(process.getExecutionDirectoryPath()+"/results");
+		if(results.exists()){
+			File[] resultFiles = results.listFiles();
+			ConvertDATToRecording datConverter;
+			try {
+				datConverter = new ConvertDATToRecording("results.h5");
+				for(File f : resultFiles){
+					String extension = Utilities.extension(f);
+					if(extension.equals("dat")){
+						datConverter.addDATFile(f.getName(), f.getAbsolutePath());
+					}
+				}
+				datConverter.convert();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}
 	}
 
 }
