@@ -42,6 +42,7 @@ import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
+import org.geppetto.simulator.external.services.ModelFormat;
 import org.geppetto.simulator.external.services.NeuronSimulatorService;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -71,7 +72,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 		NeuronSimulatorService simulator = new NeuronSimulatorService();
 		List<IModel> models = new ArrayList<IModel>();
 		ModelWrapper m = new ModelWrapper(UUID.randomUUID().toString());
-		m.wrapModel("process", fileToExecute);
+		m.wrapModel(ModelFormat.NEURON, fileToExecute);
 		models.add(m);
 		simulator.initialize(models, this);
 	}
