@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Resource;
+
 import junit.framework.Assert;
 
 import org.geppetto.core.common.GeppettoExecutionException;
@@ -46,13 +48,21 @@ import org.geppetto.simulator.external.services.ModelFormat;
 import org.geppetto.simulator.external.services.NeuronSimulatorService;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * Test for the Neuron Simulator Service
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations={"classpath:/META-INF/spring/app-config.xml"})
 public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 {
 
+	@Resource
+	NeuronSimulatorService simulator = new NeuronSimulatorService();
+	
 	private static String fileToExecute;
 
 	@BeforeClass
@@ -68,8 +78,6 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	@Test
 	public void testGetWatchableVariables() throws Exception
 	{
-		setup();
-		NeuronSimulatorService simulator = new NeuronSimulatorService();
 		List<IModel> models = new ArrayList<IModel>();
 		ModelWrapper m = new ModelWrapper(UUID.randomUUID().toString());
 		m.wrapModel(ModelFormat.NEURON, fileToExecute);
