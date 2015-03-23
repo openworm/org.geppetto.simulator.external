@@ -32,8 +32,14 @@
  *******************************************************************************/
 package org.geppetto.simulator.external.tests;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -41,11 +47,13 @@ import javax.annotation.Resource;
 import junit.framework.Assert;
 
 import org.geppetto.core.common.GeppettoExecutionException;
+import org.geppetto.core.externalprocesses.ExternalProcess;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.simulator.external.services.ModelFormat;
 import org.geppetto.simulator.external.services.NeuronSimulatorService;
+import org.geppetto.simulator.external.services.Utilities;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,32 +71,99 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	@Resource
 	NeuronSimulatorService simulator = new NeuronSimulatorService();
 	
+	private static String dirToExecute;
 	private static String fileToExecute;
 
 	@BeforeClass
-	public static void setup() throws Exception
-	{
-		fileToExecute = "/neuron_script.py";
+	public static void setup(){
+		dirToExecute = "./src/test/resources/neuronConvertedModel/";
+		fileToExecute = "main_script.py";
 	}
 	
 	/**
-	 * Test method for {@link org.geppetto.simulator.jlems.JLEMSSimulatorService#getWatchableVariables()}.
+	 * Test method for {@link org.geppetto.simulator.external.services.NeuronSimulatorService}.
 	 * @throws Exception 
 	 */
 	@Test
-	public void testGetWatchableVariables() throws Exception
+	public void testNeuronExecution() throws Exception
 	{
-		List<IModel> models = new ArrayList<IModel>();
-		ModelWrapper m = new ModelWrapper(UUID.randomUUID().toString());
-		m.wrapModel(ModelFormat.NEURON, fileToExecute);
-		models.add(m);
-		simulator.initialize(models, this);
+		if (simulator.getSimulatorPath() != null && !simulator.getSimulatorPath().equals("")){
+			
+			
+			List<IModel> models = new ArrayList<IModel>();
+			ModelWrapper m = new ModelWrapper(UUID.randomUUID().toString());
+			m.wrapModel(ModelFormat.NEURON, dirToExecute + fileToExecute);
+			models.add(m);
+			simulator.initialize(models, this);
+			
+			for (Map.Entry<String[], ExternalProcess> entry : simulator.getExternalProccesses().entrySet()) {
+				entry.getValue().join();
+			}
+		}
 	}
 
 	@Override
 	public void endOfSteps(String message) {
-		Assert.assertEquals("Process for " + 
-				fileToExecute+ " is done executing", message);
+		
+		String resultsDir = dirToExecute + "results/";
+		BufferedReader input = null;
+		//will store values and variables found in DAT
+		HashMap<String, List<Float>> dataValues = new HashMap<String,List<Float>>();
+		try{
+			//read DAT into a buffered reader
+			input = new BufferedReader(new FileReader(resultsDir + "ex5_vars.dat"));
+
+			//read rest of DAT file and extract values
+			String line = input.readLine();
+			String[] columns = line.split("\\s+");
+			
+			Assert.assertEquals(Float.valueOf(columns[0]), 0.0f);
+			Assert.assertEquals(Float.valueOf(columns[1]), 0.052932f);
+			Assert.assertEquals(Float.valueOf(columns[2]), 0.596121f);
+			Assert.assertEquals(Float.valueOf(columns[3]), 0.317677f);
+		
+			input.close();
+			
+			//read DAT into a buffered reader
+			input = new BufferedReader(new FileReader(resultsDir + "ex5_v.dat"));
+
+			//read rest of DAT file and extract values
+			line = input.readLine();
+			columns = line.split("\\s+");
+			
+			Assert.assertEquals(Float.valueOf(columns[0]), 0.0f);
+			Assert.assertEquals(Float.valueOf(columns[1]), -0.065000f);
+			
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		//handles End of file exception
+		finally {
+			try {
+				input.close();
+			}
+			catch(IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+		
+		
+		Assert.assertEquals("Process for " + dirToExecute + fileToExecute + " is done executing", message);
+		
+		//Delete files
+		try
+		{
+			Utilities.delete(new File(resultsDir));
+			Utilities.delete(new File(dirToExecute + "x86_64/"));
+			new File(dirToExecute + "time.dat").delete();
+		}
+		catch(IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 	@Override
