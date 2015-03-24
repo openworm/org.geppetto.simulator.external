@@ -51,10 +51,10 @@ public class TestConvertDATToRecordingClass {
 	public void datToHDF5(){
 		try {
 			ConvertDATToRecording datConverter = new ConvertDATToRecording("sample.h5");
-			String[] a = {"time","a"};
+			String[] a = {"time","d"};
 			datConverter.addDATFile("src/test/resources/sample/results/ex5_v.dat",a);
 			
-			String[] b = {"time","b","c","d"};
+			String[] b = {"time","a","b","c"};
 			datConverter.addDATFile("src/test/resources/sample/results/ex5_vars.dat",b);
 			datConverter.convert();
 			
@@ -62,12 +62,12 @@ public class TestConvertDATToRecordingClass {
 			
 			H5File file = datConverter.getRecordingsFile();
 			file.open();
-			Dataset dataset = (Dataset) file.findObject(file, "/a");
+			Dataset dataset = (Dataset) file.findObject(file, "/b");
 			float[] value =  (float[])dataset.read();
 			Assert.assertEquals(0.596121f,value[0]);
 			Assert.assertEquals(0.596119f,value[1]);
 
-			Dataset dataset2 = (Dataset) file.findObject(file, "/b");
+			Dataset dataset2 = (Dataset) file.findObject(file, "/a");
 			float[] value2 =  (float[])dataset2.read();
 			Assert.assertEquals(0.052932f,value2[0]);
 			Assert.assertEquals(0.052941f,value2[1]);
