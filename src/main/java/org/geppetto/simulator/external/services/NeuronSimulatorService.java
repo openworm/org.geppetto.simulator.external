@@ -2,19 +2,38 @@ package org.geppetto.simulator.external.services;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.StringTokenizer;
+
+import ncsa.hdf.object.Dataset;
+import ncsa.hdf.object.FileFormat;
+import ncsa.hdf.object.h5.H5File;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.SimulatorConfig;
 import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.common.GeppettoInitializationException;
+import org.geppetto.core.data.model.SimpleType;
+import org.geppetto.core.data.model.SimpleType.Type;
 import org.geppetto.core.externalprocesses.ExternalProcess;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.core.model.quantities.PhysicalQuantity;
+import org.geppetto.core.model.runtime.ACompositeNode;
+import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AspectNode;
+import org.geppetto.core.model.runtime.AspectSubTreeNode;
+import org.geppetto.core.model.runtime.CompositeNode;
+import org.geppetto.core.model.runtime.VariableNode;
+import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
+import org.geppetto.core.model.values.AValue;
+import org.geppetto.core.model.values.ValuesFactory;
 import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.IRunConfiguration;
@@ -40,17 +59,31 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	
 	@Autowired
 	private ExternalSimulatorConfig neuronExternalSimulatorConfig;
+
+	private List<IModel> _models;
+	private boolean _started = false;
 	
 	@Override
 	public void initialize(List<IModel> models, ISimulatorCallbackListener listener) throws GeppettoInitializationException, GeppettoExecutionException
 	{
 		super.initialize(models, listener);
-		/**
-		 * Creates command from model wrapper's neuron script
-		 */
-		for(IModel m : models){
-			ModelWrapper wrapper = (ModelWrapper) m;
-			this.processCommand(wrapper.getModel(ModelFormat.NEURON).toString());
+		this._models = models;
+	}
+	
+	@Override
+	public void simulate(IRunConfiguration runConfiguration, AspectNode aspect)
+			throws GeppettoExecutionException {
+		if(!_started){
+			advanceTimeStep(0, aspect);
+			/**
+			 * Creates command from model wrapper's neuron script
+			 */
+			for(IModel m : _models){
+				ModelWrapper wrapper = (ModelWrapper) m;
+				this.processCommand(wrapper.getModel(ModelFormat.NEURON).toString(),aspect);
+			}
+			_started = true;
+			notifyStateTreeUpdated();
 		}
 	}
 	
@@ -73,8 +106,9 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	 * Creates command to be executed by an external process
 	 * 
 	 * @param originalFileName
+	 * @param aspect 
 	 */
-	public void processCommand(String originalFileName){
+	public void processCommand(String originalFileName, AspectNode aspect){
 		_logger.info("Creating command to run " + originalFileName);
 
 		try{
@@ -116,18 +150,13 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 
 			//send command, directory where execution is happening, and path 
 			//to original file script to exceture
-			this.runExternalProcess(commands, directoryToExecuteFrom, originalFileName);
+			this.runExternalProcess(commands, directoryToExecuteFrom, originalFileName,aspect);
 		}
 		catch(IOException e){
 
 		}
 	}
 	
-	@Override
-	public void simulate(IRunConfiguration runConfiguration, AspectNode aspect)
-			throws GeppettoExecutionException {
-		
-	}
 
 	@Override
 	public boolean populateVisualTree(AspectNode aspectNode)
@@ -152,26 +181,38 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 		if(results.exists()){
 			File[] resultFiles = results.listFiles();
 			ConvertDATToRecording datConverter;
+			List<String> variableNames = new ArrayList<String>();
 			try {
-				datConverter = new ConvertDATToRecording("results.h5");
+				String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+				datConverter = new ConvertDATToRecording("results-"+timeStamp+".h5");
 				for(File f : resultFiles){
 					String extension = Utilities.extension(f);
 					if(extension.equals("dat")){
 						//FIXME: Remove hack to assign variables
-						String[] s = {"time","b","c","d"};
+						String[] variables = {"time","b","c","d"};
 						if(f.getName().equals("ex5_v.dat")){
-							s = new String[2];
-							s[0] = "time";
-							s[1]= "a";
+							variables = new String[2];
+							variables[0] = "time";
+							variables[1]= "a";
 						}
-						datConverter.addDATFile(f.getAbsolutePath(),s);
+						for(String s: variables){
+							variableNames.add(s);
+						}
+						datConverter.addDATFile(f.getAbsolutePath(),variables);
 					}
 				}
 				datConverter.convert();
+				AspectNode aspect = process.getAspectNode();
+				AspectSubTreeNode watchTree = (AspectSubTreeNode)aspect.getSubTree(AspectTreeType.WATCH_TREE);
+				watchTree.setModified(true);
+				aspect.setModified(true);
+				aspect.getParentEntity().setModified(true);
+				
+				this.addWatchVariables(variableNames);
+				this.readRecording(datConverter.getRecordingsFile(), watchTree,true);
 			} catch (Exception e) {
 				throw new GeppettoExecutionException(e);
 			}
 		}
 	}
-
 }
