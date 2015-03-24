@@ -51,32 +51,34 @@ public class TestConvertDATToRecordingClass {
 	public void datToHDF5(){
 		try {
 			ConvertDATToRecording datConverter = new ConvertDATToRecording("sample.h5");
-			datConverter.addDATFile("ex5_v", "src/test/resources/sample/results/ex5_v.dat");
-			datConverter.addDATFile("ex5_vars", "src/test/resources/sample/results/ex5_vars.dat");
-			datConverter.addDATFile("time", "src/test/resources/sample/time.dat");
+			String[] a = {"time","a"};
+			datConverter.addDATFile("src/test/resources/sample/results/ex5_v.dat",a);
+			
+			String[] b = {"time","b","c","d"};
+			datConverter.addDATFile("src/test/resources/sample/results/ex5_vars.dat",b);
 			datConverter.convert();
 			
 			assertNotNull(datConverter.getRecordingsFile());
 			
 			H5File file = datConverter.getRecordingsFile();
 			file.open();
-			Dataset dataset = (Dataset) file.findObject(file, "/h/v/h");
+			Dataset dataset = (Dataset) file.findObject(file, "/a");
 			float[] value =  (float[])dataset.read();
 			Assert.assertEquals(0.596121f,value[0]);
 			Assert.assertEquals(0.596119f,value[1]);
 
-			Dataset dataset2 = (Dataset) file.findObject(file, "/h/v/m");
+			Dataset dataset2 = (Dataset) file.findObject(file, "/b");
 			float[] value2 =  (float[])dataset2.read();
 			Assert.assertEquals(0.052932f,value2[0]);
 			Assert.assertEquals(0.052941f,value2[1]);
 			
-			Dataset dataset3 = (Dataset) file.findObject(file, "/h/v/n");
+			Dataset dataset3 = (Dataset) file.findObject(file, "/c");
 			float[] value3 =  (float[])dataset3.read();
 			Assert.assertEquals(0.317677f,value3[0]);
 			Assert.assertEquals(0.317678f,value3[1]);
 			
 			
-			Dataset dataset4 = (Dataset) file.findObject(file, "/h/v/v");
+			Dataset dataset4 = (Dataset) file.findObject(file, "/d");
 			float[] value4 =  (float[])dataset4.read();
 			Assert.assertEquals(-0.065000f,value4[0]);
 			Assert.assertEquals(-0.064968f,value4[1]);

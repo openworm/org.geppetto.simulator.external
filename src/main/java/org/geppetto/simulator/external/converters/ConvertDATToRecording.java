@@ -59,7 +59,7 @@ public class ConvertDATToRecording {
 	private static Log _logger = LogFactory.getLog(ConvertDATToRecording.class);
 
 	private String _recordingFile;
-	private HashMap<String,String> datFilePaths = new HashMap<String,String>();
+	private HashMap<String,String[]> datFilePaths = new HashMap<String,String[]>();
 	private GeppettoRecordingCreator recordingCreator;
 
 	public ConvertDATToRecording(String recordingFile) throws Exception{
@@ -79,17 +79,17 @@ public class ConvertDATToRecording {
 		Iterator<String> iterator = mapSet.iterator();
 		while(iterator.hasNext()){
 			//Read each DAT file
-			String fileName = iterator.next();
-			String datFilePath = datFilePaths.get(fileName);
-			read(fileName, datFilePath);
+			String datFilePath = iterator.next();
+			String[] variables = datFilePaths.get(datFilePath);
+			read(datFilePath, variables);
 		}
 
 		//Create HDF5 after reading all DAT files
 		recordingCreator.create();
 	}
 
-	public void addDATFile(String fileName, String datFile){
-		this.datFilePaths.put(fileName, datFile);
+	public void addDATFile(String datFile, String[] variables){
+		this.datFilePaths.put(datFile, variables);
 	}
 
 	/**
@@ -97,23 +97,21 @@ public class ConvertDATToRecording {
 	 * by calling one of its commands.
 	 * 
 	 * @param fileName - Name of DAT file stored in map
-	 * @param datFilePath - Path to DAT file
+	 * @param variables2 - Path to DAT file
 	 * @throws GeppettoExecutionException
 	 */
-	public void read(String fileName, String datFilePath) throws GeppettoExecutionException{
+	public void read(String fileName, String[] variables) throws GeppettoExecutionException{
 		BufferedReader input = null;
 		//will store values and variables found in DAT
 		HashMap<String, List<Float>> dataValues = new HashMap<String,List<Float>>();
 		try{
 			//read DAT into a buffered reader
-			input = new BufferedReader(new FileReader(datFilePath));
+			input = new BufferedReader(new FileReader(fileName));
 
-			//Extract DAT variables names in first line
-			String variablesLine = input.readLine();
-			String[] variables =  variablesLine.split("\\s+");
-			for(String s : variables){
-				dataValues.put(s, new ArrayList<Float>());
+			for(int i =0; i<variables.length;i++){
+				dataValues.put(variables[i], new ArrayList<Float>());
 			}
+
 			//read rest of DAT file and extract values
 			while(input.read()!=-1){
 				String line = input.readLine();
@@ -134,7 +132,7 @@ public class ConvertDATToRecording {
 				for (int i = 0; i < target.length; i++) {
 					target[i] = floatValues.get(i);               
 				}
-				recordingCreator.addValues(variable, target, "ms", MetaType.Variable_Node);
+				recordingCreator.addValues(variable, target, "ms", MetaType.Variable_Node,false);
 			}
 		}
 		catch(Exception e){

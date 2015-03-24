@@ -145,7 +145,7 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	}
 
 	@Override
-	public void processDone(String[] processCommand) {
+	public void processDone(String[] processCommand) throws GeppettoExecutionException {
 		super.processDone(processCommand);
 		ExternalProcess process = this.getExternalProccesses().get(processCommand);
 		File results = new File(process.getExecutionDirectoryPath()+"/results");
@@ -157,14 +157,20 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 				for(File f : resultFiles){
 					String extension = Utilities.extension(f);
 					if(extension.equals("dat")){
-						datConverter.addDATFile(f.getName(), f.getAbsolutePath());
+						//FIXME: Remove hack to assign variables
+						String[] s = {"time","b","c","d"};
+						if(f.getName().equals("ex5_v.dat")){
+							s = new String[2];
+							s[0] = "time";
+							s[1]= "a";
+						}
+						datConverter.addDATFile(f.getAbsolutePath(),s);
 					}
 				}
 				datConverter.convert();
 			} catch (Exception e) {
-				e.printStackTrace();
+				throw new GeppettoExecutionException(e);
 			}
-
 		}
 	}
 
