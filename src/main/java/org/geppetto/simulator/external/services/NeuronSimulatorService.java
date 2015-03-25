@@ -83,7 +83,6 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 				this.processCommand(wrapper.getModel(ModelFormat.NEURON).toString(),aspect);
 			}
 			_started = true;
-			notifyStateTreeUpdated();
 		}
 	}
 	
@@ -210,6 +209,9 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 				
 				this.addWatchVariables(variableNames);
 				this.readRecording(datConverter.getRecordingsFile(), watchTree,true);
+				_logger.info("Finished populating Simulation Tree "+
+				watchTree.getInstancePath()+"with recordings");
+				notifyStateTreeUpdated();
 			} catch (Exception e) {
 				throw new GeppettoExecutionException(e);
 			}
