@@ -96,9 +96,6 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 			models.add(m);
 			simulator.initialize(models, this);
 			
-			for (Map.Entry<String[], ExternalProcess> entry : simulator.getExternalProccesses().entrySet()) {
-				entry.getValue().join();
-			}
 		}
 	}
 
