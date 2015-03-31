@@ -60,30 +60,39 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	@Autowired
 	private ExternalSimulatorConfig neuronExternalSimulatorConfig;
 
-	private List<IModel> _models;
-	private boolean _started = false;
+	private List<String> _variableNames;
+
+	private ConvertDATToRecording _datConverter;
+
+	private boolean _processDone = false;
+	private boolean _updateInProgress = false;
 	
 	@Override
 	public void initialize(List<IModel> models, ISimulatorCallbackListener listener) throws GeppettoInitializationException, GeppettoExecutionException
 	{
 		super.initialize(models, listener);
-		this._models = models;
+		
+		/**
+		 * Creates command from model wrapper's neuron script
+		 */
+		for(IModel m : models){
+			ModelWrapper wrapper = (ModelWrapper) m;
+			this.processCommand(wrapper.getModel(ModelFormat.NEURON).toString());
+		}
 	}
 	
 	@Override
 	public void simulate(IRunConfiguration runConfiguration, AspectNode aspect)
 			throws GeppettoExecutionException {
-		if(!_started){
-			advanceTimeStep(0, aspect);
-			/**
-			 * Creates command from model wrapper's neuron script
-			 */
-			for(IModel m : _models){
-				ModelWrapper wrapper = (ModelWrapper) m;
-				this.processCommand(wrapper.getModel(ModelFormat.NEURON).toString(),aspect);
-			}
-			_started = true;
+		if(_updateInProgress){
+			this.getListener().endOfSteps(null);
+			this._updateInProgress = false;
 		}
+		if(_processDone ){
+			this.updateWatchTree(aspect);
+			this._updateInProgress = true;
+		}
+		notifyStateTreeUpdated();
 	}
 	
 	@Override
@@ -107,7 +116,7 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	 * @param originalFileName
 	 * @param aspect 
 	 */
-	public void processCommand(String originalFileName, AspectNode aspect){
+	public void processCommand(String originalFileName){
 		_logger.info("Creating command to run " + originalFileName);
 
 		try{
@@ -149,7 +158,7 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 
 			//send command, directory where execution is happening, and path 
 			//to original file script to exceture
-			this.runExternalProcess(commands, directoryToExecuteFrom, originalFileName,aspect);
+			this.runExternalProcess(commands, directoryToExecuteFrom, originalFileName);
 		}
 		catch(IOException e){
 
@@ -201,20 +210,25 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 					}
 				}
 				datConverter.convert();
-				AspectNode aspect = process.getAspectNode();
-				AspectSubTreeNode watchTree = (AspectSubTreeNode)aspect.getSubTree(AspectTreeType.WATCH_TREE);
-				watchTree.setModified(true);
-				aspect.setModified(true);
-				aspect.getParentEntity().setModified(true);
-				
-				this.addWatchVariables(variableNames);
-				this.readRecording(datConverter.getRecordingsFile(), watchTree,true);
-				_logger.info("Finished populating Simulation Tree "+
-				watchTree.getInstancePath()+"with recordings");
-				notifyStateTreeUpdated();
+				this._datConverter = datConverter;
+				this._variableNames = variableNames;
+				this._processDone = true;
 			} catch (Exception e) {
 				throw new GeppettoExecutionException(e);
 			}
 		}
+	}
+	
+	private void updateWatchTree(AspectNode aspect) throws GeppettoExecutionException{
+		AspectSubTreeNode watchTree = (AspectSubTreeNode)aspect.getSubTree(AspectTreeType.WATCH_TREE);
+		watchTree.setModified(true);
+		aspect.setModified(true);
+		aspect.getParentEntity().setModified(true);
+		
+		this.addWatchVariables(_variableNames);
+		this.readRecording(_datConverter.getRecordingsFile(), watchTree,true);
+		_logger.info("Finished populating Simulation Tree "+
+		watchTree.getInstancePath()+"with recordings");
+		this._processDone = false;
 	}
 }
