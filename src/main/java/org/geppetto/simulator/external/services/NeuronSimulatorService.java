@@ -65,6 +65,7 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	private ConvertDATToRecording _datConverter;
 
 	private boolean _processDone = false;
+	private boolean _updateInProgress = false;
 	
 	@Override
 	public void initialize(List<IModel> models, ISimulatorCallbackListener listener) throws GeppettoInitializationException, GeppettoExecutionException
@@ -83,8 +84,13 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	@Override
 	public void simulate(IRunConfiguration runConfiguration, AspectNode aspect)
 			throws GeppettoExecutionException {
+		if(_updateInProgress){
+			this.getListener().endOfSteps(null);
+			this._updateInProgress = false;
+		}
 		if(_processDone ){
 			this.updateWatchTree(aspect);
+			this._updateInProgress = true;
 		}
 		notifyStateTreeUpdated();
 	}
