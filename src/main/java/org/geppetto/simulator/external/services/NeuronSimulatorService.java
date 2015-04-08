@@ -225,7 +225,6 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 		aspect.setModified(true);
 		aspect.getParentEntity().setModified(true);
 		
-		this.addWatchVariables(_variableNames);
 		this.readRecording(_datConverter.getRecordingsFile(), watchTree,true);
 		_logger.info("Finished populating Simulation Tree "+
 		watchTree.getInstancePath()+"with recordings");
