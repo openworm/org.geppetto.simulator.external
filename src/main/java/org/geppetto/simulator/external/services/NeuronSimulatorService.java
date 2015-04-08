@@ -41,6 +41,7 @@ import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.IRunConfiguration;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.core.simulator.AExternalProcessSimulator;
+import org.geppetto.core.simulator.AVariableWatchFeature;
 import org.geppetto.simulator.external.converters.ConvertDATToRecording;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,6 +75,7 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	{
 		super.initialize(models, listener);
 		
+		this.addFeature(new AVariableWatchFeature());
 		/**
 		 * Creates command from model wrapper's neuron script
 		 */
@@ -219,8 +221,7 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 		watchTree.setModified(true);
 		aspect.setModified(true);
 		aspect.getParentEntity().setModified(true);
-		
-		((IVariableWatchFeature) this.getFeature(GeppettoFeature.VARIALE_WATCH_FEATURE)).addWatchVariables(_variableNames);
+
 		this.readRecording(_datConverter.getRecordingsFile(), watchTree,true);
 		_logger.info("Finished populating Simulation Tree "+
 		watchTree.getInstancePath()+"with recordings");
