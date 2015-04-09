@@ -34,6 +34,8 @@ package org.geppetto.simulator.external.tests;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.io.File;
+
 import junit.framework.Assert;
 import ncsa.hdf.object.Dataset;
 import ncsa.hdf.object.h5.H5File;
@@ -41,6 +43,7 @@ import ncsa.hdf.object.h5.H5File;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.simulator.external.converters.ConvertDATToRecording;
+import org.junit.AfterClass;
 import org.junit.Test;
 
 public class TestConvertDATToRecordingClass {
@@ -84,10 +87,17 @@ public class TestConvertDATToRecordingClass {
 			Assert.assertEquals(-0.064968f,value4[1]);
 			
 			file.close();
-			file.delete();
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+	
+	@AfterClass
+    public static void teardown() throws Exception {
+		File sampleFile = new File(System.getProperty("user.dir")+"/sample.h5");
+		if(sampleFile.exists()){
+			sampleFile.delete();
+			_logger.info("Deleting sample h5");
+		}
+    } 
 }
