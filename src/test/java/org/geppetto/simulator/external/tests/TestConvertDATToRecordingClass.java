@@ -84,6 +84,7 @@ public class TestConvertDATToRecordingClass {
 			Assert.assertEquals(-0.064968f,value4[1]);
 			
 			file.close();
+			file.delete();
 
 		} catch (Exception e) {
 			e.printStackTrace();

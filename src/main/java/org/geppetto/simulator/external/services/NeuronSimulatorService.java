@@ -21,6 +21,7 @@ import org.geppetto.core.common.GeppettoInitializationException;
 import org.geppetto.core.data.model.SimpleType;
 import org.geppetto.core.data.model.SimpleType.Type;
 import org.geppetto.core.externalprocesses.ExternalProcess;
+import org.geppetto.core.features.IVariableWatchFeature;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
@@ -34,11 +35,13 @@ import org.geppetto.core.model.runtime.VariableNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.model.values.AValue;
 import org.geppetto.core.model.values.ValuesFactory;
+import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.IRunConfiguration;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.core.simulator.AExternalProcessSimulator;
+import org.geppetto.core.simulator.AVariableWatchFeature;
 import org.geppetto.simulator.external.converters.ConvertDATToRecording;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -72,6 +75,7 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	{
 		super.initialize(models, listener);
 		
+		this.addFeature(new AVariableWatchFeature());
 		/**
 		 * Creates command from model wrapper's neuron script
 		 */
@@ -167,13 +171,6 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	
 
 	@Override
-	public boolean populateVisualTree(AspectNode aspectNode)
-			throws ModelInterpreterException, GeppettoExecutionException {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public void registerGeppettoService()
 	{
 		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
@@ -224,7 +221,7 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 		watchTree.setModified(true);
 		aspect.setModified(true);
 		aspect.getParentEntity().setModified(true);
-		
+
 		this.readRecording(_datConverter.getRecordingsFile(), watchTree,true);
 		_logger.info("Finished populating Simulation Tree "+
 		watchTree.getInstancePath()+"with recordings");

@@ -54,6 +54,7 @@ import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.simulator.external.services.ModelFormat;
 import org.geppetto.simulator.external.services.NeuronSimulatorService;
 import org.geppetto.simulator.external.services.Utilities;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -78,6 +79,11 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	public static void setup(){
 		dirToExecute = "./src/test/resources/neuronConvertedModel/";
 		fileToExecute = "main_script.py";
+	}
+	
+	@AfterClass
+	public static void tearDown(){
+		File f = new File("/jhdf5.dll");
 	}
 	
 	/**
