@@ -1,41 +1,26 @@
 package org.geppetto.simulator.external.services;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.security.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.StringTokenizer;
 
-import ncsa.hdf.object.Dataset;
-import ncsa.hdf.object.FileFormat;
-import ncsa.hdf.object.h5.H5File;
-
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.SimulatorConfig;
 import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.common.GeppettoInitializationException;
-import org.geppetto.core.data.model.SimpleType;
-import org.geppetto.core.data.model.SimpleType.Type;
 import org.geppetto.core.externalprocesses.ExternalProcess;
-import org.geppetto.core.features.IVariableWatchFeature;
 import org.geppetto.core.model.IModel;
-import org.geppetto.core.model.ModelInterpreterException;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.model.quantities.PhysicalQuantity;
-import org.geppetto.core.model.runtime.ACompositeNode;
-import org.geppetto.core.model.runtime.ANode;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
-import org.geppetto.core.model.runtime.CompositeNode;
-import org.geppetto.core.model.runtime.VariableNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
-import org.geppetto.core.model.values.AValue;
-import org.geppetto.core.model.values.ValuesFactory;
-import org.geppetto.core.services.GeppettoFeature;
 import org.geppetto.core.services.IModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.IRunConfiguration;
@@ -182,30 +167,33 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 	public void processDone(String[] processCommand) throws GeppettoExecutionException {
 		super.processDone(processCommand);
 		ExternalProcess process = this.getExternalProccesses().get(processCommand);
-		File results = new File(process.getExecutionDirectoryPath()+"/results");
-		if(results.exists()){
-			File[] resultFiles = results.listFiles();
-			ConvertDATToRecording datConverter;
+
+
 			List<String> variableNames = new ArrayList<String>();
 			try {
 				String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-				datConverter = new ConvertDATToRecording("results-"+timeStamp+".h5");
-				for(File f : resultFiles){
-					String extension = Utilities.extension(f);
-					if(extension.equals("dat")){
-						//FIXME: Remove hack to assign variables
-						String[] variables = {"time","b","c","d"};
-						if(f.getName().equals("ex5_v.dat")){
-							variables = new String[2];
-							variables[0] = "time";
-							variables[1]= "a";
-						}
+				ConvertDATToRecording datConverter = new ConvertDATToRecording("results-"+timeStamp+".h5");
+				
+				File mappingResultsFile = new File(process.getExecutionDirectoryPath()+"/outputMapping.dat");
+				BufferedReader input = new BufferedReader(new FileReader(mappingResultsFile));
+				//read rest of DAT file and extract values
+				String filePath = "";
+				String line = "";
+				while((line = input.readLine()) != null) {
+					if (filePath.equals("")){
+						filePath = line;
+					}
+					else{
+						String[] variables = line.split("\\s+");
 						for(String s: variables){
 							variableNames.add(s);
 						}
-						datConverter.addDATFile(f.getAbsolutePath(),variables);
+						datConverter.addDATFile(mappingResultsFile.getParent() + "/" + filePath, variables);
+
+						filePath = "";						
 					}
 				}
+				input.close();
 				datConverter.convert();
 				this._datConverter = datConverter;
 				this._variableNames = variableNames;
@@ -213,11 +201,11 @@ public class NeuronSimulatorService extends AExternalProcessSimulator{
 			} catch (Exception e) {
 				throw new GeppettoExecutionException(e);
 			}
-		}
+	
 	}
 	
 	private void updateWatchTree(AspectNode aspect) throws GeppettoExecutionException{
-		AspectSubTreeNode watchTree = (AspectSubTreeNode)aspect.getSubTree(AspectTreeType.WATCH_TREE);
+		AspectSubTreeNode watchTree = (AspectSubTreeNode)aspect.getSubTree(AspectTreeType.SIMULATION_TREE);
 		watchTree.setModified(true);
 		aspect.setModified(true);
 		aspect.getParentEntity().setModified(true);
