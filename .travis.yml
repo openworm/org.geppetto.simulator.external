@@ -1,6 +1,15 @@
 language: java
 
 install:
+
+    - wget http://www.neuron.yale.edu/ftp/neuron/versions/v7.3/nrn-7.3.tar.gz
+    - tar xzvf nrn-7.3.tar.gz
+    - cd nrn-7.3
+    - ./configure --prefix `pwd` --without-iv --with-nrnpython
+    - make
+    - make install
+    - cd src/nrnpython
+    - python setup.py install
     - git clone https://github.com/openworm/org.geppetto.core.git -b $TRAVIS_BRANCH
     - cd org.geppetto.core
     - mvn install
