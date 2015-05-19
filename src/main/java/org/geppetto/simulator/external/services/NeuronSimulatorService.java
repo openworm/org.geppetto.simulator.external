@@ -76,7 +76,7 @@ public class NeuronSimulatorService extends AExternalProcessSimulator
 	{
 		if(_updateInProgress)
 		{
-			this.getListener().endOfSteps(null);
+			this.getListener().endOfSteps(null,this._datConverter.getRecordingsFile());
 			this._updateInProgress = false;
 		}
 		if(_processDone)

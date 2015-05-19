@@ -106,7 +106,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	}
 
 	@Override
-	public void endOfSteps(String message) {
+	public void endOfSteps(String message, File recordingsFile) {
 		
 		String resultsDir = dirToExecute + "results/";
 		BufferedReader input = null;
