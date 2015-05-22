@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -47,9 +46,9 @@ import javax.annotation.Resource;
 import junit.framework.Assert;
 
 import org.geppetto.core.common.GeppettoExecutionException;
-import org.geppetto.core.externalprocesses.ExternalProcess;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
+import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.simulator.external.services.ModelFormat;
 import org.geppetto.simulator.external.services.NeuronSimulatorService;
@@ -65,96 +64,104 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * Test for the Neuron Simulator Service
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"classpath:/META-INF/spring/app-config.xml"})
+@ContextConfiguration(locations = { "classpath:/META-INF/spring/app-config.xml" })
 public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 {
 
 	@Resource
 	NeuronSimulatorService simulator = new NeuronSimulatorService();
-	
+
 	private static String dirToExecute;
 	private static String fileToExecute;
 
 	@BeforeClass
-	public static void setup(){
+	public static void setup()
+	{
 		dirToExecute = "./src/test/resources/neuronConvertedModel/";
 		fileToExecute = "main_script.py";
 	}
-	
+
 	@AfterClass
-	public static void tearDown(){
+	public static void tearDown()
+	{
 		File f = new File("/jhdf5.dll");
 	}
-	
+
 	/**
 	 * Test method for {@link org.geppetto.simulator.external.services.NeuronSimulatorService}.
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
 	@Test
 	public void testNeuronExecution() throws Exception
 	{
-		if (simulator.getSimulatorPath() != null && !simulator.getSimulatorPath().equals("")){
-			
-			
+		if(simulator.getSimulatorPath() != null && !simulator.getSimulatorPath().equals(""))
+		{
+
 			List<IModel> models = new ArrayList<IModel>();
 			ModelWrapper m = new ModelWrapper(UUID.randomUUID().toString());
 			m.wrapModel(ModelFormat.NEURON, dirToExecute + fileToExecute);
 			models.add(m);
 			simulator.initialize(models, this);
-			
+
 		}
 	}
 
 	@Override
-	public void endOfSteps(String message, File recordingsFile) {
-		
+	public void endOfSteps(String message, File recordingsFile)
+	{
+
 		String resultsDir = dirToExecute + "results/";
 		BufferedReader input = null;
-		//will store values and variables found in DAT
-		HashMap<String, List<Float>> dataValues = new HashMap<String,List<Float>>();
-		try{
-			//read DAT into a buffered reader
+		// will store values and variables found in DAT
+		HashMap<String, List<Float>> dataValues = new HashMap<String, List<Float>>();
+		try
+		{
+			// read DAT into a buffered reader
 			input = new BufferedReader(new FileReader(resultsDir + "ex5_vars.dat"));
 
-			//read rest of DAT file and extract values
+			// read rest of DAT file and extract values
 			String line = input.readLine();
 			String[] columns = line.split("\\s+");
-			
+
 			Assert.assertEquals(Float.valueOf(columns[0]), 0.0f);
 			Assert.assertEquals(Float.valueOf(columns[1]), 0.052932f);
 			Assert.assertEquals(Float.valueOf(columns[2]), 0.596121f);
 			Assert.assertEquals(Float.valueOf(columns[3]), 0.317677f);
-		
+
 			input.close();
-			
-			//read DAT into a buffered reader
+
+			// read DAT into a buffered reader
 			input = new BufferedReader(new FileReader(resultsDir + "ex5_v.dat"));
 
-			//read rest of DAT file and extract values
+			// read rest of DAT file and extract values
 			line = input.readLine();
 			columns = line.split("\\s+");
-			
+
 			Assert.assertEquals(Float.valueOf(columns[0]), 0.0f);
 			Assert.assertEquals(Float.valueOf(columns[1]), -0.065000f);
-			
+
 		}
-		catch(Exception e){
+		catch(Exception e)
+		{
 			e.printStackTrace();
 		}
-		//handles End of file exception
-		finally {
-			try {
+		// handles End of file exception
+		finally
+		{
+			try
+			{
 				input.close();
 			}
-			catch(IOException ex) {
+			catch(IOException ex)
+			{
 				ex.printStackTrace();
 			}
 		}
-		
-		
+
 		Assert.assertEquals("Process for " + dirToExecute + fileToExecute + " is done executing", message);
-		
-		//Delete files
+
+		// Delete files
 		try
 		{
 			Utilities.delete(new File(resultsDir));
@@ -166,11 +173,12 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	@Override
-	public void stateTreeUpdated() throws GeppettoExecutionException {
-		
+	public void stepped(AspectNode aspect) throws GeppettoExecutionException
+	{
+	
 	}
 }
