@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -20,7 +21,7 @@ import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
-import org.geppetto.core.services.IModelFormat;
+import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.core.simulator.AExternalProcessSimulator;
@@ -77,7 +78,7 @@ public class NeuronSimulatorService extends AExternalProcessSimulator
 		}
 
 		ModelWrapper wrapper = (ModelWrapper) models.get(0);
-		originalFileName = wrapper.getModel(ModelFormat.NEURON).toString();
+		originalFileName = wrapper.getModel(ServicesRegistry.registerModelFormat("NEURON")).toString();
 		this.createCommands(originalFileName);
 	}
 
@@ -172,9 +173,8 @@ public class NeuronSimulatorService extends AExternalProcessSimulator
 	@Override
 	public void registerGeppettoService()
 	{
-		List<IModelFormat> modelFormatList = new ArrayList<IModelFormat>();
-		modelFormatList.add(ModelFormat.NEURON);
-		ServicesRegistry.registerSimulatorService(this, modelFormatList);
+		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.registerModelFormat("NEURON")));
+		ServicesRegistry.registerSimulatorService(this, modelFormats);
 	}
 
 	@Override
