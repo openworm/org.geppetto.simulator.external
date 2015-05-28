@@ -49,8 +49,9 @@ import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
+import org.geppetto.core.services.ModelFormat;
+import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
-import org.geppetto.simulator.external.services.ModelFormat;
 import org.geppetto.simulator.external.services.NeuronSimulatorService;
 import org.geppetto.simulator.external.services.Utilities;
 import org.junit.AfterClass;
@@ -79,6 +80,9 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	{
 		dirToExecute = "./src/test/resources/neuronConvertedModel/";
 		fileToExecute = "main_script.py";
+		
+		NeuronSimulatorService neuronSimulatorService = new NeuronSimulatorService();
+		neuronSimulatorService.registerGeppettoService();
 	}
 
 	@AfterClass
@@ -100,7 +104,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 
 			List<IModel> models = new ArrayList<IModel>();
 			ModelWrapper m = new ModelWrapper(UUID.randomUUID().toString());
-			m.wrapModel(ModelFormat.NEURON, dirToExecute + fileToExecute);
+			m.wrapModel(ServicesRegistry.getModelFormat("NEURON"), dirToExecute + fileToExecute);
 			models.add(m);
 			simulator.initialize(models, this);
 
