@@ -85,11 +85,12 @@ public class NeuronSimulatorService extends AExternalProcessSimulator
 	@Override
 	public void simulate(IAspectConfiguration aspectConfiguration, AspectNode aspect) throws GeppettoExecutionException
 	{
+		super.simulate(aspectConfiguration, aspect);
+		
 		// send command, directory where execution is happening, and path to original file script to execute
 		if(!started)
 		{
 			this.runExternalProcess(commands, directoryToExecuteFrom, originalFileName);
-			this.instancePath = aspect.getInstancePath();
 			started = true;
 		}
 		else
@@ -217,12 +218,12 @@ public class NeuronSimulatorService extends AExternalProcessSimulator
 				}
 			}
 			input.close();
-			datConverter.convert();
+			datConverter.convert(this.aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE));
 
 			this.datConverter = datConverter;
 			this.variableNames = variableNames;
 
-			this.getListener().endOfSteps(instancePath, this.datConverter.getRecordingsFile());
+			this.getListener().endOfSteps(this.getInstancePath(), this.datConverter.getRecordingsFile());
 			// TODO The code below was commented out, we need to put things in the runtime tree only if the
 			// user asks for it, not by default
 			// this.updateWatchTree(aspect);

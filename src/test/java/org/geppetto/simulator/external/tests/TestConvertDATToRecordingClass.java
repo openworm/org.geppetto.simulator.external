@@ -59,7 +59,7 @@ public class TestConvertDATToRecordingClass {
 			
 			String[] b = {"time","a","b","c"};
 			datConverter.addDATFile("src/test/resources/sample/results/ex5_vars.dat",b);
-			datConverter.convert();
+			datConverter.convert(null);
 			
 			assertNotNull(datConverter.getRecordingsFile());
 			

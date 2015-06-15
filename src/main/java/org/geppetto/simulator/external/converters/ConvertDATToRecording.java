@@ -46,8 +46,8 @@ import ncsa.hdf.object.h5.H5File;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.common.GeppettoExecutionException;
+import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.recordings.GeppettoRecordingCreator;
-import org.geppetto.core.recordings.GeppettoRecordingCreator.MetaType;
 
 /**
  * Converts a DAT file into a recording HDF5 file
@@ -77,7 +77,7 @@ public class ConvertDATToRecording
 	 * 
 	 * @throws Exception
 	 */
-	public void convert() throws Exception
+	public void convert(AspectSubTreeNode watchTree) throws Exception
 	{
 		// loop through map of DAT files
 		Set<String> mapSet = datFilePaths.keySet();
@@ -87,7 +87,7 @@ public class ConvertDATToRecording
 			// Read each DAT file
 			String datFilePath = iterator.next();
 			String[] variables = datFilePaths.get(datFilePath);
-			read(datFilePath, variables);
+			read(datFilePath, variables, watchTree);
 		}
 
 		// Create HDF5 after reading all DAT files
@@ -108,7 +108,7 @@ public class ConvertDATToRecording
 	 *            - Path to DAT file
 	 * @throws GeppettoExecutionException
 	 */
-	public void read(String fileName, String[] variables) throws GeppettoExecutionException
+	public void read(String fileName, String[] variables, AspectSubTreeNode simulationTree) throws GeppettoExecutionException
 	{
 		BufferedReader input = null;
 		// will store values and variables found in DAT
@@ -135,20 +135,24 @@ public class ConvertDATToRecording
 				}
 			}
 
+			
+			PopulateGeppettoRecordingVisitor populateGeppettoRecordingVisitor = new PopulateGeppettoRecordingVisitor(dataValues, recordingCreator);
+			simulationTree.apply(populateGeppettoRecordingVisitor);
+			
 			// Add recording variables in map to hdf5 file
-			Set<String> mapSet = dataValues.keySet();
-			Iterator<String> iterator = mapSet.iterator();
-			while(iterator.hasNext())
-			{
-				String variable = iterator.next();
-				List<Float> floatValues = dataValues.get(variable);
-				float[] target = new float[floatValues.size()];
-				for(int i = 0; i < target.length; i++)
-				{
-					target[i] = floatValues.get(i);
-				}
-				recordingCreator.addValues(variable, target, "ms", MetaType.Variable_Node, false);
-			}
+//			Set<String> mapSet = dataValues.keySet();
+//			Iterator<String> iterator = mapSet.iterator();
+//			while(iterator.hasNext())
+//			{
+//				String variable = iterator.next();
+//				List<Float> floatValues = dataValues.get(variable);
+//				float[] target = new float[floatValues.size()];
+//				for(int i = 0; i < target.length; i++)
+//				{
+//					target[i] = floatValues.get(i);
+//				}
+//				recordingCreator.addValues(variable, target, "ms", MetaType.Variable_Node, false);
+//			}
 		}
 		catch(Exception e)
 		{
