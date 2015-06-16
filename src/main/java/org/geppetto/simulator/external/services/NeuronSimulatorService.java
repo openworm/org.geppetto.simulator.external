@@ -224,9 +224,6 @@ public class NeuronSimulatorService extends AExternalProcessSimulator
 			this.variableNames = variableNames;
 
 			this.getListener().endOfSteps(this.getInstancePath(), this.datConverter.getRecordingsFile());
-			// TODO The code below was commented out, we need to put things in the runtime tree only if the
-			// user asks for it, not by default
-			// this.updateWatchTree(aspect);
 		}
 		catch(Exception e)
 		{
@@ -235,15 +232,4 @@ public class NeuronSimulatorService extends AExternalProcessSimulator
 		}
 	}
 
-	private void updateWatchTree(AspectNode aspect) throws GeppettoExecutionException
-	{
-		AspectSubTreeNode watchTree = (AspectSubTreeNode) aspect.getSubTree(AspectTreeType.SIMULATION_TREE);
-		watchTree.setModified(true);
-		aspect.setModified(true);
-		aspect.getParentEntity().setModified(true);
-
-		this.readRecording(datConverter.getRecordingsFile(), this.variableNames, watchTree, true);
-		logger.info("Finished populating Simulation Tree " + watchTree.getInstancePath() + "with recordings");
-		// this.processDone = false;
-	}
 }
