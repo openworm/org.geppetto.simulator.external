@@ -77,7 +77,7 @@ public class ConvertDATToRecording
 	 * 
 	 * @throws Exception
 	 */
-	public void convert(AspectSubTreeNode watchTree) throws Exception
+	public void convert(AspectSubTreeNode simulationTree) throws Exception
 	{
 		// loop through map of DAT files
 		Set<String> mapSet = datFilePaths.keySet();
@@ -87,7 +87,7 @@ public class ConvertDATToRecording
 			// Read each DAT file
 			String datFilePath = iterator.next();
 			String[] variables = datFilePaths.get(datFilePath);
-			read(datFilePath, variables, watchTree);
+			read(datFilePath, variables, simulationTree);
 		}
 
 		// Create HDF5 after reading all DAT files
@@ -134,25 +134,10 @@ public class ConvertDATToRecording
 					dataValues.get(key).add(Float.valueOf(columns[i]));
 				}
 			}
-
-			
-			PopulateGeppettoRecordingVisitor populateGeppettoRecordingVisitor = new PopulateGeppettoRecordingVisitor(dataValues, recordingCreator);
-			simulationTree.apply(populateGeppettoRecordingVisitor);
 			
 			// Add recording variables in map to hdf5 file
-//			Set<String> mapSet = dataValues.keySet();
-//			Iterator<String> iterator = mapSet.iterator();
-//			while(iterator.hasNext())
-//			{
-//				String variable = iterator.next();
-//				List<Float> floatValues = dataValues.get(variable);
-//				float[] target = new float[floatValues.size()];
-//				for(int i = 0; i < target.length; i++)
-//				{
-//					target[i] = floatValues.get(i);
-//				}
-//				recordingCreator.addValues(variable, target, "ms", MetaType.Variable_Node, false);
-//			}
+			PopulateGeppettoRecordingVisitor populateGeppettoRecordingVisitor = new PopulateGeppettoRecordingVisitor(dataValues, recordingCreator);
+			simulationTree.apply(populateGeppettoRecordingVisitor);
 		}
 		catch(Exception e)
 		{

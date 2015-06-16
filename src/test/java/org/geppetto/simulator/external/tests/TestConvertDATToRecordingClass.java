@@ -35,6 +35,9 @@ package org.geppetto.simulator.external.tests;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringTokenizer;
 
 import junit.framework.Assert;
 import ncsa.hdf.object.Dataset;
@@ -42,6 +45,14 @@ import ncsa.hdf.object.h5.H5File;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geppetto.core.model.quantities.Unit;
+import org.geppetto.core.model.runtime.ACompositeNode;
+import org.geppetto.core.model.runtime.ANode;
+import org.geppetto.core.model.runtime.AspectNode;
+import org.geppetto.core.model.runtime.AspectSubTreeNode;
+import org.geppetto.core.model.runtime.CompositeNode;
+import org.geppetto.core.model.runtime.VariableNode;
+import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.simulator.external.converters.ConvertDATToRecording;
 import org.junit.AfterClass;
 import org.junit.Test;
@@ -53,13 +64,18 @@ public class TestConvertDATToRecordingClass {
 	@Test
 	public void datToHDF5(){
 		try {
+			AspectNode aspectNode = new AspectNode("electrical");
+			AspectSubTreeNode aspectSubTreeNode = new AspectSubTreeNode(AspectTreeType.SIMULATION_TREE);
+			aspectSubTreeNode.setParent(aspectNode);
+			createVariables(Arrays.asList("a", "b", "c", "d"), aspectSubTreeNode);
+			
 			ConvertDATToRecording datConverter = new ConvertDATToRecording("sample.h5");
 			String[] a = {"time","d"};
 			datConverter.addDATFile("src/test/resources/sample/results/ex5_v.dat",a);
 			
 			String[] b = {"time","a","b","c"};
 			datConverter.addDATFile("src/test/resources/sample/results/ex5_vars.dat",b);
-			datConverter.convert(null);
+			datConverter.convert(aspectSubTreeNode);
 			
 			assertNotNull(datConverter.getRecordingsFile());
 			
@@ -100,4 +116,62 @@ public class TestConvertDATToRecordingClass {
 			_logger.info("Deleting sample h5");
 		}
     } 
+	
+	/**
+	 * Creates variables to store in simulation tree
+	 * 
+	 * @param variables
+	 * @param simulationTree
+	 */
+	public void createVariables(List<String> variables, AspectSubTreeNode simulationTree)
+	{
+		for(String watchedVariable : variables)
+		{
+			String path = "/" + watchedVariable.replace(simulationTree.getInstancePath() + ".", "");
+			path = path.replace(".", "/");
+
+			path = path.replaceFirst("/", "");
+			StringTokenizer tokenizer = new StringTokenizer(path, "/");
+			ACompositeNode node = simulationTree;
+			while(tokenizer.hasMoreElements())
+			{
+				String current = tokenizer.nextToken();
+				boolean found = false;
+				for(ANode child : node.getChildren())
+				{
+					if(child.getId().equals(current))
+					{
+						if(child instanceof ACompositeNode)
+						{
+							node = (ACompositeNode) child;
+						}
+						found = true;
+						break;
+					}
+				}
+				if(found)
+				{
+					continue;
+				}
+				else
+				{
+					if(tokenizer.hasMoreElements())
+					{
+						// not a leaf, create a composite state node
+						ACompositeNode newNode = new CompositeNode(current);
+						node.addChild(newNode);
+						node = newNode;
+					}
+					else
+					{
+						// it's a leaf node
+						VariableNode newNode = new VariableNode(current);
+						newNode.setUnit(new Unit("ms"));
+						node.addChild(newNode);
+
+					}
+				}
+			}
+		}
+	}
 }

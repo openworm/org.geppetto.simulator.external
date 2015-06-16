@@ -102,8 +102,7 @@ public class PopulateGeppettoRecordingVisitor extends DefaultStateVisitor
 				target[i] = floatValues.get(i);
 			}
 			
-//			recordingCreator.addValues(node.getLocalInstancePath(), target, node.getUnit().toString(), MetaType.Variable_Node, false);
-			recordingCreator.addValues(node.getLocalInstancePath(), target, "ms", MetaType.Variable_Node, false);
+			recordingCreator.addValues(node.getLocalInstancePath(), target, node.getUnit().toString(), MetaType.Variable_Node, false);
 		}
 		
 		return super.visitVariableNode(node);
