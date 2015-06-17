@@ -71,6 +71,18 @@ public class PopulateGeppettoRecordingVisitor extends DefaultStateVisitor
 		
 		this.recordingCreator = recordingCreator;
 //		this.instancePath = instancePath;
+		
+		//Add time to recording value, won't be doing in visitVariableNode method
+		//below since time isn't a variable node inside simulation tree
+		List<Float> floatValues = this.dataValues.get("time");
+		float[] target = new float[floatValues.size()];
+		for(int i = 0; i < target.length; i++)
+		{
+			target[i] = floatValues.get(i);
+		}
+		
+		recordingCreator.addValues("time", target,"ms", MetaType.Variable_Node, false);
+		
 	}
 
 	/*
