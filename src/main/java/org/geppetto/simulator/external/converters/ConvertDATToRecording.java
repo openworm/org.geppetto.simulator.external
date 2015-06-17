@@ -136,7 +136,7 @@ public class ConvertDATToRecording
 			}
 			
 			// Add recording variables in map to hdf5 file
-			PopulateGeppettoRecordingVisitor populateGeppettoRecordingVisitor = new PopulateGeppettoRecordingVisitor(dataValues, recordingCreator);
+			GeppettoRecordingVisitor populateGeppettoRecordingVisitor = new GeppettoRecordingVisitor(dataValues, recordingCreator);
 			simulationTree.apply(populateGeppettoRecordingVisitor);
 		}
 		catch(Exception e)

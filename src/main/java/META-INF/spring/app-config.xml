@@ -19,6 +19,6 @@
 	
 	<!-- Add flag for External Simulation Run Mode --> 
 	<bean id="neuronExternalSimulatorConfig" class="org.geppetto.simulator.external.services.ExternalSimulatorConfig"> 
-		<property name="simulatorPath" value="REPLACE_WITH_LOCAL_PATH_TO_NEURON" />
+		<property name="simulatorPath" value="/home/adrian/Programs/neuron/nrn/x86_64/bin/" />
 	</bean>
 </beans>

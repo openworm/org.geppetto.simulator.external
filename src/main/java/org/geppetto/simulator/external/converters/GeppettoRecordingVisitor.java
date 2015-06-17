@@ -34,7 +34,6 @@ package org.geppetto.simulator.external.converters;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.VariableNode;
@@ -45,32 +44,25 @@ import org.geppetto.core.recordings.GeppettoRecordingCreator.MetaType;
 /**
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  * 
- *         This visitor sets the variables passed as a list of strings to watched in the simulation tree
- *         If no list is passed the simulation tree is cleared, i.e. no variables is watched in the simulation tree.
+ *         This visitor adds the variable watched during the simulation to the Geppetto Recording object
  */
-public class PopulateGeppettoRecordingVisitor extends DefaultStateVisitor
+public class GeppettoRecordingVisitor extends DefaultStateVisitor
 {
 
 	private HashMap<String, List<Float>> dataValues;
-//	private Set<String> mapSet = dataValues.keySet();
-	
 	private GeppettoRecordingCreator recordingCreator;
 	
-//	private String instancePath;
 
-	public PopulateGeppettoRecordingVisitor()
+	public GeppettoRecordingVisitor()
 	{
 		super();
 	}
 
-	public PopulateGeppettoRecordingVisitor(HashMap<String, List<Float>> dataValues, GeppettoRecordingCreator recordingCreator)
+	public GeppettoRecordingVisitor(HashMap<String, List<Float>> dataValues, GeppettoRecordingCreator recordingCreator)
 	{
 		super();
 		this.dataValues = dataValues;
-//		this.mapSet = dataValues.keySet();
-		
 		this.recordingCreator = recordingCreator;
-//		this.instancePath = instancePath;
 	}
 
 	/*
@@ -93,7 +85,6 @@ public class PopulateGeppettoRecordingVisitor extends DefaultStateVisitor
 	@Override
 	public boolean visitVariableNode(VariableNode node)
 	{
-		// If watchedVariables is null, clear the simulation tree
 		if (this.dataValues.containsKey(node.getLocalInstancePath())){
 			List<Float> floatValues = this.dataValues.get(node.getLocalInstancePath());
 			float[] target = new float[floatValues.size()];
