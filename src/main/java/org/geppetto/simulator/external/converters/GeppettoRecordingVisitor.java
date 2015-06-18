@@ -51,7 +51,6 @@ public class GeppettoRecordingVisitor extends DefaultStateVisitor
 
 	private HashMap<String, List<Float>> dataValues;
 	private GeppettoRecordingCreator recordingCreator;
-	
 
 	public GeppettoRecordingVisitor()
 	{
@@ -64,8 +63,8 @@ public class GeppettoRecordingVisitor extends DefaultStateVisitor
 		this.dataValues = dataValues;
 		this.recordingCreator = recordingCreator;
 
-		//Add time to recording value, won't be doing in visitVariableNode method
-		//below since time isn't a variable node inside simulation tree
+		// Add time to recording value, won't be doing in visitVariableNode method
+		// below since time isn't a variable node inside simulation tree
 		List<Float> floatValues = this.dataValues.get("time");
 		float[] target = new float[floatValues.size()];
 		for(int i = 0; i < target.length; i++)
@@ -73,7 +72,7 @@ public class GeppettoRecordingVisitor extends DefaultStateVisitor
 			target[i] = floatValues.get(i);
 		}
 
-		recordingCreator.addValues("time", target,"ms", MetaType.Variable_Node, false);
+		recordingCreator.addValues("time", target, "s", MetaType.Variable_Node, false);
 	}
 
 	/*
@@ -96,17 +95,18 @@ public class GeppettoRecordingVisitor extends DefaultStateVisitor
 	@Override
 	public boolean visitVariableNode(VariableNode node)
 	{
-		if (this.dataValues.containsKey(node.getLocalInstancePath())){
+		if(this.dataValues.containsKey(node.getLocalInstancePath()))
+		{
 			List<Float> floatValues = this.dataValues.get(node.getLocalInstancePath());
 			float[] target = new float[floatValues.size()];
 			for(int i = 0; i < target.length; i++)
 			{
 				target[i] = floatValues.get(i);
 			}
-			
+
 			recordingCreator.addValues(node.getLocalInstancePath(), target, node.getUnit().toString(), MetaType.Variable_Node, false);
 		}
-		
+
 		return super.visitVariableNode(node);
 	}
 
