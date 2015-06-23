@@ -222,7 +222,7 @@ public class NeuronSimulatorService extends AExternalProcessSimulator
 			this.datConverter = datConverter;
 			this.variableNames = variableNames;
 
-			this.getListener().endOfSteps(this.getInstancePath(), this.datConverter.getRecordingsFile());
+			this.getListener().endOfSteps(this.getAspectNode(), this.datConverter.getRecordingsFile());
 		}
 		catch(Exception e)
 		{

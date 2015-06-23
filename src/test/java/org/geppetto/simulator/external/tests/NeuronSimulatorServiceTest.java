@@ -49,7 +49,6 @@ import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
-import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.simulator.external.services.NeuronSimulatorService;
@@ -112,7 +111,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	}
 
 	@Override
-	public void endOfSteps(String message, File recordingsFile)
+	public void endOfSteps(AspectNode node, File recordingsFile)
 	{
 
 		String resultsDir = dirToExecute + "results/";
@@ -163,7 +162,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 			}
 		}
 
-		Assert.assertEquals("Process for " + dirToExecute + fileToExecute + " is done executing", message);
+		Assert.assertEquals("Process for " + dirToExecute + fileToExecute + " is done executing", node.getInstancePath());
 
 		// Delete files
 		try
