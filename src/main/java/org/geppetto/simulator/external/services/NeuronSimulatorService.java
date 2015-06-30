@@ -7,7 +7,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,6 +17,7 @@ import org.geppetto.core.beans.SimulatorConfig;
 import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.common.GeppettoInitializationException;
 import org.geppetto.core.data.model.IAspectConfiguration;
+import org.geppetto.core.data.model.ResultsFormat;
 import org.geppetto.core.externalprocesses.ExternalProcess;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
@@ -188,9 +191,15 @@ public class NeuronSimulatorService extends AExternalProcessSimulator
 			List<String> variableNames = new ArrayList<String>();
 
 			String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+			
+			//TODO Move this logic somewhere where it can be shared across all neuronal external simulators, it's now NEURON specific
 			ConvertDATToRecording datConverter = new ConvertDATToRecording("results-" + timeStamp + ".h5");
 
+			Map<File,ResultsFormat> results=new HashMap<File,ResultsFormat>();
+			
 			File mappingResultsFile = new File(process.getExecutionDirectoryPath() + "/outputMapping.dat");
+			results.put(mappingResultsFile,ResultsFormat.RAW);
+			
 			BufferedReader input;
 
 			input = new BufferedReader(new FileReader(mappingResultsFile));
@@ -211,8 +220,9 @@ public class NeuronSimulatorService extends AExternalProcessSimulator
 					{
 						variableNames.add(s);
 					}
-					datConverter.addDATFile(mappingResultsFile.getParent() + "/" + filePath, variables);
-
+					String fileName=mappingResultsFile.getParent() + "/" + filePath;
+					datConverter.addDATFile(fileName, variables);
+					results.put(new File(fileName),ResultsFormat.RAW);
 					filePath = "";
 				}
 			}
@@ -222,7 +232,11 @@ public class NeuronSimulatorService extends AExternalProcessSimulator
 			this.datConverter = datConverter;
 			this.variableNames = variableNames;
 
-			this.getListener().endOfSteps(this.getAspectNode(), this.datConverter.getRecordingsFile());
+
+			results.put(datConverter.getRecordingsFile(),ResultsFormat.GEPPETTO_RECORDING);
+
+
+			this.getListener().endOfSteps(this.getAspectNode(), results);
 		}
 		catch(Exception e)
 		{

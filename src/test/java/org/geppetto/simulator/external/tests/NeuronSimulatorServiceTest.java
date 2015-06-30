@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -46,6 +47,7 @@ import javax.annotation.Resource;
 import junit.framework.Assert;
 
 import org.geppetto.core.common.GeppettoExecutionException;
+import org.geppetto.core.data.model.ResultsFormat;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
@@ -111,7 +113,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	}
 
 	@Override
-	public void endOfSteps(AspectNode node, File recordingsFile)
+	public void endOfSteps(AspectNode node, Map<File,ResultsFormat> results)
 	{
 
 		String resultsDir = dirToExecute + "results/";
