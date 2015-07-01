@@ -37,7 +37,7 @@ import java.util.List;
 
 import org.geppetto.core.model.runtime.CompositeNode;
 import org.geppetto.core.model.runtime.VariableNode;
-import org.geppetto.core.model.state.visitors.DefaultStateVisitor;
+import org.geppetto.core.model.state.visitors.RuntimeTreeVisitor;
 import org.geppetto.core.recordings.GeppettoRecordingCreator;
 import org.geppetto.core.recordings.GeppettoRecordingCreator.MetaType;
 
@@ -46,7 +46,7 @@ import org.geppetto.core.recordings.GeppettoRecordingCreator.MetaType;
  * 
  *         This visitor adds the variable watched during the simulation to the Geppetto Recording object
  */
-public class GeppettoRecordingVisitor extends DefaultStateVisitor
+public class GeppettoRecordingVisitor extends RuntimeTreeVisitor
 {
 
 	private HashMap<String, List<Float>> dataValues;
