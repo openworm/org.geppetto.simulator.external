@@ -17,5 +17,11 @@
 	<aop:scoped-proxy proxy-target-class="false"/>
 	</bean>
 	
+	<osgi:service id="LEMSSimulatorExporter" ref="lemsSimulator" interface="org.geppetto.core.simulator.ISimulator">
+	</osgi:service>
+	<bean id="lemsSimulator" scope="prototype" class="org.geppetto.simulator.external.services.LEMSSimulatorService">
+	<aop:scoped-proxy proxy-target-class="false"/>
+	</bean>
+	
 	<bean id="eventListenerBean" class="org.geppetto.core.services.registry.ApplicationListenerBean" />
 </beans>
