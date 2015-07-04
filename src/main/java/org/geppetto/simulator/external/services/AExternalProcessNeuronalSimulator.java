@@ -45,9 +45,9 @@ import java.util.Map;
 import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.data.model.ResultsFormat;
 import org.geppetto.core.externalprocesses.ExternalProcess;
-import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.simulator.AExternalProcessSimulator;
 import org.geppetto.simulator.external.converters.ConvertDATToRecording;
+import org.geppetto.simulator.external.converters.DatConverterVisitor;
 
 /**
  * @author matteocantarelli
@@ -104,8 +104,11 @@ public abstract class AExternalProcessNeuronalSimulator extends AExternalProcess
 				}
 			}
 			input.close();
-			datConverter.convert(this.aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE));
-
+			
+			// convert all the variables in the simulation tree
+			DatConverterVisitor datConverterVisitor = new DatConverterVisitor(datConverter);
+			this.aspectNode.getParentEntity().apply(datConverterVisitor);
+			
 			results.put(datConverter.getRecordingsFile(),ResultsFormat.GEPPETTO_RECORDING);
 
 			this.getListener().endOfSteps(this.getAspectNode(), results);

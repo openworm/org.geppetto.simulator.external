@@ -51,13 +51,13 @@ public class GeppettoRecordingVisitor extends RuntimeTreeVisitor
 
 	private HashMap<String, List<Float>> dataValues;
 	private GeppettoRecordingCreator recordingCreator;
-
+	
 	public GeppettoRecordingVisitor()
 	{
 		super();
 	}
 
-	public GeppettoRecordingVisitor(HashMap<String, List<Float>> dataValues, GeppettoRecordingCreator recordingCreator)
+	public GeppettoRecordingVisitor(HashMap<String, List<Float>> dataValues, GeppettoRecordingCreator recordingCreator, boolean addTime)
 	{
 		super();
 		this.dataValues = dataValues;
