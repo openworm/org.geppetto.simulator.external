@@ -95,16 +95,16 @@ public class GeppettoRecordingVisitor extends RuntimeTreeVisitor
 	@Override
 	public boolean visitVariableNode(VariableNode node)
 	{
-		if(this.dataValues.containsKey(node.getLocalInstancePath()))
+		if(this.dataValues.containsKey(node.getInstancePath()))
 		{
-			List<Float> floatValues = this.dataValues.get(node.getLocalInstancePath());
+			List<Float> floatValues = this.dataValues.get(node.getInstancePath());
 			float[] target = new float[floatValues.size()];
 			for(int i = 0; i < target.length; i++)
 			{
 				target[i] = floatValues.get(i);
 			}
 
-			recordingCreator.addValues(node.getLocalInstancePath(), target, node.getUnit().toString(), MetaType.Variable_Node, false);
+			recordingCreator.addValues(node.getInstancePath(), target, node.getUnit().toString(), MetaType.Variable_Node, false);
 		}
 
 		return super.visitVariableNode(node);
