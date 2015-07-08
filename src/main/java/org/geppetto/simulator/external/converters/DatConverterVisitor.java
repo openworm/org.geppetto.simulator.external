@@ -32,6 +32,7 @@
  *******************************************************************************/
 package org.geppetto.simulator.external.converters;
 
+import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
 import org.geppetto.core.model.state.visitors.RuntimeTreeVisitor;
@@ -70,8 +71,7 @@ public class DatConverterVisitor extends RuntimeTreeVisitor
 		}
 		catch(Exception e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			exception=new GeppettoExecutionException(e);
 		}
 		
 		return super.inAspectNode(node);

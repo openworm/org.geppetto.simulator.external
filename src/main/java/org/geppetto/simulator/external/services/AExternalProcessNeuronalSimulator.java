@@ -107,6 +107,7 @@ public abstract class AExternalProcessNeuronalSimulator extends AExternalProcess
 			
 			// convert all the variables in the simulation tree
 			DatConverterVisitor datConverterVisitor = new DatConverterVisitor(datConverter);
+			datConverterVisitor.postProcessVisit();
 			this.aspectNode.getParentEntity().apply(datConverterVisitor);
 			
 			results.put(datConverter.getRecordingsFile(),ResultsFormat.GEPPETTO_RECORDING);
