@@ -35,16 +35,16 @@ package org.geppetto.simulator.external.services;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.geppetto.core.beans.PathConfiguration;
 import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.data.model.ResultsFormat;
 import org.geppetto.core.externalprocesses.ExternalProcess;
+import org.geppetto.core.manager.Scope;
 import org.geppetto.core.simulator.AExternalProcessSimulator;
 import org.geppetto.simulator.external.converters.ConvertDATToRecording;
 import org.geppetto.simulator.external.converters.DatConverterVisitor;
@@ -67,10 +67,7 @@ public abstract class AExternalProcessNeuronalSimulator extends AExternalProcess
 
 			List<String> variableNames = new ArrayList<String>();
 
-			String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-			
-			//TODO Move this logic somewhere where it can be shared across all neuronal external simulators, it's now NEURON specific
-			ConvertDATToRecording datConverter = new ConvertDATToRecording("results-" + timeStamp + ".h5");
+			ConvertDATToRecording datConverter = new ConvertDATToRecording(PathConfiguration.createProjectTmpFolder(Scope.RUN, projectId, PathConfiguration.getName("results", true)+ ".h5"));
 
 			Map<File,ResultsFormat> results=new HashMap<File,ResultsFormat>();
 			

@@ -4,18 +4,16 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geppetto.core.beans.PathConfiguration;
 import org.geppetto.core.beans.SimulatorConfig;
 import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.common.GeppettoInitializationException;
@@ -24,7 +22,7 @@ import org.geppetto.core.conversion.ConversionException;
 import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.data.model.ResultsFormat;
 import org.geppetto.core.externalprocesses.ExternalProcess;
-import org.geppetto.core.externalprocesses.ExternalProcessWatcher;
+import org.geppetto.core.manager.Scope;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.model.runtime.AspectNode;
@@ -81,6 +79,7 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 		try
 		{
 			AConversion conversion = (AConversion) ServiceCreator.getNewServiceInstance("lemsConversion");
+			conversion.setScope(Scope.RUN);
 			conversion.setConvertModel(false);
 			ModelWrapper wrapper = (ModelWrapper) conversion.convert(aspect.getModel(), lemsFormat, lemsFormat, aspectConfiguration);
 			outputFolder = wrapper.getModel(ServicesRegistry.registerModelFormat("LEMS")).toString();
@@ -121,10 +120,7 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 
 			List<String> variableNames = new ArrayList<String>();
 
-			String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-			
-			//TODO Move this logic somewhere where it can be shared across all neuronal external simulators, it's now NEURON specific
-			ConvertDATToRecording datConverter = new ConvertDATToRecording("results-" + timeStamp + ".h5");
+			ConvertDATToRecording datConverter = new ConvertDATToRecording(PathConfiguration.createProjectTmpFolder(Scope.RUN, projectId, PathConfiguration.getName("results", true)+ ".h5"));
 
 			Map<File,ResultsFormat> results=new HashMap<File,ResultsFormat>();
 			
