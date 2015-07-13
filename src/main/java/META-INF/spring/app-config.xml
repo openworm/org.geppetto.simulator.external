@@ -19,6 +19,17 @@
 	
 	<!-- Add flag for External Simulation Run Mode --> 
 	<bean id="neuronExternalSimulatorConfig" class="org.geppetto.simulator.external.services.ExternalSimulatorConfig"> 
-		<property name="simulatorPath" value="C:/nrn72/bin/" />
+		<property name="simulatorPath" value="REPLACE_WITH_LOCAL_PATH_TO_NEURON" />
+	</bean>
+	
+		<!-- Add flag for Simulation Run Mode --> 
+	<bean id="lemsSimulatorConfig" class="org.geppetto.core.beans.SimulatorConfig"> 
+		<property name="simulatorName" value="LEMS Simulator" />
+		<property name="simulatorID" value="lemsSimulator" />
+	</bean>
+	
+	<!-- Add flag for External Simulation Run Mode --> 
+	<bean id="lemsExternalSimulatorConfig" class="org.geppetto.simulator.external.services.ExternalSimulatorConfig"> 
+		<property name="simulatorPath" value="REPLACE_WITH_LOCAL_PATH_TO_JNEUROML" />
 	</bean>
 </beans>

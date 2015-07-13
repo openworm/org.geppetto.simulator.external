@@ -11,12 +11,15 @@
        						http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
 
 	<!-- Exports the service implementation to other bundles by its service interface -->
-	<osgi:service id="NeuronSimulatorExporter" ref="neuronSimulatorService" interface="org.geppetto.core.simulator.ISimulator">
-		<osgi:service-properties>
-			<entry key="discoverableID" value="neuronSimulator" />
-		</osgi:service-properties>
+	<osgi:service id="NeuronSimulatorExporter" ref="neuronSimulator" interface="org.geppetto.core.simulator.ISimulator">
 	</osgi:service>
-	<bean id="neuronSimulatorService" scope="thread" class="org.geppetto.simulator.external.services.NeuronSimulatorService">
+	<bean id="neuronSimulator" scope="prototype" class="org.geppetto.simulator.external.services.NeuronSimulatorService">
+	<aop:scoped-proxy proxy-target-class="false"/>
+	</bean>
+	
+	<osgi:service id="LEMSSimulatorExporter" ref="lemsSimulator" interface="org.geppetto.core.simulator.ISimulator">
+	</osgi:service>
+	<bean id="lemsSimulator" scope="prototype" class="org.geppetto.simulator.external.services.LEMSSimulatorService">
 	<aop:scoped-proxy proxy-target-class="false"/>
 	</bean>
 	

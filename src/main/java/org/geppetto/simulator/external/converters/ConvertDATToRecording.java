@@ -46,26 +46,30 @@ import ncsa.hdf.object.h5.H5File;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.common.GeppettoExecutionException;
+import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.recordings.GeppettoRecordingCreator;
-import org.geppetto.core.recordings.GeppettoRecordingCreator.MetaType;
 
 /**
  * Converts a DAT file into a recording HDF5 file
+ * 
  * @author Jesus R Martinez (jesus@metacell.us)
  *
  */
-public class ConvertDATToRecording {
+public class ConvertDATToRecording
+{
 
-	private static Log _logger = LogFactory.getLog(ConvertDATToRecording.class);
+	private static Log logger = LogFactory.getLog(ConvertDATToRecording.class);
 
-	private String _recordingFile;
-	private HashMap<String,String[]> datFilePaths = new HashMap<String,String[]>();
+	private HashMap<String, String[]> datFilePaths = new HashMap<String, String[]>();
 	private GeppettoRecordingCreator recordingCreator;
 
-	public ConvertDATToRecording(String recordingFile) throws Exception{
-		_recordingFile = recordingFile;
-		//call the class in charge of creating the hdf5
-		recordingCreator = new GeppettoRecordingCreator(_recordingFile);
+	/**
+	 * @param recordingFile
+	 */
+	public ConvertDATToRecording(String recordingFile)
+	{
+		// call the class in charge of creating the hdf5
+		recordingCreator = new GeppettoRecordingCreator(recordingFile);
 	}
 
 	/**
@@ -73,86 +77,91 @@ public class ConvertDATToRecording {
 	 * 
 	 * @throws Exception
 	 */
-	public void convert() throws Exception{
-		//loop through map of DAT files
+	public void convert(AspectSubTreeNode simulationTree) throws Exception
+	{
+		// loop through map of DAT files
 		Set<String> mapSet = datFilePaths.keySet();
 		Iterator<String> iterator = mapSet.iterator();
-		while(iterator.hasNext()){
-			//Read each DAT file
+		while(iterator.hasNext())
+		{
+			// Read each DAT file
 			String datFilePath = iterator.next();
 			String[] variables = datFilePaths.get(datFilePath);
-			read(datFilePath, variables);
+			read(datFilePath, variables, simulationTree);
 		}
 
-		//Create HDF5 after reading all DAT files
+		// Create HDF5 after reading all DAT files
 		recordingCreator.create();
 	}
 
-	public void addDATFile(String datFile, String[] variables){
+	public void addDATFile(String datFile, String[] variables)
+	{
 		this.datFilePaths.put(datFile, variables);
 	}
 
 	/**
-	 * Reads DAT file and extract's values. Then adds them to HDF5 file 
-	 * by calling one of its commands.
+	 * Reads DAT file and extract's values. Then adds them to HDF5 file by calling one of its commands.
 	 * 
-	 * @param fileName - Name of DAT file stored in map
-	 * @param variables2 - Path to DAT file
+	 * @param fileName
+	 *            - Name of DAT file stored in map
+	 * @param variables2
+	 *            - Path to DAT file
 	 * @throws GeppettoExecutionException
 	 */
-	public void read(String fileName, String[] variables) throws GeppettoExecutionException{
+	public void read(String fileName, String[] variables, AspectSubTreeNode simulationTree) throws GeppettoExecutionException
+	{
 		BufferedReader input = null;
-		//will store values and variables found in DAT
-		HashMap<String, List<Float>> dataValues = new HashMap<String,List<Float>>();
-		try{
-			//read DAT into a buffered reader
+		// will store values and variables found in DAT
+		HashMap<String, List<Float>> dataValues = new HashMap<String, List<Float>>();
+		try
+		{
+			// read DAT into a buffered reader
 			input = new BufferedReader(new FileReader(fileName));
 
-			for(int i =0; i<variables.length;i++){
+			for(int i = 0; i < variables.length; i++)
+			{
 				dataValues.put(variables[i], new ArrayList<Float>());
 			}
 
-			//read rest of DAT file and extract values
-			while(input.read()!=-1){
+			// read rest of DAT file and extract values
+			while(input.read() != -1)
+			{
 				String line = input.readLine();
 				String[] columns = line.split("\\s+");
-				for(int i =0; i<columns.length;i++){
+				for(int i = 0; i < columns.length; i++)
+				{
 					String key = variables[i];
 					dataValues.get(key).add(Float.valueOf(columns[i]));
 				}
 			}
-
-			//Add recording variables in map to hdf5 file 
-			Set<String> mapSet = dataValues.keySet();
-			Iterator<String> iterator = mapSet.iterator();
-			while(iterator.hasNext()){
-				String variable = iterator.next();
-				List<Float> floatValues = dataValues.get(variable);
-				float[] target = new float[floatValues.size()];
-				for (int i = 0; i < target.length; i++) {
-					target[i] = floatValues.get(i);               
-				}
-				recordingCreator.addValues(variable, target, "ms", MetaType.Variable_Node,false);
-			}
+			
+			// Add recording variables in map to hdf5 file
+			GeppettoRecordingVisitor populateGeppettoRecordingVisitor = new GeppettoRecordingVisitor(dataValues, recordingCreator);
+			simulationTree.apply(populateGeppettoRecordingVisitor);
 		}
-		catch(Exception e){
-			_logger.error("An IOException was caught: " + e.getMessage());
+		catch(Exception e)
+		{
+			logger.error("An IOException was caught: " + e.getMessage());
 			throw new GeppettoExecutionException(e);
 		}
-		//handles End of file exception
-		finally {
-			try {
+		// handles End of file exception
+		finally
+		{
+			try
+			{
 				input.close();
 			}
-			catch(IOException ex) {
-				_logger.error("An IOException was caught: " + ex.getMessage());
+			catch(IOException ex)
+			{
+				logger.error("An IOException was caught: " + ex.getMessage());
 				throw new GeppettoExecutionException(ex);
 			}
 		}
 
 	}
 
-	public H5File getRecordingsFile() {
+	public H5File getRecordingsFile()
+	{
 		return this.recordingCreator.getRecordingsFile();
 	}
 }
