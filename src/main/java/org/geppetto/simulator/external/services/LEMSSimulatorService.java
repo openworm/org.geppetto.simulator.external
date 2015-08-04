@@ -32,6 +32,7 @@ import org.geppetto.core.services.ServiceCreator;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.core.simulator.AVariableWatchFeature;
+import org.geppetto.core.simulator.ExternalSimulatorConfig;
 import org.geppetto.simulator.external.converters.ConvertDATToRecording;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.Lems;

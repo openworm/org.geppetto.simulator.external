@@ -22,6 +22,7 @@ import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.core.simulator.AVariableWatchFeature;
+import org.geppetto.core.simulator.ExternalSimulatorConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
