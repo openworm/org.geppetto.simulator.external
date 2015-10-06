@@ -66,23 +66,23 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 
 
 	@Override
-	public void initialize(List<IModel> models, ISimulatorCallbackListener listener) throws GeppettoInitializationException, GeppettoExecutionException
+	public void initialize(List<IModel> models, ISimulatorCallbackListener listener, IAspectConfiguration aspectConfiguration) throws GeppettoInitializationException, GeppettoExecutionException
 	{
-		super.initialize(models, listener);
+		super.initialize(models, listener, aspectConfiguration);
 		lems = (Lems) ((ModelWrapper) models.get(0)).getModel(lemsFormat);
 		this.addFeature(new AVariableWatchFeature());
 
 	}
 
 	@Override
-	public void simulate(IAspectConfiguration aspectConfiguration, AspectNode aspect) throws GeppettoExecutionException
+	public void simulate(AspectNode aspect) throws GeppettoExecutionException
 	{
 		try
 		{
 			AConversion conversion = (AConversion) ServiceCreator.getNewServiceInstance("lemsConversion");
 			conversion.setScope(Scope.RUN);
 			conversion.setConvertModel(false);
-			ModelWrapper wrapper = (ModelWrapper) conversion.convert(aspect.getModel(), lemsFormat, lemsFormat, aspectConfiguration);
+			ModelWrapper wrapper = (ModelWrapper) conversion.convert(aspect.getModel(), lemsFormat, lemsFormat, null);
 			outputFolder = wrapper.getModel(ServicesRegistry.registerModelFormat("LEMS")).toString();
 			String serialisedModel = XMLSerializer.serialize(lems);
 			originalFileName = outputFolder + "lems.xml";
@@ -107,7 +107,7 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 			throw new GeppettoExecutionException(e);
 		}
 		this.createCommands(originalFileName);
-		super.simulate(aspectConfiguration, aspect);
+		super.simulate(aspect);
 
 
 	}

@@ -107,7 +107,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 			ModelWrapper m = new ModelWrapper(UUID.randomUUID().toString());
 			m.wrapModel(ServicesRegistry.getModelFormat("NEURON"), dirToExecute + fileToExecute);
 			models.add(m);
-			simulator.initialize(models, this);
+			simulator.initialize(models, this, null);
 
 		}
 	}

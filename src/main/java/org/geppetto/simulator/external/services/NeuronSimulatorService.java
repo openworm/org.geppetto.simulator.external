@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.SimulatorConfig;
 import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.common.GeppettoInitializationException;
+import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.services.ModelFormat;
@@ -48,9 +49,9 @@ public class NeuronSimulatorService extends AExternalProcessNeuronalSimulator
 	private ExternalSimulatorConfig neuronExternalSimulatorConfig;
 
 	@Override
-	public void initialize(List<IModel> models, ISimulatorCallbackListener listener) throws GeppettoInitializationException, GeppettoExecutionException
+	public void initialize(List<IModel> models, ISimulatorCallbackListener listener,  IAspectConfiguration aspectConfiguration) throws GeppettoInitializationException, GeppettoExecutionException
 	{
-		super.initialize(models, listener);
+		super.initialize(models, listener, aspectConfiguration);
 
 		this.addFeature(new AVariableWatchFeature());
 
