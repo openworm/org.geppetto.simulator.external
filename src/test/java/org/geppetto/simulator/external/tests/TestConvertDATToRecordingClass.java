@@ -45,14 +45,14 @@ import ncsa.hdf.object.h5.H5File;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geppetto.core.model.quantities.Unit;
-import org.geppetto.core.model.runtime.ACompositeNode;
 import org.geppetto.core.model.runtime.ANode;
-import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode;
-import org.geppetto.core.model.runtime.CompositeNode;
-import org.geppetto.core.model.runtime.VariableNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
+import org.geppetto.core.model.typesystem.AspectNode;
+import org.geppetto.core.model.typesystem.values.ACompositeValue;
+import org.geppetto.core.model.typesystem.values.CompositeValue;
+import org.geppetto.core.model.typesystem.values.Unit;
+import org.geppetto.core.model.typesystem.values.VariableValue;
 import org.geppetto.simulator.external.converters.ConvertDATToRecording;
 import org.junit.AfterClass;
 import org.junit.Test;
@@ -132,7 +132,7 @@ public class TestConvertDATToRecordingClass {
 
 			path = path.replaceFirst("/", "");
 			StringTokenizer tokenizer = new StringTokenizer(path, "/");
-			ACompositeNode node = simulationTree;
+			ACompositeValue node = simulationTree;
 			while(tokenizer.hasMoreElements())
 			{
 				String current = tokenizer.nextToken();
@@ -141,9 +141,9 @@ public class TestConvertDATToRecordingClass {
 				{
 					if(child.getId().equals(current))
 					{
-						if(child instanceof ACompositeNode)
+						if(child instanceof ACompositeValue)
 						{
-							node = (ACompositeNode) child;
+							node = (ACompositeValue) child;
 						}
 						found = true;
 						break;
@@ -158,14 +158,14 @@ public class TestConvertDATToRecordingClass {
 					if(tokenizer.hasMoreElements())
 					{
 						// not a leaf, create a composite state node
-						ACompositeNode newNode = new CompositeNode(current);
+						ACompositeValue newNode = new CompositeValue(current);
 						node.addChild(newNode);
 						node = newNode;
 					}
 					else
 					{
 						// it's a leaf node
-						VariableNode newNode = new VariableNode(current);
+						VariableValue newNode = new VariableValue(current);
 						newNode.setUnit(new Unit("ms"));
 						node.addChild(newNode);
 

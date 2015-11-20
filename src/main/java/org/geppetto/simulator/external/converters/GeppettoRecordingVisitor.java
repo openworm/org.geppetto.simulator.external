@@ -35,9 +35,9 @@ package org.geppetto.simulator.external.converters;
 import java.util.HashMap;
 import java.util.List;
 
-import org.geppetto.core.model.runtime.CompositeNode;
-import org.geppetto.core.model.runtime.VariableNode;
-import org.geppetto.core.model.state.visitors.RuntimeTreeVisitor;
+import org.geppetto.core.model.typesystem.values.CompositeValue;
+import org.geppetto.core.model.typesystem.values.VariableValue;
+import org.geppetto.core.model.typesystem.visitor.AnalysisVisitor;
 import org.geppetto.core.recordings.GeppettoRecordingCreator;
 import org.geppetto.core.recordings.GeppettoRecordingCreator.MetaType;
 
@@ -46,7 +46,7 @@ import org.geppetto.core.recordings.GeppettoRecordingCreator.MetaType;
  * 
  *         This visitor adds the variable watched during the simulation to the Geppetto Recording object
  */
-public class GeppettoRecordingVisitor extends RuntimeTreeVisitor
+public class GeppettoRecordingVisitor extends AnalysisVisitor
 {
 
 	private HashMap<String, List<Float>> dataValues;
@@ -81,7 +81,7 @@ public class GeppettoRecordingVisitor extends RuntimeTreeVisitor
 	 * @see org.geppetto.core.model.state.visitors.DefaultStateVisitor#inAspectNode (org.geppetto.core.model.runtime.AspectNode)
 	 */
 	@Override
-	public boolean inCompositeNode(CompositeNode node)
+	public boolean inCompositeNode(CompositeValue node)
 	{
 		// we only visit the nodes which belong to the same aspect
 		return super.inCompositeNode(node);
@@ -93,7 +93,7 @@ public class GeppettoRecordingVisitor extends RuntimeTreeVisitor
 	 * @see org.geppetto.core.model.state.visitors.DefaultStateVisitor#visitVariableNode (org.geppetto.core.model.runtime.VariableNode)
 	 */
 	@Override
-	public boolean visitVariableNode(VariableNode node)
+	public boolean visitVariableNode(VariableValue node)
 	{
 		if(this.dataValues.containsKey(node.getInstancePath()))
 		{

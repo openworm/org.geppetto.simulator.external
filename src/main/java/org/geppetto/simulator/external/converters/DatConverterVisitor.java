@@ -33,16 +33,16 @@
 package org.geppetto.simulator.external.converters;
 
 import org.geppetto.core.common.GeppettoExecutionException;
-import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
-import org.geppetto.core.model.state.visitors.RuntimeTreeVisitor;
+import org.geppetto.core.model.typesystem.AspectNode;
+import org.geppetto.core.model.typesystem.visitor.AnalysisVisitor;
 
 /**
  * @author Adrian Quintana (adrian.perez@ucl.ac.uk)
  * 
  *         This visitor adds the variable watched during the simulation to the Geppetto Recording object
  */
-public class DatConverterVisitor extends RuntimeTreeVisitor
+public class DatConverterVisitor extends AnalysisVisitor
 {
 
 	private ConvertDATToRecording datConverter;
