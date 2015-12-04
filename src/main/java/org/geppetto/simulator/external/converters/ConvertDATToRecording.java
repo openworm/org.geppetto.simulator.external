@@ -46,8 +46,11 @@ import ncsa.hdf.object.h5.H5File;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.common.GeppettoExecutionException;
-import org.geppetto.core.model.runtime.AspectSubTreeNode;
 import org.geppetto.core.recordings.GeppettoRecordingCreator;
+import org.geppetto.core.recordings.GeppettoRecordingCreator.MetaType;
+import org.geppetto.model.ExperimentState;
+import org.geppetto.model.VariableValue;
+import org.geppetto.model.util.PointerUtility;
 
 /**
  * Converts a DAT file into a recording HDF5 file
@@ -77,7 +80,7 @@ public class ConvertDATToRecording
 	 * 
 	 * @throws Exception
 	 */
-	public void convert(AspectSubTreeNode simulationTree) throws Exception
+	public void convert(ExperimentState experimentState) throws Exception
 	{
 		// loop through map of DAT files
 		Set<String> mapSet = datFilePaths.keySet();
@@ -87,7 +90,7 @@ public class ConvertDATToRecording
 			// Read each DAT file
 			String datFilePath = iterator.next();
 			String[] variables = datFilePaths.get(datFilePath);
-			read(datFilePath, variables, simulationTree);
+			read(datFilePath, variables, experimentState);
 		}
 
 		// Create HDF5 after reading all DAT files
@@ -108,7 +111,7 @@ public class ConvertDATToRecording
 	 *            - Path to DAT file
 	 * @throws GeppettoExecutionException
 	 */
-	public void read(String fileName, String[] variables, AspectSubTreeNode simulationTree) throws GeppettoExecutionException
+	private void read(String fileName, String[] variables, ExperimentState experimentState) throws GeppettoExecutionException
 	{
 		BufferedReader input = null;
 		// will store values and variables found in DAT
@@ -135,9 +138,32 @@ public class ConvertDATToRecording
 				}
 			}
 			
-			// Add recording variables in map to hdf5 file
-			GeppettoRecordingVisitor populateGeppettoRecordingVisitor = new GeppettoRecordingVisitor(dataValues, recordingCreator);
-			simulationTree.apply(populateGeppettoRecordingVisitor);
+			// Add time to recording value, won't be doing in visitVariableNode method
+			// below since time isn't a variable node inside simulation tree
+			List<Float> timeFloatValues = dataValues.get("time");
+			float[] timeTarget = new float[timeFloatValues.size()];
+			for(int i = 0; i < timeTarget.length; i++)
+			{
+				timeTarget[i] = timeFloatValues.get(i);
+			}
+
+			recordingCreator.addValues("time", timeTarget, "s", MetaType.Variable_Node, false);
+
+			for(VariableValue vv : experimentState.getRecordedVariables())
+			{
+				if(dataValues.containsKey(vv.getPointer().getInstancePath()))
+				{
+					List<Float> currentVarFloatValues = dataValues.get(vv.getPointer().getInstancePath());
+					float[] currentVarTarget = new float[currentVarFloatValues.size()];
+					for(int i = 0; i < currentVarTarget.length; i++)
+					{
+						currentVarTarget[i] = currentVarFloatValues.get(i);
+					}
+
+					recordingCreator.addValues(vv.getPointer().getInstancePath(), currentVarTarget, PointerUtility.getUnit(vv.getPointer()), MetaType.Variable_Node, false);
+				}
+			}
+
 		}
 		catch(Exception e)
 		{

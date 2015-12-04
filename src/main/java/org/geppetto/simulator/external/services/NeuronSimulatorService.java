@@ -1,21 +1,16 @@
 package org.geppetto.simulator.external.services;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.SimulatorConfig;
 import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.common.GeppettoInitializationException;
+import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.services.ModelFormat;
@@ -23,6 +18,7 @@ import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.core.simulator.AVariableWatchFeature;
 import org.geppetto.core.simulator.ExternalSimulatorConfig;
+import org.geppetto.model.ExperimentState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,21 +44,14 @@ public class NeuronSimulatorService extends AExternalProcessNeuronalSimulator
 	private ExternalSimulatorConfig neuronExternalSimulatorConfig;
 
 	@Override
-	public void initialize(List<IModel> models, ISimulatorCallbackListener listener) throws GeppettoInitializationException, GeppettoExecutionException
+	public void initialize(IModel model, IAspectConfiguration aspectConfiguration, ExperimentState experimentState, ISimulatorCallbackListener listener) throws GeppettoInitializationException,
+			GeppettoExecutionException
 	{
-		super.initialize(models, listener);
+		super.initialize(model, aspectConfiguration, experimentState, listener);
 
 		this.addFeature(new AVariableWatchFeature());
 
-		/**
-		 * Creates command from model wrapper's neuron script
-		 */
-		if(models.size() > 1)
-		{
-			throw new GeppettoInitializationException("More than one model in the NEURON simulator is currently not supported");
-		}
-
-		ModelWrapper wrapper = (ModelWrapper) models.get(0);
+		ModelWrapper wrapper = (ModelWrapper) model;
 		this.originalFileName = wrapper.getModel(ServicesRegistry.registerModelFormat("NEURON")).toString();
 		this.createCommands(this.originalFileName);
 	}

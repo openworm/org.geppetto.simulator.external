@@ -36,8 +36,6 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.List;
-import java.util.StringTokenizer;
 
 import junit.framework.Assert;
 import ncsa.hdf.object.Dataset;
@@ -45,133 +43,125 @@ import ncsa.hdf.object.h5.H5File;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geppetto.core.model.runtime.ANode;
-import org.geppetto.core.model.runtime.AspectSubTreeNode;
-import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
-import org.geppetto.core.model.typesystem.AspectNode;
-import org.geppetto.core.model.typesystem.values.ACompositeValue;
-import org.geppetto.core.model.typesystem.values.CompositeValue;
-import org.geppetto.core.model.typesystem.values.Unit;
-import org.geppetto.core.model.typesystem.values.VariableValue;
+import org.eclipse.emf.ecore.EClass;
+import org.geppetto.core.manager.SharedLibraryManager;
+import org.geppetto.model.ExperimentState;
+import org.geppetto.model.GeppettoFactory;
+import org.geppetto.model.GeppettoLibrary;
+import org.geppetto.model.VariableValue;
+import org.geppetto.model.types.StateVariableType;
+import org.geppetto.model.types.Type;
+import org.geppetto.model.types.TypesPackage;
+import org.geppetto.model.util.GeppettoVisitingException;
+import org.geppetto.model.values.Pointer;
+import org.geppetto.model.values.PointerElement;
+import org.geppetto.model.values.ValuesFactory;
+import org.geppetto.model.variables.Variable;
+import org.geppetto.model.variables.VariablesFactory;
 import org.geppetto.simulator.external.converters.ConvertDATToRecording;
 import org.junit.AfterClass;
 import org.junit.Test;
 
-public class TestConvertDATToRecordingClass {
+public class TestConvertDATToRecordingClass
+{
 
 	private static Log _logger = LogFactory.getLog(TestConvertDATToRecordingClass.class);
 
 	@Test
-	public void datToHDF5(){
-		try {
-			AspectNode aspectNode = new AspectNode("electrical");
-			AspectSubTreeNode aspectSubTreeNode = new AspectSubTreeNode(AspectTreeType.SIMULATION_TREE);
-			aspectSubTreeNode.setParent(aspectNode);
-			createVariables(Arrays.asList("a", "b", "c", "d"), aspectSubTreeNode);
-			
+	public void datToHDF5()
+	{
+		try
+		{
+			ExperimentState experimentState = GeppettoFactory.eINSTANCE.createExperimentState();
+			addVariableValue(experimentState, "a");
+			addVariableValue(experimentState, "b");
+			addVariableValue(experimentState, "c");
+			addVariableValue(experimentState, "d");
+
 			ConvertDATToRecording datConverter = new ConvertDATToRecording("sample.h5");
-			String[] a = {"time","d"};
-			datConverter.addDATFile("src/test/resources/sample/results/ex5_v.dat",a);
-			
-			String[] b = {"time","a","b","c"};
-			datConverter.addDATFile("src/test/resources/sample/results/ex5_vars.dat",b);
-			datConverter.convert(aspectSubTreeNode);
-			
+			String[] a = { "time(StateVariable)", "d(StateVariable)" };
+			datConverter.addDATFile("src/test/resources/sample/results/ex5_v.dat", a);
+
+			String[] b = { "time(StateVariable)", "a(StateVariable)", "b(StateVariable)", "c(StateVariable)" };
+			datConverter.addDATFile("src/test/resources/sample/results/ex5_vars.dat", b);
+			datConverter.convert(experimentState);
+
 			assertNotNull(datConverter.getRecordingsFile());
-			
+
 			H5File file = datConverter.getRecordingsFile();
 			file.open();
-			Dataset dataset = (Dataset) file.findObject(file, "/b");
-			float[] value =  (float[])dataset.read();
-			Assert.assertEquals(0.596121f,value[0]);
-			Assert.assertEquals(0.596119f,value[1]);
+			Dataset dataset = (Dataset) file.findObject(file, "/b(StateVariable)");
+			float[] value = (float[]) dataset.read();
+			Assert.assertEquals(0.596121f, value[0]);
+			Assert.assertEquals(0.596119f, value[1]);
 
-			Dataset dataset2 = (Dataset) file.findObject(file, "/a");
-			float[] value2 =  (float[])dataset2.read();
-			Assert.assertEquals(0.052932f,value2[0]);
-			Assert.assertEquals(0.052941f,value2[1]);
-			
-			Dataset dataset3 = (Dataset) file.findObject(file, "/c");
-			float[] value3 =  (float[])dataset3.read();
-			Assert.assertEquals(0.317677f,value3[0]);
-			Assert.assertEquals(0.317678f,value3[1]);
-			
-			
-			Dataset dataset4 = (Dataset) file.findObject(file, "/d");
-			float[] value4 =  (float[])dataset4.read();
-			Assert.assertEquals(-0.065000f,value4[0]);
-			Assert.assertEquals(-0.064968f,value4[1]);
-			
+			Dataset dataset2 = (Dataset) file.findObject(file, "/a(StateVariable)");
+			float[] value2 = (float[]) dataset2.read();
+			Assert.assertEquals(0.052932f, value2[0]);
+			Assert.assertEquals(0.052941f, value2[1]);
+
+			Dataset dataset3 = (Dataset) file.findObject(file, "/c(StateVariable)");
+			float[] value3 = (float[]) dataset3.read();
+			Assert.assertEquals(0.317677f, value3[0]);
+			Assert.assertEquals(0.317678f, value3[1]);
+
+			Dataset dataset4 = (Dataset) file.findObject(file, "/d(StateVariable)");
+			float[] value4 = (float[]) dataset4.read();
+			Assert.assertEquals(-0.065000f, value4[0]);
+			Assert.assertEquals(-0.064968f, value4[1]);
+
 			file.close();
-		} catch (Exception e) {
+		}
+		catch(Exception e)
+		{
 			e.printStackTrace();
 		}
 	}
+
+	private void addVariableValue(ExperimentState experimentState, String variable) throws GeppettoVisitingException
+	{
+		VariableValue vv = GeppettoFactory.eINSTANCE.createVariableValue();
+		Pointer p = ValuesFactory.eINSTANCE.createPointer();
+		StateVariableType stateVariableType=(StateVariableType) getType(SharedLibraryManager.getSharedCommonLibrary(),TypesPackage.Literals.STATE_VARIABLE_TYPE);
+		Variable v=VariablesFactory.eINSTANCE.createVariable();
+		v.setId(variable);
+		v.setName(variable);
+		PointerElement pelem=ValuesFactory.eINSTANCE.createPointerElement();
+		pelem.setVariable(v);
+		pelem.setType(stateVariableType);
+		p.getElements().add(pelem);
+		vv.setPointer(p);
+		experimentState.getRecordedVariables().add(vv);
+	}
 	
+	
+	/**
+	 * Usage commonLibraryAccess.getType(TypesPackage.Literals.PARAMETER_TYPE);
+	 * 
+	 * @return
+	 * @throws GeppettoVisitingException
+	 */
+	public Type getType(GeppettoLibrary library,EClass eclass) throws GeppettoVisitingException
+	{
+		for(Type type : library.getTypes())
+		{
+			if(type.eClass().equals(eclass))
+			{
+				return type;
+			}
+		}
+		throw new GeppettoVisitingException("Type for eClass " + eclass + " not found in common library.");
+	}
+
 	@AfterClass
-    public static void teardown() throws Exception {
-		File sampleFile = new File(System.getProperty("user.dir")+"/sample.h5");
-		if(sampleFile.exists()){
+	public static void teardown() throws Exception
+	{
+		File sampleFile = new File(System.getProperty("user.dir") + "/sample.h5");
+		if(sampleFile.exists())
+		{
 			sampleFile.delete();
 			_logger.info("Deleting sample h5");
 		}
-    } 
-	
-	/**
-	 * Creates variables to store in simulation tree
-	 * 
-	 * @param variables
-	 * @param simulationTree
-	 */
-	public void createVariables(List<String> variables, AspectSubTreeNode simulationTree)
-	{
-		for(String watchedVariable : variables)
-		{
-			String path = "/" + watchedVariable.replace(simulationTree.getInstancePath() + ".", "");
-			path = path.replace(".", "/");
-
-			path = path.replaceFirst("/", "");
-			StringTokenizer tokenizer = new StringTokenizer(path, "/");
-			ACompositeValue node = simulationTree;
-			while(tokenizer.hasMoreElements())
-			{
-				String current = tokenizer.nextToken();
-				boolean found = false;
-				for(ANode child : node.getChildren())
-				{
-					if(child.getId().equals(current))
-					{
-						if(child instanceof ACompositeValue)
-						{
-							node = (ACompositeValue) child;
-						}
-						found = true;
-						break;
-					}
-				}
-				if(found)
-				{
-					continue;
-				}
-				else
-				{
-					if(tokenizer.hasMoreElements())
-					{
-						// not a leaf, create a composite state node
-						ACompositeValue newNode = new CompositeValue(current);
-						node.addChild(newNode);
-						node = newNode;
-					}
-					else
-					{
-						// it's a leaf node
-						VariableValue newNode = new VariableValue(current);
-						newNode.setUnit(new Unit("ms"));
-						node.addChild(newNode);
-
-					}
-				}
-			}
-		}
 	}
+
 }

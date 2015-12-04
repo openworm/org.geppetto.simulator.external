@@ -36,7 +36,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,11 +47,10 @@ import junit.framework.Assert;
 
 import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.data.model.ResultsFormat;
-import org.geppetto.core.model.IModel;
 import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.model.typesystem.AspectNode;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
+import org.geppetto.model.values.Pointer;
 import org.geppetto.simulator.external.services.NeuronSimulatorService;
 import org.geppetto.simulator.external.services.Utilities;
 import org.junit.AfterClass;
@@ -63,6 +61,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
+ * IT FIXME: There is no simulate method in this test, am I missing something? Not bothering fixing it until proven useful.
+ * Btw this is the test that is commented out in the POM because the injecting of the spring config is not working still.
  * Test for the Neuron Simulator Service
  */
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -103,17 +103,15 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 		if(simulator.getSimulatorPath() != null && !simulator.getSimulatorPath().equals(""))
 		{
 
-			List<IModel> models = new ArrayList<IModel>();
-			ModelWrapper m = new ModelWrapper(UUID.randomUUID().toString());
-			m.wrapModel(ServicesRegistry.getModelFormat("NEURON"), dirToExecute + fileToExecute);
-			models.add(m);
-			simulator.initialize(models, this);
+			ModelWrapper model = new ModelWrapper(UUID.randomUUID().toString());
+			model.wrapModel(ServicesRegistry.getModelFormat("NEURON"), dirToExecute + fileToExecute);
+			simulator.initialize(model,null,null, this);
 
 		}
 	}
 
 	@Override
-	public void endOfSteps(AspectNode node, Map<File,ResultsFormat> results)
+	public void endOfSteps(Pointer pointer, Map<File,ResultsFormat> results)
 	{
 
 		String resultsDir = dirToExecute + "results/";
@@ -164,7 +162,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 			}
 		}
 
-		Assert.assertEquals("Process for " + dirToExecute + fileToExecute + " is done executing", node.getInstancePath());
+		Assert.assertEquals("Process for " + dirToExecute + fileToExecute + " is done executing", pointer.getInstancePath());
 
 		// Delete files
 		try
@@ -182,7 +180,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	}
 
 	@Override
-	public void stepped(AspectNode aspect) throws GeppettoExecutionException
+	public void stepped(Pointer pointer) throws GeppettoExecutionException
 	{
 	
 	}

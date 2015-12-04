@@ -47,7 +47,6 @@ import org.geppetto.core.externalprocesses.ExternalProcess;
 import org.geppetto.core.manager.Scope;
 import org.geppetto.core.simulator.AExternalProcessSimulator;
 import org.geppetto.simulator.external.converters.ConvertDATToRecording;
-import org.geppetto.simulator.external.converters.DatConverterVisitor;
 
 /**
  * @author matteocantarelli
@@ -102,14 +101,11 @@ public abstract class AExternalProcessNeuronalSimulator extends AExternalProcess
 			}
 			input.close();
 			
-			// convert all the variables in the simulation tree
-			DatConverterVisitor datConverterVisitor = new DatConverterVisitor(datConverter);
-			datConverterVisitor.postProcessVisit();
-			this.aspectNode.getParentEntity().apply(datConverterVisitor);
+			datConverter.convert(experimentState);
 			
 			results.put(datConverter.getRecordingsFile(),ResultsFormat.GEPPETTO_RECORDING);
 
-			this.getListener().endOfSteps(this.getAspectNode(), results);
+			this.getListener().endOfSteps(pointer, results);
 		}
 		catch(Exception e)
 		{
