@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.annotation.Resource;
 
@@ -47,9 +46,10 @@ import junit.framework.Assert;
 
 import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.data.model.ResultsFormat;
-import org.geppetto.core.model.ModelWrapper;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
+import org.geppetto.model.ExternalDomainModel;
+import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.values.Pointer;
 import org.geppetto.simulator.external.services.NeuronSimulatorService;
 import org.geppetto.simulator.external.services.Utilities;
@@ -103,8 +103,9 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 		if(simulator.getSimulatorPath() != null && !simulator.getSimulatorPath().equals(""))
 		{
 
-			ModelWrapper model = new ModelWrapper(UUID.randomUUID().toString());
-			model.wrapModel(ServicesRegistry.getModelFormat("NEURON"), dirToExecute + fileToExecute);
+			ExternalDomainModel model=GeppettoFactory.eINSTANCE.createExternalDomainModel();
+			model.setFormat(ServicesRegistry.getModelFormat("NEURON"));
+			model.setDomainModel(dirToExecute + fileToExecute);
 			simulator.initialize(model,null,null, this);
 
 		}

@@ -23,15 +23,15 @@ import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.data.model.ResultsFormat;
 import org.geppetto.core.externalprocesses.ExternalProcess;
 import org.geppetto.core.manager.Scope;
-import org.geppetto.core.model.IModel;
-import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.services.ModelFormat;
 import org.geppetto.core.services.ServiceCreator;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.core.simulator.AVariableWatchFeature;
 import org.geppetto.core.simulator.ExternalSimulatorConfig;
+import org.geppetto.model.DomainModel;
 import org.geppetto.model.ExperimentState;
+import org.geppetto.model.ExternalDomainModel;
+import org.geppetto.model.ModelFormat;
 import org.geppetto.model.util.PointerUtility;
 import org.geppetto.simulator.external.converters.ConvertDATToRecording;
 import org.lemsml.jlems.core.sim.ContentError;
@@ -65,11 +65,11 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 	private ExternalSimulatorConfig lemsExternalSimulatorConfig;
 
 	@Override
-	public void initialize(IModel model, IAspectConfiguration aspectConfiguration, ExperimentState experimentState, ISimulatorCallbackListener listener) throws GeppettoInitializationException,
+	public void initialize(DomainModel model, IAspectConfiguration aspectConfiguration, ExperimentState experimentState, ISimulatorCallbackListener listener) throws GeppettoInitializationException,
 			GeppettoExecutionException
 	{
 		super.initialize(model, aspectConfiguration, experimentState, listener);
-		lems = (Lems) ((ModelWrapper) model).getModel(lemsFormat);
+		lems = (Lems) model.getDomainModel();
 		this.addFeature(new AVariableWatchFeature());
 
 	}
@@ -82,9 +82,15 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 			AConversion conversion = (AConversion) ServiceCreator.getNewServiceInstance("lemsConversion");
 			conversion.setScope(Scope.RUN);
 			conversion.setConvertModel(false);
-			//IT FIXME we are casting a domain model to a IModel...
-			ModelWrapper wrapper = (ModelWrapper) conversion.convert((IModel) PointerUtility.getType(pointer).getDomainModel(), lemsFormat, lemsFormat, aspectConfiguration);
-			outputFolder = wrapper.getModel(ServicesRegistry.registerModelFormat("LEMS")).toString();
+			DomainModel model = conversion.convert(PointerUtility.getType(pointer).getDomainModel(), lemsFormat, aspectConfiguration);
+			if(model instanceof ExternalDomainModel)
+			{
+				outputFolder = (String) model.getDomainModel();	
+			}
+			else
+			{
+				throw new GeppettoExecutionException("Unexpected domain model inside LEMS Simulator service");
+			}
 			String serialisedModel = XMLSerializer.serialize(lems);
 			originalFileName = outputFolder + "lems.xml";
 			PrintWriter printWriter = new PrintWriter(originalFileName);
