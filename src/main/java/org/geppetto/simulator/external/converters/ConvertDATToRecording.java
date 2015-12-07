@@ -50,7 +50,8 @@ import org.geppetto.core.recordings.GeppettoRecordingCreator;
 import org.geppetto.core.recordings.GeppettoRecordingCreator.MetaType;
 import org.geppetto.model.ExperimentState;
 import org.geppetto.model.VariableValue;
-import org.geppetto.model.util.PointerUtility;
+import org.geppetto.model.values.Unit;
+import org.geppetto.model.values.util.ValuesUtility;
 
 /**
  * Converts a DAT file into a recording HDF5 file
@@ -159,8 +160,17 @@ public class ConvertDATToRecording
 					{
 						currentVarTarget[i] = currentVarFloatValues.get(i);
 					}
-
-					recordingCreator.addValues(vv.getPointer().getInstancePath(), currentVarTarget, PointerUtility.getUnit(vv.getPointer()), MetaType.Variable_Node, false);
+					Unit unit = ValuesUtility.getUnit(vv.getValue());
+					String unitString="";
+					if(unit==null)
+					{
+						logger.debug("No unit found for "+vv.getPointer().getInstancePath());						
+					}
+					else
+					{
+						unitString=unit.getUnit();
+					}
+					recordingCreator.addValues(vv.getPointer().getInstancePath(), currentVarTarget, unitString, MetaType.Variable_Node, false);
 				}
 			}
 
