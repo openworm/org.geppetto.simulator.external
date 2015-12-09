@@ -44,6 +44,7 @@ import ncsa.hdf.object.h5.H5File;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.emf.ecore.EClass;
+import org.geppetto.core.common.GeppettoInitializationException;
 import org.geppetto.core.manager.SharedLibraryManager;
 import org.geppetto.model.ExperimentState;
 import org.geppetto.model.GeppettoFactory;
@@ -118,7 +119,7 @@ public class TestConvertDATToRecordingClass
 		}
 	}
 
-	private void addVariableValue(ExperimentState experimentState, String variable) throws GeppettoVisitingException
+	private void addVariableValue(ExperimentState experimentState, String variable) throws GeppettoVisitingException, GeppettoInitializationException
 	{
 		VariableValue vv = GeppettoFactory.eINSTANCE.createVariableValue();
 		Pointer p = ValuesFactory.eINSTANCE.createPointer();
