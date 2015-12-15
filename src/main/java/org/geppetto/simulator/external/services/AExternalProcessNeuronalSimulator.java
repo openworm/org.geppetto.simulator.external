@@ -45,8 +45,8 @@ import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.data.model.ResultsFormat;
 import org.geppetto.core.externalprocesses.ExternalProcess;
 import org.geppetto.core.manager.Scope;
+import org.geppetto.core.recordings.ConvertDATToRecording;
 import org.geppetto.core.simulator.AExternalProcessSimulator;
-import org.geppetto.simulator.external.converters.ConvertDATToRecording;
 
 /**
  * @author matteocantarelli
@@ -105,7 +105,7 @@ public abstract class AExternalProcessNeuronalSimulator extends AExternalProcess
 			
 			results.put(datConverter.getRecordingsFile(),ResultsFormat.GEPPETTO_RECORDING);
 
-			this.getListener().endOfSteps(pointer, results);
+			this.getListener().endOfSteps(this.aspectConfiguration, results);
 		}
 		catch(Exception e)
 		{

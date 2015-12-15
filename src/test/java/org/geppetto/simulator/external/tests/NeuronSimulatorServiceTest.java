@@ -44,13 +44,12 @@ import javax.annotation.Resource;
 
 import junit.framework.Assert;
 
-import org.geppetto.core.common.GeppettoExecutionException;
+import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.data.model.ResultsFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.model.ExternalDomainModel;
 import org.geppetto.model.GeppettoFactory;
-import org.geppetto.model.values.Pointer;
 import org.geppetto.simulator.external.services.NeuronSimulatorService;
 import org.geppetto.simulator.external.services.Utilities;
 import org.junit.AfterClass;
@@ -112,7 +111,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	}
 
 	@Override
-	public void endOfSteps(Pointer pointer, Map<File,ResultsFormat> results)
+	public void endOfSteps(IAspectConfiguration aspectConfiguration, Map<File,ResultsFormat> results)
 	{
 
 		String resultsDir = dirToExecute + "results/";
@@ -163,7 +162,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 			}
 		}
 
-		Assert.assertEquals("Process for " + dirToExecute + fileToExecute + " is done executing", pointer.getInstancePath());
+		Assert.assertEquals("Process for " + dirToExecute + fileToExecute + " is done executing", aspectConfiguration.getAspect().getInstancePath());
 
 		// Delete files
 		try
@@ -180,9 +179,4 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 
 	}
 
-	@Override
-	public void stepped(Pointer pointer) throws GeppettoExecutionException
-	{
-	
-	}
 }

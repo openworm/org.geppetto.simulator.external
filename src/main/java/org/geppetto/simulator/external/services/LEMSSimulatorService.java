@@ -23,6 +23,7 @@ import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.data.model.ResultsFormat;
 import org.geppetto.core.externalprocesses.ExternalProcess;
 import org.geppetto.core.manager.Scope;
+import org.geppetto.core.recordings.ConvertDATToRecording;
 import org.geppetto.core.services.ServiceCreator;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
@@ -32,8 +33,6 @@ import org.geppetto.model.DomainModel;
 import org.geppetto.model.ExperimentState;
 import org.geppetto.model.ExternalDomainModel;
 import org.geppetto.model.ModelFormat;
-import org.geppetto.model.util.PointerUtility;
-import org.geppetto.simulator.external.converters.ConvertDATToRecording;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.Lems;
 import org.lemsml.jlems.io.xmlio.XMLSerializer;
@@ -82,7 +81,7 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 			AConversion conversion = (AConversion) ServiceCreator.getNewServiceInstance("lemsConversion");
 			conversion.setScope(Scope.RUN);
 			conversion.setConvertModel(false);
-			DomainModel model = conversion.convert(PointerUtility.getType(pointer).getDomainModel(), lemsFormat, aspectConfiguration);
+			DomainModel model = conversion.convert(this.model, lemsFormat, aspectConfiguration);
 			if(model instanceof ExternalDomainModel)
 			{
 				outputFolder = (String) model.getDomainModel();	
@@ -165,7 +164,7 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 
 			results.put(datConverter.getRecordingsFile(), ResultsFormat.GEPPETTO_RECORDING);
 
-			this.getListener().endOfSteps(pointer, results);
+			this.getListener().endOfSteps(this.aspectConfiguration, results);
 		}
 		catch(Exception e)
 		{

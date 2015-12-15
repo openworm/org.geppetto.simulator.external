@@ -46,6 +46,7 @@ import org.apache.commons.logging.LogFactory;
 import org.eclipse.emf.ecore.EClass;
 import org.geppetto.core.common.GeppettoInitializationException;
 import org.geppetto.core.manager.SharedLibraryManager;
+import org.geppetto.core.recordings.ConvertDATToRecording;
 import org.geppetto.model.ExperimentState;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.GeppettoLibrary;
@@ -59,7 +60,6 @@ import org.geppetto.model.values.PointerElement;
 import org.geppetto.model.values.ValuesFactory;
 import org.geppetto.model.variables.Variable;
 import org.geppetto.model.variables.VariablesFactory;
-import org.geppetto.simulator.external.converters.ConvertDATToRecording;
 import org.junit.AfterClass;
 import org.junit.Test;
 
