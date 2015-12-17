@@ -27,7 +27,6 @@ import org.geppetto.core.recordings.ConvertDATToRecording;
 import org.geppetto.core.services.ServiceCreator;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
-import org.geppetto.core.simulator.AVariableWatchFeature;
 import org.geppetto.core.simulator.ExternalSimulatorConfig;
 import org.geppetto.model.DomainModel;
 import org.geppetto.model.ExperimentState;
@@ -69,7 +68,6 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 	{
 		super.initialize(model, aspectConfiguration, experimentState, listener);
 		lems = (Lems) model.getDomainModel();
-		this.addFeature(new AVariableWatchFeature());
 
 	}
 

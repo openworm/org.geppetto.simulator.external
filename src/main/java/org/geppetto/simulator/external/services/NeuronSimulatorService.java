@@ -13,7 +13,6 @@ import org.geppetto.core.common.GeppettoInitializationException;
 import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
-import org.geppetto.core.simulator.AVariableWatchFeature;
 import org.geppetto.core.simulator.ExternalSimulatorConfig;
 import org.geppetto.model.DomainModel;
 import org.geppetto.model.ExperimentState;
@@ -48,8 +47,6 @@ public class NeuronSimulatorService extends AExternalProcessNeuronalSimulator
 			GeppettoExecutionException
 	{
 		super.initialize(model, aspectConfiguration, experimentState, listener);
-
-		this.addFeature(new AVariableWatchFeature());
 
 		if(model instanceof ExternalDomainModel)
 		{
