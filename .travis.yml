@@ -10,6 +10,10 @@ install:
     - make install
     - cd src/nrnpython
     - sudo python setup.py install
+    - git clone https://github.com/openworm/org.geppetto.model.git -b development
+    - cd org.geppetto.model
+    - mvn install
+    - cd ..
     - git clone https://github.com/openworm/org.geppetto.core.git -b $TRAVIS_BRANCH
     - cd org.geppetto.core
     - mvn install
