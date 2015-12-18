@@ -50,7 +50,7 @@ public class NeuronSimulatorService extends AExternalProcessNeuronalSimulator
 
 		if(model instanceof ExternalDomainModel)
 		{
-			originalFileName = (String) model.getDomainModel();	
+			originalFileName = (String) model.getDomainModel();
 		}
 		else
 		{
@@ -111,6 +111,24 @@ public class NeuronSimulatorService extends AExternalProcessNeuronalSimulator
 	public String getSimulatorPath()
 	{
 		return this.neuronExternalSimulatorConfig.getSimulatorPath();
+	}
+
+	/**
+	 * @param neuronSimulatorConfig
+	 * @deprecated for test purposes only, the configuration is autowired
+	 */
+	public void setNeuronSimulatorConfig(SimulatorConfig neuronSimulatorConfig)
+	{
+		this.neuronSimulatorConfig = neuronSimulatorConfig;
+	}
+
+	/**
+	 * @param neuronExternalSimulatorConfig
+	 * @deprecated for test purposes only, the configuration is autowired
+	 */
+	public void setNeuronExternalSimulatorConfig(ExternalSimulatorConfig neuronExternalSimulatorConfig)
+	{
+		this.neuronExternalSimulatorConfig = neuronExternalSimulatorConfig;
 	}
 
 }

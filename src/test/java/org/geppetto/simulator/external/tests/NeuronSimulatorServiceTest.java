@@ -40,14 +40,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import junit.framework.Assert;
 
+import org.geppetto.core.beans.SimulatorConfig;
 import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.data.model.ResultsFormat;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
+import org.geppetto.core.simulator.ExternalSimulatorConfig;
 import org.geppetto.model.ExternalDomainModel;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.simulator.external.services.NeuronSimulatorService;
@@ -55,41 +55,36 @@ import org.geppetto.simulator.external.services.Utilities;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-/**
- * IT FIXME: There is no simulate method in this test, am I missing something? Not bothering fixing it until proven useful.
- * Btw this is the test that is commented out in the POM because the injecting of the spring config is not working still.
- * Test for the Neuron Simulator Service
- */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:/META-INF/spring/app-config.xml" })
 public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 {
 
-	@Resource
-	NeuronSimulatorService simulator = new NeuronSimulatorService();
-
 	private static String dirToExecute;
 	private static String fileToExecute;
+	private static NeuronSimulatorService simulator;
+	private static String resultsDir;
+	private static boolean done=false;
 
 	@BeforeClass
 	public static void setup()
 	{
 		dirToExecute = "./src/test/resources/neuronConvertedModel/";
 		fileToExecute = "main_script.py";
-		
-		NeuronSimulatorService neuronSimulatorService = new NeuronSimulatorService();
-		neuronSimulatorService.registerGeppettoService();
+
+		simulator = new NeuronSimulatorService();
+		simulator.registerGeppettoService();
+
+		ExternalSimulatorConfig externalConfig = new ExternalSimulatorConfig();
+		externalConfig.setSimulatorPath(System.getenv("NEURON_HOME"));
+		Assert.assertNotNull(externalConfig.getSimulatorPath());
+		simulator.setNeuronExternalSimulatorConfig(externalConfig);
+		SimulatorConfig simulatorConfig = new SimulatorConfig();
+		simulatorConfig.setSimulatorID("neuronSimulator");
+		simulatorConfig.setSimulatorName("neuronSimulator");
+		simulator.setNeuronSimulatorConfig(simulatorConfig);
 	}
 
-	@AfterClass
-	public static void tearDown()
-	{
-		File f = new File("/jhdf5.dll");
-	}
+	
 
 	/**
 	 * Test method for {@link org.geppetto.simulator.external.services.NeuronSimulatorService}.
@@ -99,22 +94,20 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	@Test
 	public void testNeuronExecution() throws Exception
 	{
-		if(simulator.getSimulatorPath() != null && !simulator.getSimulatorPath().equals(""))
-		{
-
-			ExternalDomainModel model=GeppettoFactory.eINSTANCE.createExternalDomainModel();
-			model.setFormat(ServicesRegistry.getModelFormat("NEURON"));
-			model.setDomainModel(dirToExecute + fileToExecute);
-			simulator.initialize(model,null,null, this);
-
-		}
+		ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
+		model.setFormat(ServicesRegistry.getModelFormat("NEURON"));
+		model.setDomainModel(dirToExecute + fileToExecute);
+		simulator.initialize(model, null, null, this);
+		simulator.simulate();
+		Thread.sleep(6000);
+		Assert.assertTrue(done);
 	}
 
 	@Override
-	public void endOfSteps(IAspectConfiguration aspectConfiguration, Map<File,ResultsFormat> results)
+	public void endOfSteps(IAspectConfiguration aspectConfiguration, Map<File, ResultsFormat> results)
 	{
 
-		String resultsDir = dirToExecute + "results/";
+		resultsDir = dirToExecute + "results/";
 		BufferedReader input = null;
 		// will store values and variables found in DAT
 		HashMap<String, List<Float>> dataValues = new HashMap<String, List<Float>>();
@@ -162,21 +155,17 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 			}
 		}
 
-		Assert.assertEquals("Process for " + dirToExecute + fileToExecute + " is done executing", aspectConfiguration.getAspect().getInstancePath());
+		Assert.assertEquals(2,results.size());
+		done=true;
+	}
 
-		// Delete files
-		try
-		{
-			Utilities.delete(new File(resultsDir));
-			Utilities.delete(new File(dirToExecute + "x86_64/"));
-			new File(dirToExecute + "time.dat").delete();
-		}
-		catch(IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+	@AfterClass
+	public static void doYourOneTimeTeardown() throws IOException
+	{
+		Utilities.delete(new File(resultsDir));
+		Utilities.delete(new File(dirToExecute + "x86_64/"));
+		new File(dirToExecute + "time.dat").delete();
+		new File("/jhdf5.dll").delete();
 	}
 
 }

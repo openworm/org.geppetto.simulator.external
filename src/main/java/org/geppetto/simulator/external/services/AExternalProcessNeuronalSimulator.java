@@ -59,7 +59,6 @@ public abstract class AExternalProcessNeuronalSimulator extends AExternalProcess
 	@Override
 	public void processDone(String[] processCommand) throws GeppettoExecutionException
 	{
-		super.processDone(processCommand);
 		try
 		{
 			ExternalProcess process = this.getExternalProccesses().get(processCommand);
