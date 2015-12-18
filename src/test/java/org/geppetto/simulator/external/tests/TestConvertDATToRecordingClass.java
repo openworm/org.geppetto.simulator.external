@@ -92,24 +92,24 @@ public class TestConvertDATToRecordingClass
 			H5File file = datConverter.getRecordingsFile();
 			file.open();
 			Dataset dataset = (Dataset) file.findObject(file, "/b(StateVariable)");
-			float[] value = (float[]) dataset.read();
-			Assert.assertEquals(0.596121f, value[0]);
-			Assert.assertEquals(0.596119f, value[1]);
+			double[] value = (double[]) dataset.read();
+			Assert.assertEquals(0.596121d, value[0]);
+			Assert.assertEquals(0.596119d, value[1]);
 
 			Dataset dataset2 = (Dataset) file.findObject(file, "/a(StateVariable)");
-			float[] value2 = (float[]) dataset2.read();
-			Assert.assertEquals(0.052932f, value2[0]);
-			Assert.assertEquals(0.052941f, value2[1]);
+			double[] value2 = (double[]) dataset2.read();
+			Assert.assertEquals(0.052932d, value2[0]);
+			Assert.assertEquals(0.052941d, value2[1]);
 
 			Dataset dataset3 = (Dataset) file.findObject(file, "/c(StateVariable)");
-			float[] value3 = (float[]) dataset3.read();
-			Assert.assertEquals(0.317677f, value3[0]);
-			Assert.assertEquals(0.317678f, value3[1]);
+			double[] value3 = (double[]) dataset3.read();
+			Assert.assertEquals(0.317677d, value3[0]);
+			Assert.assertEquals(0.317678d, value3[1]);
 
 			Dataset dataset4 = (Dataset) file.findObject(file, "/d(StateVariable)");
-			float[] value4 = (float[]) dataset4.read();
-			Assert.assertEquals(-0.065000f, value4[0]);
-			Assert.assertEquals(-0.064968f, value4[1]);
+			double[] value4 = (double[]) dataset4.read();
+			Assert.assertEquals(-0.065000d, value4[0]);
+			Assert.assertEquals(-0.064968d, value4[1]);
 
 			file.close();
 		}
