@@ -36,6 +36,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,8 +69,9 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	@BeforeClass
 	public static void setup()
 	{
-		dirToExecute = "./src/test/resources/neuronConvertedModel/";
-		fileToExecute = "main_script.py";
+		File dir=new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/").getFile());
+		dirToExecute = dir.getAbsolutePath();
+		fileToExecute = "/main_script.py";
 
 		simulator = new NeuronSimulatorService();
 		simulator.registerGeppettoService();
@@ -114,7 +116,9 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 		try
 		{
 			// read DAT into a buffered reader
-			input = new BufferedReader(new FileReader(resultsDir + "ex5_vars.dat"));
+			File dir=new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/ex5_vars.dat").getFile());
+			
+			input = new BufferedReader(new FileReader(dir));
 
 			// read rest of DAT file and extract values
 			String line = input.readLine();
@@ -128,7 +132,8 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 			input.close();
 
 			// read DAT into a buffered reader
-			input = new BufferedReader(new FileReader(resultsDir + "ex5_v.dat"));
+			dir=new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/ex5_v.dat").getFile());
+			input = new BufferedReader(new FileReader(dir));
 
 			// read rest of DAT file and extract values
 			line = input.readLine();
@@ -162,10 +167,9 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	@AfterClass
 	public static void doYourOneTimeTeardown() throws IOException
 	{
-		Utilities.delete(new File(resultsDir));
-		Utilities.delete(new File(dirToExecute + "x86_64/"));
-		new File(dirToExecute + "time.dat").delete();
-		new File("/jhdf5.dll").delete();
+		Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/").getFile()));
+		Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/x86_64/").getFile()));
+		Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/time.dat").getFile()));
 	}
 
 }
