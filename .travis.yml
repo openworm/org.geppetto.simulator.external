@@ -13,6 +13,9 @@ install:
     - make install
     - cd src/nrnpython
     - sudo python setup.py install
+    - cd ..
+    - cd ..
+    - cd ..
     - git clone https://github.com/openworm/org.geppetto.model.git -b development
     - cd org.geppetto.model
     - mvn install
@@ -21,6 +24,3 @@ install:
     - cd org.geppetto.core
     - mvn install
     - cd ..
-
-script:
-  - mvn install
