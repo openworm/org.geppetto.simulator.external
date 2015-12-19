@@ -21,3 +21,6 @@ install:
     - cd org.geppetto.core
     - mvn install
     - cd ..
+
+script:
+  - mvn install
