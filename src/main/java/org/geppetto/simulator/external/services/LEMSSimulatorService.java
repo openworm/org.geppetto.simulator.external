@@ -23,6 +23,7 @@ import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.data.model.ResultsFormat;
 import org.geppetto.core.externalprocesses.ExternalProcess;
 import org.geppetto.core.manager.Scope;
+import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.recordings.ConvertDATToRecording;
 import org.geppetto.core.services.ServiceCreator;
 import org.geppetto.core.services.registry.ServicesRegistry;
@@ -63,10 +64,10 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 	private ExternalSimulatorConfig lemsExternalSimulatorConfig;
 
 	@Override
-	public void initialize(DomainModel model, IAspectConfiguration aspectConfiguration, ExperimentState experimentState, ISimulatorCallbackListener listener) throws GeppettoInitializationException,
+	public void initialize(DomainModel model, IAspectConfiguration aspectConfiguration, ExperimentState experimentState, ISimulatorCallbackListener listener, GeppettoModelAccess modelAccess) throws GeppettoInitializationException,
 			GeppettoExecutionException
 	{
-		super.initialize(model, aspectConfiguration, experimentState, listener);
+		super.initialize(model, aspectConfiguration, experimentState, listener, modelAccess);
 		lems = (Lems) model.getDomainModel();
 
 	}
@@ -79,7 +80,7 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 			AConversion conversion = (AConversion) ServiceCreator.getNewServiceInstance("lemsConversion");
 			conversion.setScope(Scope.RUN);
 			conversion.setConvertModel(false);
-			DomainModel model = conversion.convert(this.model, lemsFormat, aspectConfiguration);
+			DomainModel model = conversion.convert(this.model, lemsFormat, aspectConfiguration, this.geppettoModelAccess);
 			if(model instanceof ExternalDomainModel)
 			{
 				outputFolder = (String) model.getDomainModel();	

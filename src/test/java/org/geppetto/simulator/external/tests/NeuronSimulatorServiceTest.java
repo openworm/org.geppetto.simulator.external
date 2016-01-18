@@ -36,7 +36,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,12 +63,12 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	private static String fileToExecute;
 	private static NeuronSimulatorService simulator;
 	private static String resultsDir;
-	private static boolean done=false;
+	private static boolean done = false;
 
 	@BeforeClass
 	public static void setup()
 	{
-		File dir=new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/").getFile());
+		File dir = new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/").getFile());
 		dirToExecute = dir.getAbsolutePath();
 		fileToExecute = "/main_script.py";
 
@@ -86,8 +85,6 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 		simulator.setNeuronSimulatorConfig(simulatorConfig);
 	}
 
-	
-
 	/**
 	 * Test method for {@link org.geppetto.simulator.external.services.NeuronSimulatorService}.
 	 * 
@@ -99,7 +96,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 		ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
 		model.setFormat(ServicesRegistry.getModelFormat("NEURON"));
 		model.setDomainModel(dirToExecute + fileToExecute);
-		simulator.initialize(model, null, null, this);
+		simulator.initialize(model, null, null, this, null);
 		simulator.simulate();
 		Thread.sleep(6000);
 		Assert.assertTrue(done);
@@ -116,8 +113,8 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 		try
 		{
 			// read DAT into a buffered reader
-			File dir=new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/ex5_vars.dat").getFile());
-			
+			File dir = new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/ex5_vars.dat").getFile());
+
 			input = new BufferedReader(new FileReader(dir));
 
 			// read rest of DAT file and extract values
@@ -132,7 +129,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 			input.close();
 
 			// read DAT into a buffered reader
-			dir=new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/ex5_v.dat").getFile());
+			dir = new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/ex5_v.dat").getFile());
 			input = new BufferedReader(new FileReader(dir));
 
 			// read rest of DAT file and extract values
@@ -160,8 +157,8 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 			}
 		}
 
-		Assert.assertEquals(2,results.size());
-		done=true;
+		Assert.assertEquals(2, results.size());
+		done = true;
 	}
 
 	@AfterClass

@@ -11,6 +11,7 @@ import org.geppetto.core.beans.SimulatorConfig;
 import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.common.GeppettoInitializationException;
 import org.geppetto.core.data.model.IAspectConfiguration;
+import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.core.simulator.ExternalSimulatorConfig;
@@ -43,10 +44,10 @@ public class NeuronSimulatorService extends AExternalProcessNeuronalSimulator
 	private ExternalSimulatorConfig neuronExternalSimulatorConfig;
 
 	@Override
-	public void initialize(DomainModel model, IAspectConfiguration aspectConfiguration, ExperimentState experimentState, ISimulatorCallbackListener listener) throws GeppettoInitializationException,
-			GeppettoExecutionException
+	public void initialize(DomainModel model, IAspectConfiguration aspectConfiguration, ExperimentState experimentState, ISimulatorCallbackListener listener, GeppettoModelAccess modelAccess)
+			throws GeppettoInitializationException, GeppettoExecutionException
 	{
-		super.initialize(model, aspectConfiguration, experimentState, listener);
+		super.initialize(model, aspectConfiguration, experimentState, listener, modelAccess);
 
 		if(model instanceof ExternalDomainModel)
 		{
