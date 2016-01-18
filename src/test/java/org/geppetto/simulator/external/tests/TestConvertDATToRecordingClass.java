@@ -35,7 +35,6 @@ package org.geppetto.simulator.external.tests;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
-import java.util.Arrays;
 
 import junit.framework.Assert;
 import ncsa.hdf.object.Dataset;
@@ -46,10 +45,12 @@ import org.apache.commons.logging.LogFactory;
 import org.eclipse.emf.ecore.EClass;
 import org.geppetto.core.common.GeppettoInitializationException;
 import org.geppetto.core.manager.SharedLibraryManager;
+import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.recordings.ConvertDATToRecording;
 import org.geppetto.model.ExperimentState;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.model.GeppettoLibrary;
+import org.geppetto.model.GeppettoModel;
 import org.geppetto.model.VariableValue;
 import org.geppetto.model.types.StateVariableType;
 import org.geppetto.model.types.Type;
@@ -69,80 +70,83 @@ public class TestConvertDATToRecordingClass
 	private static Log _logger = LogFactory.getLog(TestConvertDATToRecordingClass.class);
 
 	@Test
-	public void datToHDF5()
+	public void datToHDF5() throws Exception
 	{
-		try
-		{
-			ExperimentState experimentState = GeppettoFactory.eINSTANCE.createExperimentState();
-			addVariableValue(experimentState, "a");
-			addVariableValue(experimentState, "b");
-			addVariableValue(experimentState, "c");
-			addVariableValue(experimentState, "d");
 
-			ConvertDATToRecording datConverter = new ConvertDATToRecording("sample.h5");
-			String[] a = { "time(StateVariable)", "d(StateVariable)" };
-			datConverter.addDATFile("src/test/resources/sample/results/ex5_v.dat", a);
+		ExperimentState experimentState = GeppettoFactory.eINSTANCE.createExperimentState();
+		GeppettoModel gm = GeppettoFactory.eINSTANCE.createGeppettoModel();
+		
+		addVariableValue(gm,experimentState, "time");
+		addVariableValue(gm,experimentState, "a");
+		addVariableValue(gm,experimentState, "b");
+		addVariableValue(gm,experimentState, "c");
+		addVariableValue(gm,experimentState, "d");
 
-			String[] b = { "time(StateVariable)", "a(StateVariable)", "b(StateVariable)", "c(StateVariable)" };
-			datConverter.addDATFile("src/test/resources/sample/results/ex5_vars.dat", b);
-			datConverter.convert(experimentState);
+		
+		gm.getLibraries().add(SharedLibraryManager.getSharedCommonLibrary());
+		GeppettoModelAccess geppettoModelAccess = new GeppettoModelAccess(gm);
 
-			assertNotNull(datConverter.getRecordingsFile());
+		ConvertDATToRecording datConverter = new ConvertDATToRecording("sample.h5", geppettoModelAccess);
+		String[] a = { "time(StateVariable)", "d(StateVariable)" };
+		datConverter.addDATFile("src/test/resources/sample/results/ex5_v.dat", a);
 
-			H5File file = datConverter.getRecordingsFile();
-			file.open();
-			Dataset dataset = (Dataset) file.findObject(file, "/b(StateVariable)");
-			double[] value = (double[]) dataset.read();
-			Assert.assertEquals(0.596121d, value[0]);
-			Assert.assertEquals(0.596119d, value[1]);
+		String[] b = { "time(StateVariable)", "a(StateVariable)", "b(StateVariable)", "c(StateVariable)" };
+		datConverter.addDATFile("src/test/resources/sample/results/ex5_vars.dat", b);
+		datConverter.convert(experimentState);
 
-			Dataset dataset2 = (Dataset) file.findObject(file, "/a(StateVariable)");
-			double[] value2 = (double[]) dataset2.read();
-			Assert.assertEquals(0.052932d, value2[0]);
-			Assert.assertEquals(0.052941d, value2[1]);
+		assertNotNull(datConverter.getRecordingsFile());
 
-			Dataset dataset3 = (Dataset) file.findObject(file, "/c(StateVariable)");
-			double[] value3 = (double[]) dataset3.read();
-			Assert.assertEquals(0.317677d, value3[0]);
-			Assert.assertEquals(0.317678d, value3[1]);
+		H5File file = datConverter.getRecordingsFile();
+		file.open();
+		Dataset dataset = (Dataset) file.findObject(file, "/b(StateVariable)");
+		double[] value = (double[]) dataset.read();
+		Assert.assertEquals(0.596121d, value[0]);
+		Assert.assertEquals(0.596119d, value[1]);
 
-			Dataset dataset4 = (Dataset) file.findObject(file, "/d(StateVariable)");
-			double[] value4 = (double[]) dataset4.read();
-			Assert.assertEquals(-0.065000d, value4[0]);
-			Assert.assertEquals(-0.064968d, value4[1]);
+		Dataset dataset2 = (Dataset) file.findObject(file, "/a(StateVariable)");
+		double[] value2 = (double[]) dataset2.read();
+		Assert.assertEquals(0.052932d, value2[0]);
+		Assert.assertEquals(0.052941d, value2[1]);
 
-			file.close();
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
+		Dataset dataset3 = (Dataset) file.findObject(file, "/c(StateVariable)");
+		double[] value3 = (double[]) dataset3.read();
+		Assert.assertEquals(0.317677d, value3[0]);
+		Assert.assertEquals(0.317678d, value3[1]);
+
+		Dataset dataset4 = (Dataset) file.findObject(file, "/d(StateVariable)");
+		double[] value4 = (double[]) dataset4.read();
+		Assert.assertEquals(-0.065000d, value4[0]);
+		Assert.assertEquals(-0.064968d, value4[1]);
+
+		file.close();
+
 	}
 
-	private void addVariableValue(ExperimentState experimentState, String variable) throws GeppettoVisitingException, GeppettoInitializationException
+	private void addVariableValue(GeppettoModel gm, ExperimentState experimentState, String variable) throws GeppettoVisitingException, GeppettoInitializationException
 	{
 		VariableValue vv = GeppettoFactory.eINSTANCE.createVariableValue();
 		Pointer p = ValuesFactory.eINSTANCE.createPointer();
-		StateVariableType stateVariableType=(StateVariableType) getType(SharedLibraryManager.getSharedCommonLibrary(),TypesPackage.Literals.STATE_VARIABLE_TYPE);
-		Variable v=VariablesFactory.eINSTANCE.createVariable();
+		StateVariableType stateVariableType = (StateVariableType) getType(SharedLibraryManager.getSharedCommonLibrary(), TypesPackage.Literals.STATE_VARIABLE_TYPE);
+		Variable v = VariablesFactory.eINSTANCE.createVariable();
 		v.setId(variable);
 		v.setName(variable);
-		PointerElement pelem=ValuesFactory.eINSTANCE.createPointerElement();
+		v.getTypes().add(stateVariableType);
+		gm.getVariables().add(v);
+		PointerElement pelem = ValuesFactory.eINSTANCE.createPointerElement();
 		pelem.setVariable(v);
 		pelem.setType(stateVariableType);
 		p.getElements().add(pelem);
 		vv.setPointer(p);
 		experimentState.getRecordedVariables().add(vv);
 	}
-	
-	
+
 	/**
 	 * Usage commonLibraryAccess.getType(TypesPackage.Literals.PARAMETER_TYPE);
 	 * 
 	 * @return
 	 * @throws GeppettoVisitingException
 	 */
-	public Type getType(GeppettoLibrary library,EClass eclass) throws GeppettoVisitingException
+	public Type getType(GeppettoLibrary library, EClass eclass) throws GeppettoVisitingException
 	{
 		for(Type type : library.getTypes())
 		{
