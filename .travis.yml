@@ -1,5 +1,8 @@
 language: java
 
+env:
+- NEURON_HOME=$TRAVIS_BUILD_DIR/nrn-7.3/x86_64/bin/
+
 install:
 
     - wget http://www.neuron.yale.edu/ftp/neuron/versions/v7.3/nrn-7.3.tar.gz
@@ -10,14 +13,14 @@ install:
     - make install
     - cd src/nrnpython
     - sudo python setup.py install
+    - cd ..
+    - cd ..
+    - cd ..
+    - git clone https://github.com/openworm/org.geppetto.model.git -b development
+    - cd org.geppetto.model
+    - mvn install
+    - cd ..
     - git clone https://github.com/openworm/org.geppetto.core.git -b $TRAVIS_BRANCH
     - cd org.geppetto.core
     - mvn install
     - cd ..
-    
-    
-    
- 
- 
-
-

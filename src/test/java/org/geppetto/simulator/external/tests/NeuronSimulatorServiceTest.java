@@ -36,60 +36,53 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-
-import javax.annotation.Resource;
 
 import junit.framework.Assert;
 
-import org.geppetto.core.common.GeppettoExecutionException;
+import org.geppetto.core.beans.SimulatorConfig;
+import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.data.model.ResultsFormat;
-import org.geppetto.core.model.IModel;
-import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.model.runtime.AspectNode;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
+import org.geppetto.core.simulator.ExternalSimulatorConfig;
+import org.geppetto.model.ExternalDomainModel;
+import org.geppetto.model.GeppettoFactory;
 import org.geppetto.simulator.external.services.NeuronSimulatorService;
 import org.geppetto.simulator.external.services.Utilities;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-/**
- * Test for the Neuron Simulator Service
- */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:/META-INF/spring/app-config.xml" })
 public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 {
 
-	@Resource
-	NeuronSimulatorService simulator = new NeuronSimulatorService();
-
 	private static String dirToExecute;
 	private static String fileToExecute;
+	private static NeuronSimulatorService simulator;
+	private static String resultsDir;
+	private static boolean done = false;
 
 	@BeforeClass
 	public static void setup()
 	{
-		dirToExecute = "./src/test/resources/neuronConvertedModel/";
-		fileToExecute = "main_script.py";
-		
-		NeuronSimulatorService neuronSimulatorService = new NeuronSimulatorService();
-		neuronSimulatorService.registerGeppettoService();
-	}
+		File dir = new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/").getFile());
+		dirToExecute = dir.getAbsolutePath();
+		fileToExecute = "/main_script.py";
 
-	@AfterClass
-	public static void tearDown()
-	{
-		File f = new File("/jhdf5.dll");
+		simulator = new NeuronSimulatorService();
+		simulator.registerGeppettoService();
+
+		ExternalSimulatorConfig externalConfig = new ExternalSimulatorConfig();
+		externalConfig.setSimulatorPath(System.getenv("NEURON_HOME"));
+		Assert.assertNotNull(externalConfig.getSimulatorPath());
+		simulator.setNeuronExternalSimulatorConfig(externalConfig);
+		SimulatorConfig simulatorConfig = new SimulatorConfig();
+		simulatorConfig.setSimulatorID("neuronSimulator");
+		simulatorConfig.setSimulatorName("neuronSimulator");
+		simulator.setNeuronSimulatorConfig(simulatorConfig);
 	}
 
 	/**
@@ -100,30 +93,29 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	@Test
 	public void testNeuronExecution() throws Exception
 	{
-		if(simulator.getSimulatorPath() != null && !simulator.getSimulatorPath().equals(""))
-		{
-
-			List<IModel> models = new ArrayList<IModel>();
-			ModelWrapper m = new ModelWrapper(UUID.randomUUID().toString());
-			m.wrapModel(ServicesRegistry.getModelFormat("NEURON"), dirToExecute + fileToExecute);
-			models.add(m);
-			simulator.initialize(models, this);
-
-		}
+		ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
+		model.setFormat(ServicesRegistry.getModelFormat("NEURON"));
+		model.setDomainModel(dirToExecute + fileToExecute);
+		simulator.initialize(model, null, null, this, null);
+		simulator.simulate();
+		Thread.sleep(6000);
+		Assert.assertTrue(done);
 	}
 
 	@Override
-	public void endOfSteps(AspectNode node, Map<File,ResultsFormat> results)
+	public void endOfSteps(IAspectConfiguration aspectConfiguration, Map<File, ResultsFormat> results)
 	{
 
-		String resultsDir = dirToExecute + "results/";
+		resultsDir = dirToExecute + "results/";
 		BufferedReader input = null;
 		// will store values and variables found in DAT
 		HashMap<String, List<Float>> dataValues = new HashMap<String, List<Float>>();
 		try
 		{
 			// read DAT into a buffered reader
-			input = new BufferedReader(new FileReader(resultsDir + "ex5_vars.dat"));
+			File dir = new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/ex5_vars.dat").getFile());
+
+			input = new BufferedReader(new FileReader(dir));
 
 			// read rest of DAT file and extract values
 			String line = input.readLine();
@@ -137,7 +129,8 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 			input.close();
 
 			// read DAT into a buffered reader
-			input = new BufferedReader(new FileReader(resultsDir + "ex5_v.dat"));
+			dir = new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/ex5_v.dat").getFile());
+			input = new BufferedReader(new FileReader(dir));
 
 			// read rest of DAT file and extract values
 			line = input.readLine();
@@ -164,26 +157,16 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 			}
 		}
 
-		Assert.assertEquals("Process for " + dirToExecute + fileToExecute + " is done executing", node.getInstancePath());
-
-		// Delete files
-		try
-		{
-			Utilities.delete(new File(resultsDir));
-			Utilities.delete(new File(dirToExecute + "x86_64/"));
-			new File(dirToExecute + "time.dat").delete();
-		}
-		catch(IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		Assert.assertEquals(2, results.size());
+		done = true;
 	}
 
-	@Override
-	public void stepped(AspectNode aspect) throws GeppettoExecutionException
+	@AfterClass
+	public static void doYourOneTimeTeardown() throws IOException
 	{
-	
+		Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/").getFile()));
+		Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/x86_64/").getFile()));
+		Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/time.dat").getFile()));
 	}
+
 }
