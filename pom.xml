@@ -40,11 +40,6 @@
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.lemsml</groupId>
-			<artifactId>jlems</artifactId>
-			<version>0.9.8.1</version>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>org.springframework.spring-library</artifactId>
 			<type>libd</type>
