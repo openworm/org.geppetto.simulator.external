@@ -23,17 +23,16 @@ import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.data.model.ResultsFormat;
 import org.geppetto.core.externalprocesses.ExternalProcess;
 import org.geppetto.core.manager.Scope;
-import org.geppetto.core.model.IModel;
-import org.geppetto.core.model.ModelWrapper;
-import org.geppetto.core.model.runtime.AspectNode;
-import org.geppetto.core.model.runtime.AspectSubTreeNode.AspectTreeType;
-import org.geppetto.core.services.ModelFormat;
+import org.geppetto.core.model.GeppettoModelAccess;
+import org.geppetto.core.recordings.ConvertDATToRecording;
 import org.geppetto.core.services.ServiceCreator;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
-import org.geppetto.core.simulator.AVariableWatchFeature;
 import org.geppetto.core.simulator.ExternalSimulatorConfig;
-import org.geppetto.simulator.external.converters.ConvertDATToRecording;
+import org.geppetto.model.DomainModel;
+import org.geppetto.model.ExperimentState;
+import org.geppetto.model.ExternalDomainModel;
+import org.geppetto.model.ModelFormat;
 import org.lemsml.jlems.core.sim.ContentError;
 import org.lemsml.jlems.core.type.Lems;
 import org.lemsml.jlems.io.xmlio.XMLSerializer;
@@ -64,26 +63,32 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 	@Autowired
 	private ExternalSimulatorConfig lemsExternalSimulatorConfig;
 
-
 	@Override
-	public void initialize(List<IModel> models, ISimulatorCallbackListener listener) throws GeppettoInitializationException, GeppettoExecutionException
+	public void initialize(DomainModel model, IAspectConfiguration aspectConfiguration, ExperimentState experimentState, ISimulatorCallbackListener listener, GeppettoModelAccess modelAccess) throws GeppettoInitializationException,
+			GeppettoExecutionException
 	{
-		super.initialize(models, listener);
-		lems = (Lems) ((ModelWrapper) models.get(0)).getModel(lemsFormat);
-		this.addFeature(new AVariableWatchFeature());
+		super.initialize(model, aspectConfiguration, experimentState, listener, modelAccess);
+		lems = (Lems) model.getDomainModel();
 
 	}
 
 	@Override
-	public void simulate(IAspectConfiguration aspectConfiguration, AspectNode aspect) throws GeppettoExecutionException
+	public void simulate() throws GeppettoExecutionException
 	{
 		try
 		{
 			AConversion conversion = (AConversion) ServiceCreator.getNewServiceInstance("lemsConversion");
 			conversion.setScope(Scope.RUN);
 			conversion.setConvertModel(false);
-			ModelWrapper wrapper = (ModelWrapper) conversion.convert(aspect.getModel(), lemsFormat, lemsFormat, aspectConfiguration);
-			outputFolder = wrapper.getModel(ServicesRegistry.registerModelFormat("LEMS")).toString();
+			DomainModel model = conversion.convert(this.model, lemsFormat, aspectConfiguration, this.geppettoModelAccess);
+			if(model instanceof ExternalDomainModel)
+			{
+				outputFolder = (String) model.getDomainModel();	
+			}
+			else
+			{
+				throw new GeppettoExecutionException("Unexpected domain model inside LEMS Simulator service");
+			}
 			String serialisedModel = XMLSerializer.serialize(lems);
 			originalFileName = outputFolder + "lems.xml";
 			PrintWriter printWriter = new PrintWriter(originalFileName);
@@ -107,8 +112,7 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 			throw new GeppettoExecutionException(e);
 		}
 		this.createCommands(originalFileName);
-		super.simulate(aspectConfiguration, aspect);
-
+		super.simulate();
 
 	}
 
@@ -121,13 +125,13 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 
 			List<String> variableNames = new ArrayList<String>();
 
-			ConvertDATToRecording datConverter = new ConvertDATToRecording(PathConfiguration.createProjectTmpFolder(Scope.RUN, projectId, PathConfiguration.getName("results", true)+ ".h5"));
+			ConvertDATToRecording datConverter = new ConvertDATToRecording(PathConfiguration.createProjectTmpFolder(Scope.RUN, projectId, PathConfiguration.getName("results", true) + ".h5"), this.geppettoModelAccess);
 
-			Map<File,ResultsFormat> results=new HashMap<File,ResultsFormat>();
-			
+			Map<File, ResultsFormat> results = new HashMap<File, ResultsFormat>();
+
 			File mappingResultsFile = new File(process.getOutputFolder() + "/outputMapping.dat");
-			results.put(mappingResultsFile,ResultsFormat.RAW);
-			
+			results.put(mappingResultsFile, ResultsFormat.RAW);
+
 			BufferedReader input;
 
 			input = new BufferedReader(new FileReader(mappingResultsFile));
@@ -148,22 +152,22 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 					{
 						variableNames.add(s);
 					}
-					String fileName=getSimulatorPath() + filePath;
+					String fileName = getSimulatorPath() + filePath;
 					datConverter.addDATFile(fileName, variables);
-					results.put(new File(fileName),ResultsFormat.RAW);
+					results.put(new File(fileName), ResultsFormat.RAW);
 					filePath = "";
 				}
 			}
 			input.close();
-			datConverter.convert(this.aspectNode.getSubTree(AspectTreeType.SIMULATION_TREE));
+			datConverter.convert(experimentState);
 
-			results.put(datConverter.getRecordingsFile(),ResultsFormat.GEPPETTO_RECORDING);
+			results.put(datConverter.getRecordingsFile(), ResultsFormat.GEPPETTO_RECORDING);
 
-			this.getListener().endOfSteps(this.getAspectNode(), results);
+			this.getListener().endOfSteps(this.aspectConfiguration, results);
 		}
 		catch(Exception e)
 		{
-			//The HDF5 library throws a generic Exception :/
+			// The HDF5 library throws a generic Exception :/
 			throw new GeppettoExecutionException(e);
 		}
 	}
@@ -177,19 +181,17 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 	public void createCommands(String originalFileName)
 	{
 		filePath = new File(originalFileName);
-		File outputPath= new File(outputFolder);
-		outputFolder=outputPath.getAbsolutePath();
+		File outputPath = new File(outputFolder);
+		outputFolder = outputPath.getAbsolutePath();
 		directoryToExecuteFrom = getSimulatorPath();
 
 		if(Utilities.isWindows())
 		{
-			commands = new String[] { "mkdir results", File.separator+"jnml.bat " + filePath.getAbsolutePath() };
+			commands = new String[] { "mkdir results", File.separator + "jnml.bat " + filePath.getAbsolutePath() };
 		}
 		else
 		{
-			commands = new String[] { "mkdir results",
-					directoryToExecuteFrom+ "jnml " + filePath.getAbsolutePath(),
-					"mkdir "+outputFolder+"/results"};
+			commands = new String[] { "mkdir results", directoryToExecuteFrom + "jnml " + filePath.getAbsolutePath(), "mkdir " + outputFolder + "/results" };
 		}
 
 		logger.info("Command to Execute: " + commands + " ...");

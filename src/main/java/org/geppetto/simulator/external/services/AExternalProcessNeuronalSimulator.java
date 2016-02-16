@@ -45,9 +45,8 @@ import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.data.model.ResultsFormat;
 import org.geppetto.core.externalprocesses.ExternalProcess;
 import org.geppetto.core.manager.Scope;
+import org.geppetto.core.recordings.ConvertDATToRecording;
 import org.geppetto.core.simulator.AExternalProcessSimulator;
-import org.geppetto.simulator.external.converters.ConvertDATToRecording;
-import org.geppetto.simulator.external.converters.DatConverterVisitor;
 
 /**
  * @author matteocantarelli
@@ -60,14 +59,13 @@ public abstract class AExternalProcessNeuronalSimulator extends AExternalProcess
 	@Override
 	public void processDone(String[] processCommand) throws GeppettoExecutionException
 	{
-		super.processDone(processCommand);
 		try
 		{
 			ExternalProcess process = this.getExternalProccesses().get(processCommand);
 
 			List<String> variableNames = new ArrayList<String>();
 
-			ConvertDATToRecording datConverter = new ConvertDATToRecording(PathConfiguration.createProjectTmpFolder(Scope.RUN, projectId, PathConfiguration.getName("results", true)+ ".h5"));
+			ConvertDATToRecording datConverter = new ConvertDATToRecording(PathConfiguration.createProjectTmpFolder(Scope.RUN, projectId, PathConfiguration.getName("results", true)+ ".h5"),this.geppettoModelAccess);
 
 			Map<File,ResultsFormat> results=new HashMap<File,ResultsFormat>();
 			
@@ -102,14 +100,11 @@ public abstract class AExternalProcessNeuronalSimulator extends AExternalProcess
 			}
 			input.close();
 			
-			// convert all the variables in the simulation tree
-			DatConverterVisitor datConverterVisitor = new DatConverterVisitor(datConverter);
-			datConverterVisitor.postProcessVisit();
-			this.aspectNode.getParentEntity().apply(datConverterVisitor);
+			datConverter.convert(experimentState);
 			
 			results.put(datConverter.getRecordingsFile(),ResultsFormat.GEPPETTO_RECORDING);
 
-			this.getListener().endOfSteps(this.getAspectNode(), results);
+			this.getListener().endOfSteps(this.aspectConfiguration, results);
 		}
 		catch(Exception e)
 		{
