@@ -1,26 +1,26 @@
 language: java
-
 env:
-- NEURON_HOME=$TRAVIS_BUILD_DIR/nrn-7.3/x86_64/bin/
-
+  matrix:
+  - NEURON_HOME=$TRAVIS_BUILD_DIR/nrn-7.3/x86_64/bin/
+  global:
+    secure: X2mbfFMOql9DE5orv5mg/GFPAwTzDb4SBqyLe5g1TaR4EdB06q43mvxqQyEWu3VW97EOvpunthGcBdzn8Zi0EVchjktgWVeS3yOetnC92JF9RgU51lRe/v58CsZhpaE3rMfNu0cvBu3iIwuDrj77HZSYqb3YBuwuVvkle6qjQeE=
 install:
-
-    - wget http://www.neuron.yale.edu/ftp/neuron/versions/v7.3/nrn-7.3.tar.gz
-    - tar xzvf nrn-7.3.tar.gz
-    - cd nrn-7.3
-    - ./configure --prefix `pwd` --without-iv --with-nrnpython
-    - make
-    - make install
-    - cd src/nrnpython
-    - sudo python setup.py install
-    - cd ..
-    - cd ..
-    - cd ..
-    - git clone https://github.com/openworm/org.geppetto.model.git -b $TRAVIS_BRANCH
-    - cd org.geppetto.model
-    - mvn install
-    - cd ..
-    - git clone https://github.com/openworm/org.geppetto.core.git -b $TRAVIS_BRANCH
-    - cd org.geppetto.core
-    - mvn install
-    - cd ..
+- wget http://www.neuron.yale.edu/ftp/neuron/versions/v7.3/nrn-7.3.tar.gz
+- tar xzvf nrn-7.3.tar.gz
+- cd nrn-7.3
+- ./configure --prefix `pwd` --without-iv --with-nrnpython
+- make
+- make install
+- cd src/nrnpython
+- sudo python setup.py install
+- cd ..
+- cd ..
+- cd ..
+- git clone https://github.com/openworm/org.geppetto.model.git -b $TRAVIS_BRANCH
+- cd org.geppetto.model
+- mvn install
+- cd ..
+- git clone https://github.com/openworm/org.geppetto.core.git -b $TRAVIS_BRANCH
+- cd org.geppetto.core
+- mvn install
+- cd ..
