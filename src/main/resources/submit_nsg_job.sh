@@ -1,13 +1,11 @@
 #!/bin/bash
 
-source ./read_env_variables
+echo "Accessing: $4/job/$1 for user $1"
 
-echo "Accessing: $URL/job/$USERNAME for user $USERNAME"
-
-curl -i --user $USERNAME:$PASSWORD \
-     -H cipres-appkey:$DIRECT_APPID \
-      $URL/job/$USERNAME \
+curl -i --user $1:$2 \
+     -H cipres-appkey:$3 \
+      $4/job/$1 \
      -F tool='PY_TG' \
-     -F input.infile_=@../examples/Python/input.zip \
+     -F input.infile_=@$5 \
      -F metadata.clientJobId=1234546 \
      -F metadata.statusEmail=true
