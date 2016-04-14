@@ -1,20 +1,27 @@
 package org.geppetto.simulator.external.services;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geppetto.core.beans.PathConfiguration;
 import org.geppetto.core.beans.SimulatorConfig;
 import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.common.GeppettoInitializationException;
 import org.geppetto.core.data.model.IAspectConfiguration;
+import org.geppetto.core.manager.Scope;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
-import org.geppetto.core.simulator.ExternalSimulatorConfig;
+import org.geppetto.core.simulator.RemoteSimulatorConfig;
+import org.geppetto.core.utilities.Zipper;
 import org.geppetto.model.DomainModel;
 import org.geppetto.model.ExperimentState;
 import org.geppetto.model.ExternalDomainModel;
@@ -25,8 +32,7 @@ import org.springframework.stereotype.Service;
 /**
  * Wrapper class for NEURON at Neuroscience Gateway
  * 
- * @author Jesus R Martinez (jesus@metacell.us)
- * @author mcantarelli
+ * @author Adrian Quintana (adrianquintana@gmail.com)
  *
  */
 @Service
@@ -41,7 +47,7 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 	private SimulatorConfig neuronSimulatorConfig;
 
 	@Autowired
-	private ExternalSimulatorConfig neuronExternalSimulatorConfig;
+	private RemoteSimulatorConfig neuronNSGExternalSimulatorConfig;
 
 	@Override
 	public void initialize(DomainModel model, IAspectConfiguration aspectConfiguration, ExperimentState experimentState, ISimulatorCallbackListener listener, GeppettoModelAccess modelAccess)
@@ -55,9 +61,18 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 		}
 		else
 		{
-			throw new GeppettoExecutionException("Unexpected domain model inside NEURON Simulator service");
+			throw new GeppettoExecutionException("Unexpected domain model inside NEURON NSG Simulator service");
 		}
-		this.createCommands(this.originalFileName);
+		
+		try
+		{
+			this.createCommands(this.originalFileName);
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+			throw new GeppettoExecutionException("Error creating commands for Neuron NSG Simulator service");
+		}
 	}
 
 	/**
@@ -65,23 +80,32 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 	 * 
 	 * @param originalFileName
 	 * @param aspect
+	 * @throws IOException 
 	 */
-	public void createCommands(String originalFileName)
+	public void createCommands(String originalFileName) throws IOException
 	{
-		filePath = new File(originalFileName);
-
 		logger.info("Creating command to run " + originalFileName);
-		directoryToExecuteFrom = filePath.getParentFile().getAbsolutePath();
+		
+		File originalFilePath = new File(originalFileName);
+		directoryToExecuteFrom = originalFilePath.getParentFile().getAbsolutePath();
 		outputFolder = directoryToExecuteFrom;
+		
+		File renamedfilePath = new File(directoryToExecuteFrom + "/init.py");
+		Files.copy(originalFilePath.toPath(), renamedfilePath.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		
+		// Zip folder
+		Zipper zipper = new Zipper(directoryToExecuteFrom + "/input.zip");
+		Path filePath = zipper.getZipFromDirectory(new File(directoryToExecuteFrom));
+		
 
 		if(Utilities.isWindows())
 		{
-			commands = new String[] { getSimulatorPath() + "rxvt.exe -e " + getSimulatorPath() + "sh " + getSimulatorPath().replace("/bin/", "/lib/") + "mknrndll.sh",
-					getSimulatorPath() + "mkdir.exe results", getSimulatorPath() + "nrniv.exe -python " + filePath.getAbsolutePath() };
+			//commands = new String[] { getSimulatorPath() + "rxvt.exe -e " + getSimulatorPath() + "sh " + getSimulatorPath().replace("/bin/", "/lib/") + "mknrndll.sh",
+				//	getSimulatorPath() + "mkdir.exe results", getSimulatorPath() + "nrniv.exe -python " + filePath.getAbsolutePath() };
 		}
 		else
 		{
-			commands = new String[] { getSimulatorPath() + "nrnivmodl", "mkdir results", getSimulatorPath() + "nrniv -python " + filePath.getAbsolutePath() };
+			commands = new String[] { getSimulatorPath() + " " + this.neuronNSGExternalSimulatorConfig.getUsername() + " " + this.neuronNSGExternalSimulatorConfig.getPassword() + " " + this.neuronNSGExternalSimulatorConfig.getSimulatorParameters().get("appId") + " " + this.neuronNSGExternalSimulatorConfig.getUrl() + " "  + filePath.toString() };
 		}
 
 		logger.info("Command to Execute: " + commands + " ...");
@@ -111,8 +135,9 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 	@Override
 	public String getSimulatorPath()
 	{
-		return this.neuronExternalSimulatorConfig.getSimulatorPath();
+		return this.neuronNSGExternalSimulatorConfig.getSimulatorPath();
 	}
+	
 
 	/**
 	 * @param neuronSimulatorConfig
@@ -124,12 +149,12 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 	}
 
 	/**
-	 * @param neuronExternalSimulatorConfig
+	 * @param neuronNSGExternalSimulatorConfig
 	 * @deprecated for test purposes only, the configuration is autowired
 	 */
-	public void setNeuronExternalSimulatorConfig(ExternalSimulatorConfig neuronExternalSimulatorConfig)
+	public void setNeuronNSGExternalSimulatorConfig(RemoteSimulatorConfig neuronNSGExternalSimulatorConfig)
 	{
-		this.neuronExternalSimulatorConfig = neuronExternalSimulatorConfig;
+		this.neuronNSGExternalSimulatorConfig = neuronNSGExternalSimulatorConfig;
 	}
 
 }

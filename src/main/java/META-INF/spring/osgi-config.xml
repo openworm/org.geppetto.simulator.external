@@ -17,6 +17,12 @@
 	<aop:scoped-proxy proxy-target-class="false"/>
 	</bean>
 	
+	<osgi:service id="NeuronNSGSimulatorExporter" ref="neuronNSGSimulator" interface="org.geppetto.core.simulator.ISimulator">
+	</osgi:service>
+	<bean id="neuronNSGSimulator" scope="prototype" class="org.geppetto.simulator.external.services.NeuronNSGSimulatorService">
+	<aop:scoped-proxy proxy-target-class="false"/>
+	</bean>
+	
 	<osgi:service id="LEMSSimulatorExporter" ref="lemsSimulator" interface="org.geppetto.core.simulator.ISimulator">
 	</osgi:service>
 	<bean id="lemsSimulator" scope="prototype" class="org.geppetto.simulator.external.services.LEMSSimulatorService">
