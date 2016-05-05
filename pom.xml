@@ -60,6 +60,11 @@
 			<artifactId>spring-test</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.ngbw</groupId>
+			<artifactId>java_direct_client</artifactId>
+			<version>0.0.1</version>
+		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>

@@ -81,7 +81,7 @@ public class NeuronNSGSimulatorServiceTest implements ISimulatorCallbackListener
 		remoteSimulatorConfig.setSimulatorPath("/home/adrian/code/geppetto-luna-code/org.geppetto.simulator.external/src/main/resources/submit_nsg_job.sh");
 		remoteSimulatorConfig.setUsername("AdrianQuintana");
 		remoteSimulatorConfig.setPassword("Queso7249*");
-		remoteSimulatorConfig.setUrl("https://nsgr.sdsc.edu:8085/cipresrest/v1");
+		remoteSimulatorConfig.setUrl("https://nsgr.sdsc.edu:8444/cipresrest/v1");
 		Map<String, String> simulatorParameters = new HashMap<String, String>();
 		simulatorParameters.put("appId", "AdrianQuintana-7A60A2BDED7145F09AE1FCBFD938FBC0");
 		remoteSimulatorConfig.setSimulatorParameters(simulatorParameters);
@@ -105,7 +105,10 @@ public class NeuronNSGSimulatorServiceTest implements ISimulatorCallbackListener
 		model.setFormat(ServicesRegistry.getModelFormat("NEURON"));
 		model.setDomainModel(dirToExecute + fileToExecute);
 		simulator.initialize(model, null, null, this, null);
-		simulator.simulate();
+		//simulator.deleteAllJobs();
+		simulator.listJobs();
+		
+		//simulator.simulate();
 		Thread.sleep(6000);
 		Assert.assertTrue(done);
 	}
