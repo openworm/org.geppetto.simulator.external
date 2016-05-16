@@ -93,8 +93,15 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 			File renamedfilePath = new File(directoryToExecuteFrom + "/init.py");
 			Files.copy(originalFilePath.toPath(), renamedfilePath.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			
+			
+			//Create Folder
+			//File innerFolder = new File(originalFilePath.getParentFile().getParentFile().getAbsolutePath() + "/input");
+			//innerFolder.mkdir();
+			
+			
+			
 			// Zip folder
-			Zipper zipper = new Zipper(directoryToExecuteFrom + "/input.zip");
+			Zipper zipper = new Zipper(originalFilePath.getParentFile().getParentFile().getAbsolutePath() + "/input.zip", "input");
 			filePath = zipper.getZipFromDirectory(new File(directoryToExecuteFrom));
 			
 //			InputStream is = NeuronNSGSimulatorService.class.getResourceAsStream("/input.zip");
@@ -149,6 +156,7 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 			}
 			catch (Exception e)
 			{
+				e.printStackTrace();
 				System.out.println(e.toString());
 			}
 		}
@@ -209,16 +217,17 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 
 	private void checkJobStatus() throws CiCipresException, GeppettoExecutionException, InterruptedException{
 		jobStatus.update();
+		jobStatus.show(true);
 		if (jobStatus.isDone() || jobStatus.isError()){
 			jobStatus.getJobStage();
 			processDone();
 		}
 		else{
 			
-			listJobs();
+			//listJobs();
 			
 			System.out.println("Current job status");
-			jobStatus.show(true);
+			
 			Thread.sleep(5000);
 			checkJobStatus();
 		}
