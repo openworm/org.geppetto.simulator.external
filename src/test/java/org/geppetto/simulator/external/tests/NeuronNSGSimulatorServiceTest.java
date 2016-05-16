@@ -70,9 +70,12 @@ public class NeuronNSGSimulatorServiceTest implements ISimulatorCallbackListener
 	@BeforeClass
 	public static void setup()
 	{
-		File dir = new File(NeuronNSGSimulatorServiceTest.class.getResource("/neuronConvertedModel/").getFile());
+		//File dir = new File(NeuronNSGSimulatorServiceTest.class.getResource("/neuronConvertedModel/").getFile());
+		File dir = new File(NeuronNSGSimulatorServiceTest.class.getResource("/Hello/").getFile());
 		dirToExecute = dir.getAbsolutePath();
-		fileToExecute = "/main_script.py";
+		//fileToExecute = "/main_script.py";
+		//fileToExecute = "/taka.py";
+		fileToExecute = "/init.py";
 
 		simulator = new NeuronNSGSimulatorService();
 		simulator.registerGeppettoService();
@@ -101,18 +104,48 @@ public class NeuronNSGSimulatorServiceTest implements ISimulatorCallbackListener
 	@Test
 	public void testNeuronExecution() throws Exception
 	{
-		ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
-		model.setFormat(ServicesRegistry.getModelFormat("NEURON"));
-		model.setDomainModel(dirToExecute + fileToExecute);
-		simulator.initialize(model, null, null, this, null);
-		//simulator.deleteAllJobs();
-		simulator.listJobs();
-		
-		//simulator.simulate();
-		Thread.sleep(6000);
-		Assert.assertTrue(done);
+//		ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
+//		model.setFormat(ServicesRegistry.getModelFormat("NEURON"));
+//		model.setDomainModel(dirToExecute + fileToExecute);
+//		simulator.initialize(model, null, null, this, null);
+//		simulator.simulate();
+//		Thread.sleep(6000);
+//		Assert.assertTrue(done);
+	}
+	
+	/**
+	 * Test method for {@link org.geppetto.simulator.external.services.NeuronSimulatorService}.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testNeuronList() throws Exception
+	{
+//		ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
+//		model.setFormat(ServicesRegistry.getModelFormat("NEURON"));
+//		model.setDomainModel(dirToExecute + fileToExecute);
+//		simulator.initialize(model, null, null, this, null);
+//		simulator.listJobs();
+//		Thread.sleep(6000);
+	}
+	
+	/**
+	 * Test method for {@link org.geppetto.simulator.external.services.NeuronSimulatorService}.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testNeuronDeleteJobs() throws Exception
+	{
+//		ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
+//		model.setFormat(ServicesRegistry.getModelFormat("NEURON"));
+//		model.setDomainModel(dirToExecute + fileToExecute);
+//		simulator.initialize(model, null, null, this, null);
+//		simulator.deleteAllJobs();
 	}
 
+	
+	
 	@Override
 	public void endOfSteps(IAspectConfiguration aspectConfiguration, Map<File, ResultsFormat> results)
 	{
@@ -123,9 +156,9 @@ public class NeuronNSGSimulatorServiceTest implements ISimulatorCallbackListener
 	@AfterClass
 	public static void doYourOneTimeTeardown() throws IOException
 	{
-		Utilities.delete(new File(NeuronNSGSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/").getFile()));
-		Utilities.delete(new File(NeuronNSGSimulatorServiceTest.class.getResource("/neuronConvertedModel/x86_64/").getFile()));
-		Utilities.delete(new File(NeuronNSGSimulatorServiceTest.class.getResource("/neuronConvertedModel/time.dat").getFile()));
+//		Utilities.delete(new File(NeuronNSGSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/").getFile()));
+//		Utilities.delete(new File(NeuronNSGSimulatorServiceTest.class.getResource("/neuronConvertedModel/x86_64/").getFile()));
+//		Utilities.delete(new File(NeuronNSGSimulatorServiceTest.class.getResource("/neuronConvertedModel/time.dat").getFile()));
 	}
 
 }
