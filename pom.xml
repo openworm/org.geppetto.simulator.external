@@ -65,11 +65,26 @@
 			<artifactId>java_direct_client</artifactId>
 			<version>0.0.1</version>
 		</dependency>
+		<!--<dependency>
+		    <groupId>com.sun.xml.bind</groupId>
+		    <artifactId>jaxb-osgi</artifactId>
+		    <version>2.2.11</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ngbw</groupId>
+			<artifactId>restdatatypes</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.media</groupId>
+			<artifactId>jersey-media-multipart</artifactId>
+			<version>2.0</version>
+		</dependency> -->
 	</dependencies>
 	<repositories>
 		<repository>
 			<id>org.geppetto-mvn-repo</id>
-			<url>https://raw.github.com/openworm/org.geppetto.maven/mvn-repo</url>
+			<url>https://raw.github.com/openworm/org.geppetto.maven/nsg</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
