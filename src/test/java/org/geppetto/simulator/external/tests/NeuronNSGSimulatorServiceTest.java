@@ -70,12 +70,9 @@ public class NeuronNSGSimulatorServiceTest implements ISimulatorCallbackListener
 	@BeforeClass
 	public static void setup()
 	{
-		//File dir = new File(NeuronNSGSimulatorServiceTest.class.getResource("/neuronConvertedModel/").getFile());
-		File dir = new File(NeuronNSGSimulatorServiceTest.class.getResource("/Hello/").getFile());
+		File dir = new File(NeuronNSGSimulatorServiceTest.class.getResource("/neuronConvertedModel/").getFile());
 		dirToExecute = dir.getAbsolutePath();
-		//fileToExecute = "/main_script.py";
-		//fileToExecute = "/taka.py";
-		fileToExecute = "/init.py";
+		fileToExecute = "/main_script.py";
 
 		simulator = new NeuronNSGSimulatorService();
 		simulator.registerGeppettoService();
@@ -143,8 +140,21 @@ public class NeuronNSGSimulatorServiceTest implements ISimulatorCallbackListener
 //		simulator.initialize(model, null, null, this, null);
 //		simulator.deleteAllJobs();
 	}
-
 	
+	/**
+	 * Test method for {@link org.geppetto.simulator.external.services.NeuronSimulatorService}.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testNeuronProcessDone() throws Exception
+	{
+		ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
+		model.setFormat(ServicesRegistry.getModelFormat("NEURON"));
+		model.setDomainModel(dirToExecute + fileToExecute);
+		simulator.initialize(model, null, null, this, null);
+		simulator.processDone();
+	}
 	
 	@Override
 	public void endOfSteps(IAspectConfiguration aspectConfiguration, Map<File, ResultsFormat> results)
