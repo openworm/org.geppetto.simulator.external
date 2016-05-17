@@ -1,10 +1,12 @@
 package org.geppetto.simulator.external.services;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -14,7 +16,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geppetto.core.beans.PathConfiguration;
@@ -23,7 +28,6 @@ import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.common.GeppettoInitializationException;
 import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.data.model.ResultsFormat;
-import org.geppetto.core.externalprocesses.ExternalProcess;
 import org.geppetto.core.manager.Scope;
 import org.geppetto.core.model.GeppettoModelAccess;
 import org.geppetto.core.recordings.ConvertDATToRecording;
@@ -38,7 +42,6 @@ import org.geppetto.model.ModelFormat;
 import org.ngbw.directclient.CiCipresException;
 import org.ngbw.directclient.CiClient;
 import org.ngbw.directclient.CiJob;
-import org.ngbw.directclient.CiResultFile;
 import org.ngbw.restdatatypes.ErrorData;
 import org.ngbw.restdatatypes.LimitStatus;
 import org.ngbw.restdatatypes.ParamError;
@@ -64,7 +67,7 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 
 	@Autowired
 	private RemoteSimulatorConfig neuronNSGExternalSimulatorConfig;
-	
+
 	private CiClient myClient;
 	private CiJob jobStatus;
 
@@ -82,41 +85,30 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 		{
 			throw new GeppettoExecutionException("Unexpected domain model inside NEURON NSG Simulator service");
 		}
-		
+
 		try
 		{
-			//this.createCommands(this.originalFileName);
+			// this.createCommands(this.originalFileName);
 			File originalFilePath = new File(originalFileName);
 			directoryToExecuteFrom = originalFilePath.getParentFile().getAbsolutePath();
 			outputFolder = directoryToExecuteFrom;
-			
-			File renamedfilePath = new File(directoryToExecuteFrom + "/init.py");
+
+			File renamedfilePath = new File(directoryToExecuteFrom + "/input.py");
 			Files.copy(originalFilePath.toPath(), renamedfilePath.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			
-			
-			//Create Folder
-			//File innerFolder = new File(originalFilePath.getParentFile().getParentFile().getAbsolutePath() + "/input");
-			//innerFolder.mkdir();
-			
-			
-			
+
+			// Create Results Folder
+			File resultsFolder = new File(directoryToExecuteFrom + "/results");
+			resultsFolder.mkdir();
+			File emptyFile = new File(resultsFolder, "empty");
+			emptyFile.createNewFile();
+
 			// Zip folder
 			Zipper zipper = new Zipper(originalFilePath.getParentFile().getParentFile().getAbsolutePath() + "/input.zip", "input");
 			filePath = zipper.getZipFromDirectory(new File(directoryToExecuteFrom));
-			
-//			InputStream is = NeuronNSGSimulatorService.class.getResourceAsStream("/input.zip");
-//			File dest = File.createTempFile("Example", ".txt"); 
-//			dest.deleteOnExit();
-//
-//			CiResultFile.copyInputStreamToFile(is, dest);
-//			
-//			inputParams.put("infile_", dest.getAbsolutePath());
 
+			myClient = new CiClient(neuronNSGExternalSimulatorConfig.getSimulatorParameters().get("appId"), neuronNSGExternalSimulatorConfig.getUsername(),
+					neuronNSGExternalSimulatorConfig.getPassword(), neuronNSGExternalSimulatorConfig.getUrl());
 
-			
-			
-			myClient = new CiClient(neuronNSGExternalSimulatorConfig.getSimulatorParameters().get("appId"), neuronNSGExternalSimulatorConfig.getUsername(), neuronNSGExternalSimulatorConfig.getPassword(), neuronNSGExternalSimulatorConfig.getUrl());
-			
 		}
 		catch(IOException e)
 		{
@@ -125,7 +117,6 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 		}
 	}
 
-	
 	@Override
 	public void simulate() throws GeppettoExecutionException
 	{
@@ -134,7 +125,7 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 		{
 			try
 			{
-				//this.runExternalProcess(commands, directoryToExecuteFrom, originalFileName);
+				// this.runExternalProcess(commands, directoryToExecuteFrom, originalFileName);
 				sendJob("", false);
 				started = true;
 			}
@@ -142,19 +133,20 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 			{
 				ErrorData ed = ce.getErrorData();
 				System.out.println("Cipres error code=" + ed.code + ", message=" + ed.displayMessage);
-				if (ed.code == ErrorData.FORM_VALIDATION)
+				if(ed.code == ErrorData.FORM_VALIDATION)
 				{
-					for (ParamError pe : ed.paramError)
+					for(ParamError pe : ed.paramError)
 					{
 						System.out.println(pe.param + ": " + pe.error);
 					}
-				} else if (ed.code == ErrorData.USAGE_LIMIT)
+				}
+				else if(ed.code == ErrorData.USAGE_LIMIT)
 				{
 					LimitStatus ls = ed.limitStatus;
 					System.out.println("Usage Limit Error, type=" + ls.type + ", ceiling=" + ls.ceiling);
 				}
 			}
-			catch (Exception e)
+			catch(Exception e)
 			{
 				e.printStackTrace();
 				System.out.println(e.toString());
@@ -165,91 +157,140 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 			throw new GeppettoExecutionException("Simulate has been called again");
 		}
 	}
-	
+
 	private void sendJob(String jobName, boolean validateOnly) throws CiCipresException, IOException, GeppettoExecutionException, InterruptedException
 	{
 		Map<String, Collection<String>> vParams = new HashMap<String, Collection<String>>();
 		HashMap<String, String> inputParams = new HashMap<String, String>();
 		HashMap<String, String> metadata = new HashMap<String, String>();
-		
+
 		inputParams.put("infile_", filePath.toString());
-		
+
 		// See https://www.phylo.org/restusers/docs/guide.html#UseOptionalMetadata for list of available
-		// metadata keys.   
+		// metadata keys.
 		metadata.put("statusEmail", "true");
-		//metadata.put("clientJobName", jobName);
+		// metadata.put("clientJobName", jobName);
 		metadata.put("clientJobId", "1234546");
 
-		if (validateOnly)
+		if(validateOnly)
 		{
 			jobStatus = myClient.validateJob("CLUSTALW", vParams, inputParams, metadata);
-		} else
+		}
+		else
 		{
-			//jobStatus = myClient.submitJob("CLUSTALW", vParams, inputParams, metadata);
+			// jobStatus = myClient.submitJob("CLUSTALW", vParams, inputParams, metadata);
 			jobStatus = myClient.submitJob("PY_TG", vParams, inputParams, metadata);
 		}
 		jobStatus.show(true);
-		
+
 		checkJobStatus();
-	} 
-	
+	}
+
 	public void listJobs() throws CiCipresException
 	{
 		System.out.println("List all jobs");
 		int count = 0;
-		Collection<CiJob> jobs = myClient.listJobs(); 
-		for (CiJob job : jobs)
+		Collection<CiJob> jobs = myClient.listJobs();
+		for(CiJob job : jobs)
 		{
 			count += 1;
 			System.out.print("\n" + count + ". ");
 			job.show(true);
 		}
 	}
-	
+
 	public void deleteAllJobs() throws CiCipresException
 	{
-		Collection<CiJob> jobs = myClient.listJobs(); 
-		for (CiJob job : jobs)
+		Collection<CiJob> jobs = myClient.listJobs();
+		for(CiJob job : jobs)
 		{
 			job.delete();
 		}
 	}
 
-	private void checkJobStatus() throws CiCipresException, GeppettoExecutionException, InterruptedException{
+	private void checkJobStatus() throws CiCipresException, GeppettoExecutionException, InterruptedException
+	{
 		jobStatus.update();
 		jobStatus.show(true);
-		if (jobStatus.isDone() || jobStatus.isError()){
+		if(jobStatus.isDone() || jobStatus.isError())
+		{
 			jobStatus.getJobStage();
 			processDone();
 		}
-		else{
-			
-			//listJobs();
-			
+		else
+		{
+
+			// listJobs();
+
 			System.out.println("Current job status");
-			
+
 			Thread.sleep(5000);
 			checkJobStatus();
 		}
 	}
-	
+
 	public void processDone() throws GeppettoExecutionException
 	{
 		try
 		{
-			// Retrieve from the server
-			jobStatus.downloadResults(new File(outputFolder), true);
+			// Prepare output folder
+			File outputFileFolder = new File(outputFolder);
+			File resultsFileFolder = new File(outputFolder + "/results");
 			
+			// Retrieve from the server
+			jobStatus.downloadResults(outputFileFolder, true);
+
+			// Extracting output folder
+			TarArchiveInputStream tarInput = new TarArchiveInputStream(new GZIPInputStream(new FileInputStream(outputFileFolder + "/output.tar.gz")));
+			TarArchiveEntry currentEntry = tarInput.getNextTarEntry();
+			
+			File currentFolder = null;
+			boolean isOutput = false;
+			while(currentEntry != null)
+			{
+				if(!currentEntry.isDirectory() && currentEntry.getName().contains("input/results/")){
+					currentFolder = resultsFileFolder;
+					isOutput = true;
+				}
+				else if (currentEntry.getName().contains("time.dat"))
+				{
+					currentFolder = outputFileFolder;
+					isOutput = true;
+				}
+				
+				if (isOutput){
+					File destPath = new File(currentFolder, currentEntry.getName().substring(currentEntry.getName().lastIndexOf("/")+1));
+					destPath.createNewFile();
+					byte[] btoRead = new byte[1024];
+					BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(destPath));
+					int len = 0;
+
+					while((len = tarInput.read(btoRead)) != -1)
+					{
+						bout.write(btoRead, 0, len);
+					}
+
+					bout.close();
+					btoRead = null;
+				}
+				
+				isOutput = false;
+				currentEntry = tarInput.getNextTarEntry();
+			}
+			tarInput.close();
+			
+
 			// Convert to h5
 			List<String> variableNames = new ArrayList<String>();
 
-			ConvertDATToRecording datConverter = new ConvertDATToRecording(PathConfiguration.createProjectTmpFolder(Scope.RUN, projectId, PathConfiguration.getName("results", true)+ ".h5"),this.geppettoModelAccess);
+			ConvertDATToRecording datConverter = new ConvertDATToRecording(PathConfiguration.createProjectTmpFolder(Scope.RUN, projectId, PathConfiguration.getName("results", true) + ".h5"),
+					this.geppettoModelAccess);
 
-			Map<File,ResultsFormat> results=new HashMap<File,ResultsFormat>();
-			
+			Map<File, ResultsFormat> results = new HashMap<File, ResultsFormat>();
+
 			File mappingResultsFile = new File(outputFolder + "/outputMapping.dat");
-			results.put(mappingResultsFile,ResultsFormat.RAW);
-			
+			results.put(mappingResultsFile, ResultsFormat.RAW);
+
 			BufferedReader input;
 
 			input = new BufferedReader(new FileReader(mappingResultsFile));
@@ -270,27 +311,27 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 					{
 						variableNames.add(s);
 					}
-					String fileName=mappingResultsFile.getParent() + "/" + filePath;
+					String fileName = mappingResultsFile.getParent() + "/" + filePath;
 					datConverter.addDATFile(fileName, variables);
-					results.put(new File(fileName),ResultsFormat.RAW);
+					results.put(new File(fileName), ResultsFormat.RAW);
 					filePath = "";
 				}
 			}
 			input.close();
-			
+
 			datConverter.convert(experimentState);
-			
-			results.put(datConverter.getRecordingsFile(),ResultsFormat.GEPPETTO_RECORDING);
+
+			results.put(datConverter.getRecordingsFile(), ResultsFormat.GEPPETTO_RECORDING);
 
 			this.getListener().endOfSteps(this.aspectConfiguration, results);
 		}
 		catch(Exception e)
 		{
-			//The HDF5 library throws a generic Exception :/
+			// The HDF5 library throws a generic Exception :/
 			throw new GeppettoExecutionException(e);
 		}
 	}
-	
+
 	@Override
 	public void registerGeppettoService()
 	{
@@ -315,7 +356,6 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 	{
 		return this.neuronNSGExternalSimulatorConfig.getSimulatorPath();
 	}
-	
 
 	/**
 	 * @param neuronSimulatorConfig
