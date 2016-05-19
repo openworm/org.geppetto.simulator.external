@@ -19,7 +19,7 @@
 	
 	<osgi:service id="NeuronNSGSimulatorExporter" ref="neuronNSGSimulator" interface="org.geppetto.core.simulator.ISimulator">
 	</osgi:service>
-	<bean id="neuronNSGSimulator" scope="prototype" class="org.geppetto.simulator.external.services.NeuronNSGSimulatorService">
+	<bean id="neuronNSGSimulator" scope="prototype" class="org.geppetto.simulator.remote.services.NeuronNSGSimulatorService">
 	<aop:scoped-proxy proxy-target-class="false"/>
 	</bean>
 	
