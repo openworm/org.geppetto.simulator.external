@@ -1,9 +1,10 @@
-package org.geppetto.simulator.external.services;
+package org.geppetto.simulator.remote.services;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -39,6 +41,7 @@ import org.geppetto.model.DomainModel;
 import org.geppetto.model.ExperimentState;
 import org.geppetto.model.ExternalDomainModel;
 import org.geppetto.model.ModelFormat;
+import org.geppetto.simulator.external.services.AExternalProcessNeuronalSimulator;
 import org.ngbw.directclient.CiCipresException;
 import org.ngbw.directclient.CiClient;
 import org.ngbw.directclient.CiJob;
@@ -88,31 +91,32 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 
 		try
 		{
-			// this.createCommands(this.originalFileName);
+			// Set directory to execute from and output folder
 			File originalFilePath = new File(originalFileName);
 			directoryToExecuteFrom = originalFilePath.getParentFile().getAbsolutePath();
 			outputFolder = directoryToExecuteFrom;
 
+			// Rename main script to input.py (NSG requirement)
 			File renamedfilePath = new File(directoryToExecuteFrom + "/input.py");
 			Files.copy(originalFilePath.toPath(), renamedfilePath.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
-			// Create Results Folder
+			// Create Results Folder (it is needed because of the way the neuron code is generated in the export library)
 			File resultsFolder = new File(directoryToExecuteFrom + "/results");
 			resultsFolder.mkdir();
 			File emptyFile = new File(resultsFolder, "empty");
 			emptyFile.createNewFile();
 
-			// Zip folder
+			// Zip the folder creating an inner folder input
 			Zipper zipper = new Zipper(originalFilePath.getParentFile().getParentFile().getAbsolutePath() + "/input.zip", "input");
 			filePath = zipper.getZipFromDirectory(new File(directoryToExecuteFrom));
 
+			//Initialise client for remote execution
 			myClient = new CiClient(neuronNSGExternalSimulatorConfig.getSimulatorParameters().get("appId"), neuronNSGExternalSimulatorConfig.getUsername(),
-					neuronNSGExternalSimulatorConfig.getPassword(), neuronNSGExternalSimulatorConfig.getUrl());
+					neuronNSGExternalSimulatorConfig.getPassword(), neuronNSGExternalSimulatorConfig.getSimulatorPath());
 
 		}
 		catch(IOException e)
 		{
-			e.printStackTrace();
 			throw new GeppettoExecutionException("Error creating commands for Neuron NSG Simulator service");
 		}
 	}
@@ -120,36 +124,52 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 	@Override
 	public void simulate() throws GeppettoExecutionException
 	{
-		// send command, directory where execution is happening, and path to original file script to execute
+		// Send job to remote server
 		if(!started)
 		{
 			try
 			{
+				//AQP: Should this be executed in a different thread?
 				// this.runExternalProcess(commands, directoryToExecuteFrom, originalFileName);
-				sendJob("", false);
+				jobStatus = NSGUtilities.sendJob(myClient, "", filePath, false);
 				started = true;
+				
+				try{
+					// AQP: Should we execute this in a different thread
+					// Let's wait until the job is done
+					NSGUtilities.checkJobStatus(jobStatus);
+					// Let's download the results and process them
+					processDone();
+				}
+				catch(GeppettoExecutionException e){
+					//AQP we should return something about the job status
+					logger.error("Error executing job in remote server");
+					throw new GeppettoExecutionException("Error executing job");
+				}
+				
 			}
 			catch(CiCipresException ce)
 			{
 				ErrorData ed = ce.getErrorData();
-				System.out.println("Cipres error code=" + ed.code + ", message=" + ed.displayMessage);
+				logger.error("Cipres error code=" + ed.code + ", message=" + ed.displayMessage);
 				if(ed.code == ErrorData.FORM_VALIDATION)
 				{
 					for(ParamError pe : ed.paramError)
 					{
-						System.out.println(pe.param + ": " + pe.error);
+						logger.error(pe.param + ": " + pe.error);
 					}
+					throw new GeppettoExecutionException("Parameter no valids. See logs for more information.");
 				}
 				else if(ed.code == ErrorData.USAGE_LIMIT)
 				{
 					LimitStatus ls = ed.limitStatus;
-					System.out.println("Usage Limit Error, type=" + ls.type + ", ceiling=" + ls.ceiling);
+					throw new GeppettoExecutionException("Usage Limit Error, type=" + ls.type + ", ceiling=" + ls.ceiling);
 				}
 			}
 			catch(Exception e)
 			{
-				e.printStackTrace();
-				System.out.println(e.toString());
+				//e.printStackTrace();
+				throw new GeppettoExecutionException("Error executing simulation for Neuron NSG Simulator Service");
 			}
 		}
 		else
@@ -158,128 +178,24 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 		}
 	}
 
-	private void sendJob(String jobName, boolean validateOnly) throws CiCipresException, IOException, GeppettoExecutionException, InterruptedException
-	{
-		Map<String, Collection<String>> vParams = new HashMap<String, Collection<String>>();
-		HashMap<String, String> inputParams = new HashMap<String, String>();
-		HashMap<String, String> metadata = new HashMap<String, String>();
-
-		inputParams.put("infile_", filePath.toString());
-
-		// See https://www.phylo.org/restusers/docs/guide.html#UseOptionalMetadata for list of available
-		// metadata keys.
-		metadata.put("statusEmail", "true");
-		// metadata.put("clientJobName", jobName);
-		metadata.put("clientJobId", "1234546");
-
-		if(validateOnly)
-		{
-			jobStatus = myClient.validateJob("CLUSTALW", vParams, inputParams, metadata);
-		}
-		else
-		{
-			// jobStatus = myClient.submitJob("CLUSTALW", vParams, inputParams, metadata);
-			jobStatus = myClient.submitJob("PY_TG", vParams, inputParams, metadata);
-		}
-		jobStatus.show(true);
-
-		checkJobStatus();
-	}
-
-	public void listJobs() throws CiCipresException
-	{
-		System.out.println("List all jobs");
-		int count = 0;
-		Collection<CiJob> jobs = myClient.listJobs();
-		for(CiJob job : jobs)
-		{
-			count += 1;
-			System.out.print("\n" + count + ". ");
-			job.show(true);
-		}
-	}
-
-	public void deleteAllJobs() throws CiCipresException
-	{
-		Collection<CiJob> jobs = myClient.listJobs();
-		for(CiJob job : jobs)
-		{
-			job.delete();
-		}
-	}
-
-	private void checkJobStatus() throws CiCipresException, GeppettoExecutionException, InterruptedException
-	{
-		jobStatus.update();
-		jobStatus.show(true);
-		if(jobStatus.isDone() || jobStatus.isError())
-		{
-			jobStatus.getJobStage();
-			processDone();
-		}
-		else
-		{
-
-			// listJobs();
-
-			System.out.println("Current job status");
-
-			Thread.sleep(5000);
-			checkJobStatus();
-		}
-	}
 
 	public void processDone() throws GeppettoExecutionException
 	{
 		try
 		{
-			// Prepare output folder
+			// Prepare output and results folder
 			File outputFileFolder = new File(outputFolder);
 			File resultsFileFolder = new File(outputFolder + "/results");
 			
-			// Retrieve from the server
+			// Retrieve results from the server
 			jobStatus.downloadResults(outputFileFolder, true);
 
-			// Extracting output folder
-			TarArchiveInputStream tarInput = new TarArchiveInputStream(new GZIPInputStream(new FileInputStream(outputFileFolder + "/output.tar.gz")));
-			TarArchiveEntry currentEntry = tarInput.getNextTarEntry();
+			//AQP: What if we don't have results
+			//AQP: We are not controlling errors
+			//Extract results from zip file
+			NSGUtilities.extractResults(outputFileFolder, resultsFileFolder);
 			
-			File currentFolder = null;
-			boolean isOutput = false;
-			while(currentEntry != null)
-			{
-				if(!currentEntry.isDirectory() && currentEntry.getName().contains("input/results/")){
-					currentFolder = resultsFileFolder;
-					isOutput = true;
-				}
-				else if (currentEntry.getName().contains("time.dat"))
-				{
-					currentFolder = outputFileFolder;
-					isOutput = true;
-				}
-				
-				if (isOutput){
-					File destPath = new File(currentFolder, currentEntry.getName().substring(currentEntry.getName().lastIndexOf("/")+1));
-					destPath.createNewFile();
-					byte[] btoRead = new byte[1024];
-					BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(destPath));
-					int len = 0;
-
-					while((len = tarInput.read(btoRead)) != -1)
-					{
-						bout.write(btoRead, 0, len);
-					}
-
-					bout.close();
-					btoRead = null;
-				}
-				
-				isOutput = false;
-				currentEntry = tarInput.getNextTarEntry();
-			}
-			tarInput.close();
-			
-
+			//AQP: This is redundant code
 			// Convert to h5
 			List<String> variableNames = new ArrayList<String>();
 
@@ -324,6 +240,9 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 			results.put(datConverter.getRecordingsFile(), ResultsFormat.GEPPETTO_RECORDING);
 
 			this.getListener().endOfSteps(this.aspectConfiguration, results);
+		}
+		catch(FileNotFoundException e) {
+			throw new GeppettoExecutionException("Error extracting results");
 		}
 		catch(Exception e)
 		{
