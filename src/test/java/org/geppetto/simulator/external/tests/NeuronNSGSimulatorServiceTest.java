@@ -40,14 +40,21 @@ import java.util.Map;
 import junit.framework.Assert;
 
 import org.geppetto.core.beans.SimulatorConfig;
+import org.geppetto.core.common.GeppettoExecutionException;
+import org.geppetto.core.common.GeppettoInitializationException;
 import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.data.model.ResultsFormat;
+import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.core.simulator.RemoteSimulatorConfig;
+import org.geppetto.model.ExternalDomainModel;
+import org.geppetto.model.GeppettoFactory;
+import org.geppetto.simulator.remote.services.NSGUtilities;
 import org.geppetto.simulator.remote.services.NeuronNSGSimulatorService;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.ngbw.directclient.CiCipresException;
 
 public class NeuronNSGSimulatorServiceTest implements ISimulatorCallbackListener
 {
@@ -62,26 +69,26 @@ public class NeuronNSGSimulatorServiceTest implements ISimulatorCallbackListener
 	@BeforeClass
 	public static void setup()
 	{
-		File dir = new File(NeuronNSGSimulatorServiceTest.class.getResource("/neuronConvertedModel/").getFile());
-		dirToExecute = dir.getAbsolutePath();
-		fileToExecute = "/main_script.py";
-
-		simulator = new NeuronNSGSimulatorService();
-		simulator.registerGeppettoService();
-
-		RemoteSimulatorConfig remoteSimulatorConfig = new RemoteSimulatorConfig();
-		remoteSimulatorConfig.setSimulatorPath("https://nsgr.sdsc.edu:8444/cipresrest/v1");
-		remoteSimulatorConfig.setUsername("AdrianQuintana");
-		remoteSimulatorConfig.setPassword("Queso7249*");
-		Map<String, String> simulatorParameters = new HashMap<String, String>();
-		simulatorParameters.put("appId", "AdrianQuintana-7A60A2BDED7145F09AE1FCBFD938FBC0");
-		remoteSimulatorConfig.setSimulatorParameters(simulatorParameters);
-		Assert.assertNotNull(remoteSimulatorConfig.getSimulatorPath());
-		simulator.setNeuronNSGExternalSimulatorConfig(remoteSimulatorConfig);
-		SimulatorConfig simulatorConfig = new SimulatorConfig();
-		simulatorConfig.setSimulatorID("neuronNSGSimulator");
-		simulatorConfig.setSimulatorName("neuronNSGSimulator");
-		simulator.setNeuronSimulatorConfig(simulatorConfig);
+//		File dir = new File(NeuronNSGSimulatorServiceTest.class.getResource("/neuronConvertedModel/").getFile());
+//		dirToExecute = dir.getAbsolutePath();
+//		fileToExecute = "/main_script.py";
+//
+//		simulator = new NeuronNSGSimulatorService();
+//		simulator.registerGeppettoService();
+//
+//		RemoteSimulatorConfig remoteSimulatorConfig = new RemoteSimulatorConfig();
+//		remoteSimulatorConfig.setSimulatorPath("https://nsgr.sdsc.edu:8444/cipresrest/v1");
+//		remoteSimulatorConfig.setUsername("AdrianQuintana");
+//		remoteSimulatorConfig.setPassword("");
+//		Map<String, String> simulatorParameters = new HashMap<String, String>();
+//		simulatorParameters.put("appId", "AdrianQuintana-7A60A2BDED7145F09AE1FCBFD938FBC0");
+//		remoteSimulatorConfig.setSimulatorParameters(simulatorParameters);
+//		Assert.assertNotNull(remoteSimulatorConfig.getSimulatorPath());
+//		simulator.setNeuronNSGExternalSimulatorConfig(remoteSimulatorConfig);
+//		SimulatorConfig simulatorConfig = new SimulatorConfig();
+//		simulatorConfig.setSimulatorID("neuronNSGSimulator");
+//		simulatorConfig.setSimulatorName("neuronNSGSimulator");
+//		simulator.setNeuronSimulatorConfig(simulatorConfig);
 	}
 
 	/**
@@ -103,17 +110,22 @@ public class NeuronNSGSimulatorServiceTest implements ISimulatorCallbackListener
 	
 	/**
 	 * Test method for {@link org.geppetto.simulator.external.services.NeuronSimulatorService}.
+	 * @throws GeppettoExecutionException 
+	 * @throws GeppettoInitializationException 
+	 * @throws CiCipresException 
+	 * @throws InterruptedException 
 	 * 
 	 * @throws Exception
 	 */
 	@Test
-	public void testNeuronList() throws Exception
+	public void testNeuronList() throws GeppettoInitializationException, GeppettoExecutionException, CiCipresException, InterruptedException
 	{
 //		ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
 //		model.setFormat(ServicesRegistry.getModelFormat("NEURON"));
 //		model.setDomainModel(dirToExecute + fileToExecute);
+//		
 //		simulator.initialize(model, null, null, this, null);
-//		simulator.listJobs();
+//		NSGUtilities.listJobs(simulator.getCiClient());
 //		Thread.sleep(6000);
 	}
 	
@@ -157,9 +169,6 @@ public class NeuronNSGSimulatorServiceTest implements ISimulatorCallbackListener
 	@AfterClass
 	public static void doYourOneTimeTeardown() throws IOException
 	{
-//		Utilities.delete(new File(NeuronNSGSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/").getFile()));
-//		Utilities.delete(new File(NeuronNSGSimulatorServiceTest.class.getResource("/neuronConvertedModel/x86_64/").getFile()));
-//		Utilities.delete(new File(NeuronNSGSimulatorServiceTest.class.getResource("/neuronConvertedModel/time.dat").getFile()));
 	}
 
 }
