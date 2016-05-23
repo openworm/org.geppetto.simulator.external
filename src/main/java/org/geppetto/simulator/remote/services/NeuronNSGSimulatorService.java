@@ -293,5 +293,13 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 	{
 		this.neuronNSGExternalSimulatorConfig = neuronNSGExternalSimulatorConfig;
 	}
+	
+	/**
+	 * @deprecated for test purposes only
+	 */
+	public CiClient getCiClient()
+	{
+		return myClient;
+	}
 
 }
