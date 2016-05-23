@@ -42,13 +42,13 @@
 	</bean>
 	
 	<!-- Add flag for External Simulation Run Mode --> 
-	<util:map id="simulatorParameters">
-	    <entry key="appId" value="AdrianQuintana-7A60A2BDED7145F09AE1FCBFD938FBC0"/>
+	<util:map id="neuronNSGSimulatorParameters">
+	    <entry key="appId" value="REPLACE_WITH_APP_ID"/>
 	</util:map>
 	<bean id="neuronNSGExternalSimulatorConfig" class="org.geppetto.core.simulator.RemoteSimulatorConfig"> 
-		<property name="simulatorPath" value="https://nsgr.sdsc.edu:8444/cipresrest/v1" />
-		<property name="username" value="AdrianQuintana" />
-		<property name="password" value="Queso7249*" />
-		<property name="simulatorParameters" ref="simulatorParameters" />
+		<property name="simulatorPath" value="REPLACE_WITH_URL_TO_SIMULATOR" />
+		<property name="username" value="REPLACE_WITH_USERNAME" />
+		<property name="password" value="REPLACE_WITH_PASSWORD" />
+		<property name="simulatorParameters" ref="neuronNSGSimulatorParameters" />
 	</bean>
 </beans>
