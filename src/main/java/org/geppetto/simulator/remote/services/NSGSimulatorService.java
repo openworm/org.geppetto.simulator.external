@@ -101,8 +101,8 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 			//Initialise client for remote execution
 			if (NSGExternalSimulatorConfig.getSimulatorParameters().containsKey("appName")){
 				Map<String, String> endUserHeaders = new HashMap<String, String>();
-				endUserHeaders.put("cipres-eu", "AdrianQuintana");
-				endUserHeaders.put("cipres-eu-email", "AdrianQuintana@gmail.com");
+				endUserHeaders.put("cipres-eu", NSGExternalSimulatorConfig.getSimulatorParameters().get("internalUserName"));
+				endUserHeaders.put("cipres-eu-email", NSGExternalSimulatorConfig.getSimulatorParameters().get("internalEmail"));
 				
 				myClient = new CiClient(NSGExternalSimulatorConfig.getSimulatorParameters().get("appId"), NSGExternalSimulatorConfig.getSimulatorParameters().get("appName"), NSGExternalSimulatorConfig.getUsername(),
 						NSGExternalSimulatorConfig.getPassword(), NSGExternalSimulatorConfig.getSimulatorPath(), endUserHeaders);
@@ -134,7 +134,7 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 			{
 				//AQP: Should this be executed in a different thread?
 				// this.runExternalProcess(commands, directoryToExecuteFrom, originalFileName);
-				jobStatus = NSGUtilities.sendJob(myClient, "", filePath, false);
+				jobStatus = NSGUtilities.sendJob(myClient, this.experimentState.getExperimentId(), filePath, false);
 				started = true;
 				
 				try{
