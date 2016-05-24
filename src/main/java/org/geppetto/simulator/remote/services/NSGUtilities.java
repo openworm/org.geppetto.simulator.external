@@ -27,7 +27,7 @@ import org.ngbw.directclient.CiJob;
  */
 public class NSGUtilities {
 
-	public static CiJob sendJob(CiClient myClient, String jobName, Path filePath, boolean validateOnly) throws CiCipresException, IOException, GeppettoExecutionException, InterruptedException
+	public static CiJob sendJob(CiClient myClient, long jobId, Path filePath, boolean validateOnly) throws CiCipresException, IOException, GeppettoExecutionException, InterruptedException
 	{
 		CiJob jobStatus;
 		
@@ -37,11 +37,9 @@ public class NSGUtilities {
 
 		inputParams.put("infile_", filePath.toString());
 
-		// AQP: What should we be sending as parameters?
-		// See https://www.phylo.org/restusers/docs/guide.html#UseOptionalMetadata for list of available
 		metadata.put("statusEmail", "true");
 		// metadata.put("clientJobName", jobName);
-		metadata.put("clientJobId", "1234546");
+		metadata.put("clientJobId", Long.toString(jobId));
 
 		if(validateOnly)
 		{

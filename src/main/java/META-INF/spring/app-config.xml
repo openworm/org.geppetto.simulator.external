@@ -45,6 +45,8 @@
 	<util:map id="neuronNSGSimulatorParameters">
 	    <entry key="appId" value="REPLACE_WITH_APP_ID"/>
 	   	<entry key="appName" value="REPLACE_WITH_APP_NAME"/>
+	    <entry key="internalUserName" value="REPLACE_WITH_INTERNAL_USER_NAME"/>
+	    <entry key="internalEmail" value="REPLACE_WITH_INTERNAL_EMAIL"/>
 	</util:map>
 	<bean id="neuronNSGExternalSimulatorConfig" class="org.geppetto.core.simulator.RemoteSimulatorConfig"> 
 		<property name="simulatorPath" value="REPLACE_WITH_URL_TO_SIMULATOR" />
