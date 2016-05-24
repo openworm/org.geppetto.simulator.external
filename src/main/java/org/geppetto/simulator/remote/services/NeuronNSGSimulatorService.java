@@ -111,13 +111,28 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 			filePath = zipper.getZipFromDirectory(new File(directoryToExecuteFrom));
 
 			//Initialise client for remote execution
-			myClient = new CiClient(neuronNSGExternalSimulatorConfig.getSimulatorParameters().get("appId"), neuronNSGExternalSimulatorConfig.getUsername(),
-					neuronNSGExternalSimulatorConfig.getPassword(), neuronNSGExternalSimulatorConfig.getSimulatorPath());
-
+			if (neuronNSGExternalSimulatorConfig.getSimulatorParameters().containsKey("appName")){
+				Map<String, String> endUserHeaders = new HashMap<String, String>();
+				endUserHeaders.put("cipres-eu", "AdrianQuintana");
+				endUserHeaders.put("cipres-eu-email", "AdrianQuintana@gmail.com");
+				
+				myClient = new CiClient(neuronNSGExternalSimulatorConfig.getSimulatorParameters().get("appId"), neuronNSGExternalSimulatorConfig.getSimulatorParameters().get("appName"), neuronNSGExternalSimulatorConfig.getUsername(),
+						neuronNSGExternalSimulatorConfig.getPassword(), neuronNSGExternalSimulatorConfig.getSimulatorPath(), endUserHeaders);
+			}
+			else{
+				myClient = new CiClient(neuronNSGExternalSimulatorConfig.getSimulatorParameters().get("appId"), neuronNSGExternalSimulatorConfig.getUsername(),
+						neuronNSGExternalSimulatorConfig.getPassword(), neuronNSGExternalSimulatorConfig.getSimulatorPath());
+			}
 		}
 		catch(IOException e)
 		{
-			throw new GeppettoExecutionException("Error creating commands for Neuron NSG Simulator service");
+			e.printStackTrace();
+			throw new GeppettoExecutionException("Error creating commands for Neuron NSG Simulator service", e);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			throw new GeppettoExecutionException("Error creating commands for Neuron NSG Simulator service", e);
 		}
 	}
 
