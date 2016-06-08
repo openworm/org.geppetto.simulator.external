@@ -1,0 +1,6 @@
+NEURON -- Release 7.4 (1341:2ccabed20677) 2015-05-31
+Duke, Yale, and the BlueBrain Project -- Copyright 1984-2015
+See http://www.neuron.yale.edu/neuron/credits
+
+Additional mechanisms from files
+ mod_nsgportal/AMPA_syn.mod mod_nsgportal/AMPA_syn_inh.mod mod_nsgportal/BackgroundRandomIClamps.mod mod_nsgportal/Ca_conc.mod mod_nsgportal/Ca_pyr.mod mod_nsgportal/GABA_syn.mod mod_nsgportal/GABA_syn_inh.mod mod_nsgportal/Kahp_pyr.mod mod_nsgportal/Kdr_bask.mod mod_nsgportal/Kdr_pyr.mod mod_nsgportal/LeakConductance_bask.mod mod_nsgportal/LeakConductance_pyr.mod mod_nsgportal/Na_bask.mod mod_nsgportal/Na_pyr.mod
