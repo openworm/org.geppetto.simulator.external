@@ -41,17 +41,23 @@
 		<property name="simulatorID" value="neuronNSGSimulator" />
 	</bean>
 	
+	<!-- Add flag for Simulation Run Mode --> 
+	<bean id="netPyNENSGSimulatorConfig" class="org.geppetto.core.beans.SimulatorConfig"> 
+		<property name="simulatorName" value="NetPyNE NSG Simulator" />
+		<property name="simulatorID" value="netPyNENSGSimulator" />
+	</bean>
+	
 	<!-- Add flag for External Simulation Run Mode --> 
 	<util:map id="neuronNSGSimulatorParameters">
-	    <entry key="appId" value="REPLACE_WITH_APP_ID"/>
-	   	<entry key="appName" value="REPLACE_WITH_APP_NAME"/>
-	    <entry key="internalUserName" value="REPLACE_WITH_INTERNAL_USER_NAME"/>
-	    <entry key="internalEmail" value="REPLACE_WITH_INTERNAL_EMAIL"/>
+	    <entry key="appId" value="OSB_NSGR-4F32C65E2ED34970BCC5006C9DA2A3D1"/>
+	    <entry key="appName" value="OSB_NSGR"/>
+	    <entry key="internalUserName" value="osbUser"/>
+	    <entry key="internalEmail" value="twitter@opensourcebrain.org"/>
 	</util:map>
 	<bean id="neuronNSGExternalSimulatorConfig" class="org.geppetto.core.simulator.RemoteSimulatorConfig"> 
-		<property name="simulatorPath" value="REPLACE_WITH_URL_TO_SIMULATOR" />
-		<property name="username" value="REPLACE_WITH_USERNAME" />
-		<property name="password" value="REPLACE_WITH_PASSWORD" />
+		<property name="simulatorPath" value="https://nsgr.sdsc.edu:8444/cipresrest/v1" />
+		<property name="username" value="osbadmin" />
+		<property name="password" value="golgicell99" />
 		<property name="simulatorParameters" ref="neuronNSGSimulatorParameters" />
 	</bean>
 </beans>
