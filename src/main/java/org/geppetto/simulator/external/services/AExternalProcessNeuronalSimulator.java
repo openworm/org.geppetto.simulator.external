@@ -108,9 +108,16 @@ public abstract class AExternalProcessNeuronalSimulator extends AExternalProcess
 		}
 		catch(Exception e)
 		{
+			String errorMessage = "Failed Neuron Simulator for ";
+			this.processFailed(errorMessage, e);
 			//The HDF5 library throws a generic Exception :/
 			throw new GeppettoExecutionException(e);
 		}
+	}
+	
+	@Override
+	public void processFailed(String errorMessage, Exception e){
+		this.getListener().externalProcessFailed(errorMessage, e);
 	}
 
 }
