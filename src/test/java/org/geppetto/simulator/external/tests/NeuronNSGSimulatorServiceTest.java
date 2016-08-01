@@ -171,4 +171,10 @@ public class NeuronNSGSimulatorServiceTest implements ISimulatorCallbackListener
 	{
 	}
 
+	@Override
+	public void externalProcessFailed(String message, Exception e) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -317,4 +317,9 @@ public class NeuronNSGSimulatorService extends AExternalProcessNeuronalSimulator
 		return myClient;
 	}
 
+	@Override
+	public void processFailed(String message, Exception e) {
+		this.getListener().externalProcessFailed(message, e);		
+	}
+
 }
