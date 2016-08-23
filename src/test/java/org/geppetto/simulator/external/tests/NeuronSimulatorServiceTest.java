@@ -165,9 +165,9 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	@AfterClass
 	public static void doYourOneTimeTeardown() throws IOException
 	{
-		Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/").getFile()));
+		//Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/").getFile()));
 		//Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/x86_64/").getFile()));
-		Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/time.dat").getFile()));
+		//Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/time.dat").getFile()));
 	}
 
 	@Override

@@ -59,10 +59,10 @@ public abstract class AExternalProcessNeuronalSimulator extends AExternalProcess
 	@Override
 	public void processDone(String[] processCommand) throws GeppettoExecutionException
 	{
+		ExternalProcess process = this.getExternalProccesses().get(processCommand);
+
 		try
 		{
-			ExternalProcess process = this.getExternalProccesses().get(processCommand);
-
 			List<String> variableNames = new ArrayList<String>();
 
 			ConvertDATToRecording datConverter = new ConvertDATToRecording(PathConfiguration.createProjectTmpFolder(Scope.RUN, projectId, PathConfiguration.getName("results", true)+ ".h5"),this.geppettoModelAccess);
@@ -108,8 +108,7 @@ public abstract class AExternalProcessNeuronalSimulator extends AExternalProcess
 		}
 		catch(Exception e)
 		{
-			String errorMessage = "Failed Neuron Simulator for ";
-			this.processFailed(errorMessage, e);
+			this.processFailed(process.getLogErrorMessage(), e);
 			//The HDF5 library throws a generic Exception :/
 			throw new GeppettoExecutionException(e);
 		}
