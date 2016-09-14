@@ -75,8 +75,9 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 		simulator = new NeuronSimulatorService();
 		simulator.registerGeppettoService();
 
+		String neuron_home = System.getenv("NEURON_HOME");
 		ExternalSimulatorConfig externalConfig = new ExternalSimulatorConfig();
-		externalConfig.setSimulatorPath(System.getenv("NEURON_HOME"));
+		externalConfig.setSimulatorPath(neuron_home);
 		Assert.assertNotNull(externalConfig.getSimulatorPath());
 		simulator.setNeuronExternalSimulatorConfig(externalConfig);
 		SimulatorConfig simulatorConfig = new SimulatorConfig();
@@ -164,9 +165,15 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	@AfterClass
 	public static void doYourOneTimeTeardown() throws IOException
 	{
-		Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/").getFile()));
-		Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/x86_64/").getFile()));
-		Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/time.dat").getFile()));
+		//Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/").getFile()));
+		//Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/x86_64/").getFile()));
+		//Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/time.dat").getFile()));
+	}
+
+	@Override
+	public void externalProcessFailed(String message, Exception e) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

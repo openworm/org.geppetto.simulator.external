@@ -52,4 +52,9 @@ public class NeuronNSGSimulatorService extends NSGSimulatorService
 		this.neuronNSGSimulatorConfig = neuronSimulatorConfig;
 	}
 
+	@Override
+	public void processFailed(String message, Exception e) {
+		this.getListener().externalProcessFailed(message, e);		
+	}
+
 }
