@@ -51,4 +51,10 @@ public class NetPyNENSGSimulatorService extends NSGSimulatorService
 		this.netPyNENSGSimulatorConfig = netPyNENSGSimulatorConfig;
 	}
 
+
+	@Override
+	public void processFailed(String message, Exception e) {
+		this.getListener().externalProcessFailed(message, e);		
+	}
+	
 }
