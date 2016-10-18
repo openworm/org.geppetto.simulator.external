@@ -41,6 +41,12 @@
 		<property name="simulatorID" value="neuronNSGSimulator" />
 	</bean>
 	
+	<!-- Add flag for Simulation Run Mode --> 
+	<bean id="netPyNENSGSimulatorConfig" class="org.geppetto.core.beans.SimulatorConfig"> 
+		<property name="simulatorName" value="NetPyNE NSG Simulator" />
+		<property name="simulatorID" value="netPyNENSGSimulator" />
+	</bean>
+	
 	<!-- Add flag for External Simulation Run Mode --> 
 	<util:map id="neuronNSGSimulatorParameters">
 	    <entry key="appId" value="REPLACE_WITH_APP_ID"/>
@@ -54,4 +60,5 @@
 		<property name="password" value="REPLACE_WITH_PASSWORD" />
 		<property name="simulatorParameters" ref="neuronNSGSimulatorParameters" />
 	</bean>
+	
 </beans>
