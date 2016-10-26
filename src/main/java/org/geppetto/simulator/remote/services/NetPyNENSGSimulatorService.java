@@ -11,35 +11,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Wrapper class for NEURON at Neuroscience Gateway
+ * Wrapper class for NetPyNE at Neuroscience Gateway
  * 
  * @author Adrian Quintana (adrianquintana@gmail.com)
  *
  */
 @Service
-public class NeuronNSGSimulatorService extends NSGSimulatorService
+public class NetPyNENSGSimulatorService extends NSGSimulatorService
 {
-
 	@Autowired
-	private SimulatorConfig neuronNSGSimulatorConfig;
+	private SimulatorConfig netPyNENSGSimulatorConfig;
 	
 	@Override
 	public void registerGeppettoService()
 	{
-		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.registerModelFormat("NEURON")));
+		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.registerModelFormat("NETPYNE")));
 		ServicesRegistry.registerSimulatorService(this, modelFormats);
 	}
 	
 	@Override
 	public String getName()
 	{
-		return this.neuronNSGSimulatorConfig.getSimulatorName();
+		return this.netPyNENSGSimulatorConfig.getSimulatorName();
 	}
 
 	@Override
 	public String getId()
 	{
-		return this.neuronNSGSimulatorConfig.getSimulatorID();
+		return this.netPyNENSGSimulatorConfig.getSimulatorID();
 	}
 
 
@@ -47,14 +46,15 @@ public class NeuronNSGSimulatorService extends NSGSimulatorService
 	 * @param neuronSimulatorConfig
 	 * @deprecated for test purposes only, the configuration is autowired
 	 */
-	public void setNeuronSimulatorConfig(SimulatorConfig neuronSimulatorConfig)
+	public void setNeuronSimulatorConfig(SimulatorConfig netPyNENSGSimulatorConfig)
 	{
-		this.neuronNSGSimulatorConfig = neuronSimulatorConfig;
+		this.netPyNENSGSimulatorConfig = netPyNENSGSimulatorConfig;
 	}
+
 
 	@Override
 	public void processFailed(String message, Exception e) {
 		this.getListener().externalProcessFailed(message, e);		
 	}
-
+	
 }
