@@ -108,7 +108,6 @@ public abstract class AExternalProcessNeuronalSimulator extends AExternalProcess
 		}
 		catch(Exception e)
 		{
-			this.processFailed(process.getLogErrorMessage(), e);
 			//The HDF5 library throws a generic Exception :/
 			throw new GeppettoExecutionException(e);
 		}
