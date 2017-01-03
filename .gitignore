@@ -1,4 +1,6 @@
 /target
+/bin
+/geppettoTmp
 src/main/java/META-INF/MANIFEST.MF
 *.DS_Store
 /.externalToolBuilders/
