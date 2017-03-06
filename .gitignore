@@ -7,3 +7,4 @@ src/main/java/META-INF/MANIFEST.MF
 /.settings/
 .classpath
 /libjhdf5.jnilib
+/libjhdf5.so
