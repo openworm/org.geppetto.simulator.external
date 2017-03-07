@@ -50,55 +50,54 @@ import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.core.simulator.ExternalSimulatorConfig;
 import org.geppetto.model.ExternalDomainModel;
 import org.geppetto.model.GeppettoFactory;
-import org.geppetto.simulator.external.services.NeuronSimulatorService;
+import org.geppetto.simulator.external.services.NetPyNESimulatorService;
 import org.geppetto.simulator.external.services.Utilities;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
+public class NetPyNESimulatorServiceTest implements ISimulatorCallbackListener
 {
 
 	private static String dirToExecute;
 	private static String fileToExecute;
-	private static NeuronSimulatorService simulator;
+	private static NetPyNESimulatorService simulator;
 	private static String resultsDir;
 	private static boolean done = false;
 
 	@BeforeClass
 	public static void setup()
 	{
-		File dir = new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/").getFile());
+		File dir = new File(NetPyNESimulatorServiceTest.class.getResource("/netpyneConvertedModel/").getFile());
 		dirToExecute = dir.getAbsolutePath();
 		fileToExecute = "/main_script.py";
 
-		simulator = new NeuronSimulatorService();
+		simulator = new NetPyNESimulatorService();
 		simulator.registerGeppettoService();
 
 		String neuron_home = System.getenv("NEURON_HOME");
 		if (!neuron_home.endsWith("/bin/"))
-            // NEURON_HOME is supposed to point to root of NEURON in jNeuroML...
 			neuron_home +="/bin/";
 		ExternalSimulatorConfig externalConfig = new ExternalSimulatorConfig();
 		externalConfig.setSimulatorPath(neuron_home);
 		Assert.assertNotNull(externalConfig.getSimulatorPath());
-		simulator.setNeuronExternalSimulatorConfig(externalConfig);
+		simulator.setNetPyNEExternalSimulatorConfig(externalConfig);
 		SimulatorConfig simulatorConfig = new SimulatorConfig();
-		simulatorConfig.setSimulatorID("neuronSimulator");
-		simulatorConfig.setSimulatorName("neuronSimulator");
-		simulator.setNeuronSimulatorConfig(simulatorConfig);
+		simulatorConfig.setSimulatorID("netpyneSimulator");
+		simulatorConfig.setSimulatorName("netpyneSimulator");
+		simulator.setNetPyNESimulatorConfig(simulatorConfig);
 	}
 
 	/**
-	 * Test method for {@link org.geppetto.simulator.external.services.NeuronSimulatorService}.
+	 * Test method for {@link org.geppetto.simulator.external.services.NetPyNESimulatorService}.
 	 * 
 	 * @throws Exception
 	 */
 	@Test
-	public void testNeuronExecution() throws Exception
+	public void testNetPyNEExecution() throws Exception
 	{
 		ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
-		model.setFormat(ServicesRegistry.getModelFormat("NEURON"));
+		model.setFormat(ServicesRegistry.getModelFormat("NETPYNE"));
 		model.setDomainModel(dirToExecute + fileToExecute);
 		simulator.initialize(model, null, null, this, null);
 		simulator.simulate();
@@ -117,7 +116,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 		try
 		{
 			// read DAT into a buffered reader
-			File dir = new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/ex5_vars.dat").getFile());
+			File dir = new File(NetPyNESimulatorServiceTest.class.getResource("/netpyneConvertedModel/results/ex5_vars.dat").getFile());
 
 			input = new BufferedReader(new FileReader(dir));
 
@@ -133,7 +132,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 			input.close();
 
 			// read DAT into a buffered reader
-			dir = new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/ex5_v.dat").getFile());
+			dir = new File(NetPyNESimulatorServiceTest.class.getResource("/netpyneConvertedModel/results/ex5_v.dat").getFile());
 			input = new BufferedReader(new FileReader(dir));
 
 			// read rest of DAT file and extract values
@@ -168,9 +167,6 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	@AfterClass
 	public static void doYourOneTimeTeardown() throws IOException
 	{
-		//Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/").getFile()));
-		//Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/x86_64/").getFile()));
-		//Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/time.dat").getFile()));
 	}
 
 	@Override

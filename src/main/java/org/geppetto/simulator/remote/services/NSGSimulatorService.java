@@ -134,7 +134,12 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 			{
 				//AQP: Should this be executed in a different thread?
 				// this.runExternalProcess(commands, directoryToExecuteFrom, originalFileName);
-				jobStatus = NSGUtilities.sendJob(myClient, this.experimentState.getExperimentId(), filePath, false);
+                long jobId = System.currentTimeMillis();
+                if (this.experimentState!=null)
+                {
+                    jobId = this.experimentState.getExperimentId();
+                }
+				jobStatus = NSGUtilities.sendJob(myClient, jobId, filePath, false);
 				started = true;
 				
 				try{
@@ -155,6 +160,17 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 			{
 				ErrorData ed = ce.getErrorData();
 				logger.error("Cipres error code=" + ed.code + ", message=" + ed.displayMessage);
+				logger.error("Cipres error code=" + ed.message);
+				logger.error("Cipres error code=" + ed.paramError);
+				logger.error("Cipres error code=" + ed.limitStatus);
+				if (ed.paramError!=null)
+				{
+				    for (ParamError pe: ed.paramError)
+                    {
+                        logger.error(pe.param + " = " + pe.error); 
+                    }
+                }
+                
 				if(ed.code == ErrorData.FORM_VALIDATION)
 				{
 					for(ParamError pe : ed.paramError)
@@ -169,10 +185,17 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 					throw new GeppettoExecutionException("Usage Limit Error, type=" + ls.type + ", ceiling=" + ls.ceiling);
 				}
 			}
+			catch(javax.ws.rs.InternalServerErrorException e)
+			{
+				e.printStackTrace();
+                logger.error("- Response: "+e.getResponse());
+                logger.error("- Response: "+e.getResponse().serverError());
+				throw new GeppettoExecutionException("Error executing simulation for Neuron NSG Simulator Service: "+e.getMessage(), e);
+			}
 			catch(Exception e)
 			{
 				//e.printStackTrace();
-				throw new GeppettoExecutionException("Error executing simulation for Neuron NSG Simulator Service");
+				throw new GeppettoExecutionException("Error executing simulation for Neuron NSG Simulator Service: "+e.getMessage(), e);
 			}
 		}
 		else
