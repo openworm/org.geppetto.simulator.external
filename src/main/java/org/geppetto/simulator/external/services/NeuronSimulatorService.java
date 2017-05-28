@@ -37,6 +37,8 @@ public class NeuronSimulatorService extends AExternalProcessNeuronalSimulator
 
 	private static Log logger = LogFactory.getLog(NeuronSimulatorService.class);
 
+	private static boolean isRunning;
+
 	@Autowired
 	private SimulatorConfig neuronSimulatorConfig;
 
@@ -58,7 +60,7 @@ public class NeuronSimulatorService extends AExternalProcessNeuronalSimulator
 			throw new GeppettoExecutionException("Unexpected domain model inside NEURON Simulator service");
 		}
 		this.createCommands(this.originalFileName);
-		this.supportConcurrentRuns(false);
+		
 	}
 
 	/**
