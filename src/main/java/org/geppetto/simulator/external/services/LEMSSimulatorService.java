@@ -125,7 +125,7 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 
 			List<String> variableNames = new ArrayList<String>();
 
-			ConvertDATToRecording datConverter = new ConvertDATToRecording(PathConfiguration.createProjectTmpFolder(Scope.RUN, projectId, PathConfiguration.getName("results", true) + ".h5"), this.geppettoModelAccess);
+			ConvertDATToRecording datConverter = new ConvertDATToRecording(PathConfiguration.createExperimentTmpPath(Scope.RUN, projectId, getExperiment().getId(), aspectConfiguration.getInstance(), PathConfiguration.getName("results", true)+ ".h5"),this.geppettoModelAccess);
 
 			Map<File, ResultsFormat> results = new HashMap<File, ResultsFormat>();
 
