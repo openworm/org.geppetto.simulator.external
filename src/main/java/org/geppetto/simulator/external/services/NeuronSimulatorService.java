@@ -37,8 +37,6 @@ public class NeuronSimulatorService extends AExternalProcessNeuronalSimulator
 
 	private static Log logger = LogFactory.getLog(NeuronSimulatorService.class);
 
-	private static boolean isRunning;
-
 	@Autowired
 	private SimulatorConfig neuronSimulatorConfig;
 

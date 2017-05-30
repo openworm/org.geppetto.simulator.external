@@ -63,8 +63,6 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 	@Autowired
 	private ExternalSimulatorConfig lemsExternalSimulatorConfig;
 
-	private static boolean isRunning;
-
 	@Override
 	public void initialize(DomainModel model, IAspectConfiguration aspectConfiguration, ExperimentState experimentState, ISimulatorCallbackListener listener, GeppettoModelAccess modelAccess) throws GeppettoInitializationException,
 			GeppettoExecutionException
