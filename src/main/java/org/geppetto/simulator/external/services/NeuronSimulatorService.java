@@ -58,6 +58,7 @@ public class NeuronSimulatorService extends AExternalProcessNeuronalSimulator
 			throw new GeppettoExecutionException("Unexpected domain model inside NEURON Simulator service");
 		}
 		this.createCommands(this.originalFileName);
+		
 	}
 
 	/**
