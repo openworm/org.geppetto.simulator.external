@@ -45,6 +45,8 @@ import junit.framework.Assert;
 import org.geppetto.core.beans.SimulatorConfig;
 import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.data.model.ResultsFormat;
+import org.geppetto.core.data.model.local.LocalAspectConfiguration;
+import org.geppetto.core.data.model.local.LocalExperiment;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.core.simulator.ExternalSimulatorConfig;
@@ -97,7 +99,9 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 		ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
 		model.setFormat(ServicesRegistry.getModelFormat("NEURON"));
 		model.setDomainModel(dirToExecute + fileToExecute);
-		simulator.initialize(model, null, null, this, null);
+		simulator.initialize(model, new LocalAspectConfiguration(1, "testModel", null, null, null), null, this, null);
+		simulator.setProjectId(1);
+		simulator.setExperiment(new LocalExperiment(1, null, null, null, null, null, null, null, null, null, null));
 		simulator.simulate();
 		Thread.sleep(6000);
 		Assert.assertTrue(done);
@@ -165,15 +169,16 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	@AfterClass
 	public static void doYourOneTimeTeardown() throws IOException
 	{
-		//Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/").getFile()));
-		//Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/x86_64/").getFile()));
-		//Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/time.dat").getFile()));
+		 Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/results/").getFile()));
+		 Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/x86_64/").getFile()));
+		 Utilities.delete(new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/time.dat").getFile()));
 	}
 
 	@Override
-	public void externalProcessFailed(String message, Exception e) {
+	public void externalProcessFailed(String message, Exception e)
+	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
