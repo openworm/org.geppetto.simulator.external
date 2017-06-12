@@ -5,16 +5,12 @@
   "sections" : [ {
     "name" : "soma",
     "id" : "0",
-    "points3d" : [ "0.00000, 0.00000, 0.00000, 17.8412", "0.00000, 17.8412, 0.00000, 17.8412" ],
+    "points3d" : [ "0.0, 0.0, 0.0, 17.841242", "0.0, 17.841242, 0.0, 17.841242" ],
     "comments" : "Section in NeuroML is spherical, so using cylindrical section along Y axis in NEURON"
   } ],
   "groups" : [ {
-    "name" : "Soma",
-    "segments" : [ "soma" ]
-  }, {
     "name" : "soma_group",
-    "groups" : [ "Soma" ],
-    "sections" : [ ]
+    "segments" : [ "soma" ]
   }, {
     "name" : "all",
     "sections" : [ "soma" ]
@@ -33,22 +29,22 @@
   } ],
   "channelDensity" : [ {
     "id" : "leak",
-    "ionChannel" : "passive",
+    "ionChannel" : "passiveChan",
     "ion" : "non_specific",
     "group" : "all",
     "condDens" : "2.9999999E-4",
     "erev" : "-54.3"
   }, {
     "id" : "naChans",
-    "ionChannel" : "na",
-    "ion" : "non_specific",
+    "ionChannel" : "naChan",
+    "ion" : "na",
     "group" : "all",
     "condDens" : "0.12",
     "erev" : "50.0"
   }, {
     "id" : "kChans",
-    "ionChannel" : "k",
-    "ion" : "non_specific",
+    "ionChannel" : "kChan",
+    "ion" : "k",
     "group" : "all",
     "condDens" : "0.036",
     "erev" : "-77.0"
@@ -74,9 +70,7 @@ public toString, netInfo, set_initial_v, set_initial_ion_properties, synlist
 create soma
 public soma
 
-// Group: {name=Soma, segments=[soma]}
-objref Soma
-// Group: {name=soma_group, groups=[Soma], sections=[]}
+// Group: {name=soma_group, segments=[soma]}
 objref soma_group
 // Group: {name=all, sections=[soma]}
 objref all
@@ -92,7 +86,7 @@ proc init() {
     biophys_inhomogeneous()
     synlist = new List()
     x = y = z = 0
-    
+
 }
 
 proc set_initial_v() {
@@ -116,20 +110,16 @@ proc basic_shape() {
 
     // Section: soma, id: 0, parent: $s.parent (entry count 0/100)
     soma { pt3dclear() }
-    soma { pt3dadd( 0.00000, 0.00000, 0.00000, 17.8412 ) }
-    soma { pt3dadd( 0.00000, 17.8412, 0.00000, 17.8412 ) }
+    soma { pt3dadd( 0.0, 0.0, 0.0, 17.841242 ) }
+    soma { pt3dadd( 0.0, 17.841242, 0.0, 17.841242 ) }
 
 }
 
 
 proc subsets() { local i
 
-    // Group: {name=Soma, segments=[soma]}
-    Soma = new SectionList()
-
-    // Group: {name=soma_group, groups=[Soma], sections=[]}
+    // Group: {name=soma_group, segments=[soma]}
     soma_group = new SectionList()
-    forsec Soma soma_group.append()
 
     // Group: {name=all, sections=[soma]}
     all = new SectionList()
@@ -151,19 +141,19 @@ proc biophys() {
 
     // Channel densities
     forsec all {
-        insert passive
-        gmax_passive = 2.9999999E-4  // units: S cm-2
-        e_passive = -54.3  // units: mV
+        insert passiveChan
+        gmax_passiveChan = 2.9999999E-4  // units: S cm-2
+        e_passiveChan = -54.3  // units: mV
     }
     forsec all {
-        insert na
-        gmax_na = 0.12  // units: S cm-2
-        e_na = 50.0  // units: mV
+        insert naChan
+        gmax_naChan = 0.12  // units: S cm-2
+        ena = 50.0  // units: mV
     }
     forsec all {
-        insert k
-        gmax_k = 0.036  // units: S cm-2
-        e_k = -77.0  // units: mV
+        insert kChan
+        gmax_kChan = 0.036  // units: S cm-2
+        ek = -77.0  // units: mV
     }
 
     // Concentration models for species

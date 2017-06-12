@@ -8,3 +8,6 @@ src/main/java/META-INF/MANIFEST.MF
 .classpath
 /libjhdf5.jnilib
 /libjhdf5.so
+/src/test/resources/netpyneConvertedModel/results
+/src/test/resources/netpyneConvertedModel/x86_64
+/src/test/resources/neuronConvertedModel/x86_64
