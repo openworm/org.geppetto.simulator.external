@@ -11,3 +11,4 @@ src/main/java/META-INF/MANIFEST.MF
 /src/test/resources/netpyneConvertedModel/results
 /src/test/resources/netpyneConvertedModel/x86_64
 /src/test/resources/neuronConvertedModel/x86_64
+/src/main/java/META-INF/spring/app-config.xml.netpyne

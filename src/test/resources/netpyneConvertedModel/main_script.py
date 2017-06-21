@@ -58,14 +58,14 @@ simConfig.recordTraces = {}
 
 # For saving to file: results/ex5_v.dat (ref: of0)
 # Column: v: Pop: hhpop; cell: 0; segment id: 0; segment name: soma; Neuron loc: soma(0.5); value: v (v)
-simConfig.recordTraces['of0_hhpop_0_soma_v'] = {'sec':'soma','loc':0.5,'var':'v','conds':{'popLabel':'hhpop','cellLabel':0}}
+simConfig.recordTraces['of0_hhpop_0_soma_v'] = {'sec':'soma','loc':0.5,'var':'v','conds':{'pop':'hhpop','cellLabel':0}}
 # For saving to file: results/ex5_vars.dat (ref: of1)
 # Column: m: Pop: hhpop; cell: 0; segment id: 0; segment name: soma; Neuron loc: soma(0.5); value: bioPhys1_membraneProperties_naChans_naChan_m_q (m_q_naChan)
-simConfig.recordTraces['of1_hhpop_0_soma_m_q_naChan'] = {'sec':'soma','loc':0.5,'var':'m_q_naChan','conds':{'popLabel':'hhpop','cellLabel':0}}
+simConfig.recordTraces['of1_hhpop_0_soma_m_q_naChan'] = {'sec':'soma','loc':0.5,'var':'m_q_naChan','conds':{'pop':'hhpop','cellLabel':0}}
 # Column: h: Pop: hhpop; cell: 0; segment id: 0; segment name: soma; Neuron loc: soma(0.5); value: bioPhys1_membraneProperties_naChans_naChan_h_q (h_q_naChan)
-simConfig.recordTraces['of1_hhpop_0_soma_h_q_naChan'] = {'sec':'soma','loc':0.5,'var':'h_q_naChan','conds':{'popLabel':'hhpop','cellLabel':0}}
+simConfig.recordTraces['of1_hhpop_0_soma_h_q_naChan'] = {'sec':'soma','loc':0.5,'var':'h_q_naChan','conds':{'pop':'hhpop','cellLabel':0}}
 # Column: n: Pop: hhpop; cell: 0; segment id: 0; segment name: soma; Neuron loc: soma(0.5); value: bioPhys1_membraneProperties_kChans_kChan_n_q (n_q_kChan)
-simConfig.recordTraces['of1_hhpop_0_soma_n_q_kChan'] = {'sec':'soma','loc':0.5,'var':'n_q_kChan','conds':{'popLabel':'hhpop','cellLabel':0}}
+simConfig.recordTraces['of1_hhpop_0_soma_n_q_kChan'] = {'sec':'soma','loc':0.5,'var':'n_q_kChan','conds':{'pop':'hhpop','cellLabel':0}}
 
 
 simConfig.plotCells = ['all']
