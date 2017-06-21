@@ -19,6 +19,8 @@ install:
 - cd ..
 - cd ..
 - sudo pip install netpyne
+- sudo pip install numpy
+- sudo pip install scipy
 - git clone https://github.com/openworm/org.geppetto.model.git -b $main_repo_branch
 - cd org.geppetto.model
 - mvn install
