@@ -47,7 +47,7 @@
 		<dependency>
  			<groupId>org.lemsml</groupId>		
  			<artifactId>jlems</artifactId>		
- 			<version>0.9.8.8</version>		
+ 			<version>0.9.8.9</version>		
  		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -74,7 +74,7 @@
 	<repositories>
 		<repository>
 			<id>org.geppetto-mvn-repo</id>
-			<url>https://raw.github.com/openworm/org.geppetto.maven/mvn-repo</url>
+            <url>https://raw.github.com/openworm/org.geppetto.maven/mvn-repo-nml-1.5.1-lems2</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
