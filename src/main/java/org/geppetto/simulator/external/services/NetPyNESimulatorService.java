@@ -43,12 +43,23 @@ public class NetPyNESimulatorService extends AExternalProcessNeuronalSimulator
 
 	@Autowired
     private ExternalSimulatorConfig netpyneExternalSimulatorConfig;
+    
+    private int numberProcessors = 1;
 
 	@Override
 	public void initialize(DomainModel model, IAspectConfiguration aspectConfiguration, ExperimentState experimentState, ISimulatorCallbackListener listener, GeppettoModelAccess modelAccess)
 			throws GeppettoInitializationException, GeppettoExecutionException
 	{
 		super.initialize(model, aspectConfiguration, experimentState, listener, modelAccess);
+
+        if (aspectConfiguration.getSimulatorConfiguration()!=null)
+        {
+            if (aspectConfiguration.getSimulatorConfiguration().getParameters().get("numberProcessors")!=null &&
+                aspectConfiguration.getSimulatorConfiguration().getParameters().get("numberProcessors").length()>0)
+            {
+                numberProcessors = Integer.parseInt(aspectConfiguration.getSimulatorConfiguration().getParameters().get("numberProcessors"));
+            }
+        }
 
 		if(model instanceof ExternalDomainModel)
 		{
@@ -86,7 +97,15 @@ public class NetPyNESimulatorService extends AExternalProcessNeuronalSimulator
 		}
 		else
 		{
-			commands = new String[] { getSimulatorPath() + "nrnivmodl", "mkdir results", getSimulatorPath() + "nrniv -python " + filePath.getAbsolutePath()+" -nogui" };
+            if (numberProcessors==1)
+            {
+                commands = new String[] { getSimulatorPath() + "nrnivmodl", "mkdir results", getSimulatorPath() + "nrniv -python " + filePath.getAbsolutePath()+" -nogui"};
+            }
+            else
+            {
+                commands = new String[] { getSimulatorPath() + "nrnivmodl", "mkdir results", "mpiexec -np "+numberProcessors+" "+getSimulatorPath() + "nrniv -mpi " + filePath.getAbsolutePath()+"" };
+            }
+            
 		}
 
 		String info = "Commands to execute from directory: " + directoryToExecuteFrom+":\n";
