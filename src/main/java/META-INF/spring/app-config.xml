@@ -45,6 +45,17 @@
 	<bean id="lemsExternalSimulatorConfig" class="org.geppetto.core.simulator.ExternalSimulatorConfig"> 
 		<property name="simulatorPath" value="REPLACE_WITH_LOCAL_PATH_TO_JNEUROML" />
 	</bean>
+    
+		<!-- Add flag for Simulation Run Mode --> 
+	<bean id="jneuromlSimulatorConfig" class="org.geppetto.core.beans.SimulatorConfig"> 
+		<property name="simulatorName" value="jNeuroML Simulator" />
+		<property name="simulatorID" value="jneuromlSimulator" />
+	</bean>
+	
+	<!-- Add flag for External Simulation Run Mode --> 
+	<bean id="jneuromlExternalSimulatorConfig" class="org.geppetto.core.simulator.ExternalSimulatorConfig"> 
+		<property name="simulatorPath" value="REPLACE_WITH_LOCAL_PATH_TO_JNEUROML" />
+	</bean>
 	
 	<!-- Add flag for Simulation Run Mode --> 
 	<bean id="neuronNSGSimulatorConfig" class="org.geppetto.core.beans.SimulatorConfig"> 

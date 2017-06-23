@@ -301,12 +301,12 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 	}
 
 	/**
-	 * @param neuronNSGExternalSimulatorConfig
+	 * @param nsgExternalSimulatorConfig
 	 * @deprecated for test purposes only, the configuration is autowired
 	 */
-	public void setNeuronNSGExternalSimulatorConfig(RemoteSimulatorConfig neuronNSGExternalSimulatorConfig)
+	public void setNSGExternalSimulatorConfig(RemoteSimulatorConfig nsgExternalSimulatorConfig)
 	{
-		this.NSGExternalSimulatorConfig = neuronNSGExternalSimulatorConfig;
+		this.NSGExternalSimulatorConfig = nsgExternalSimulatorConfig;
 	}
 	
 	/**
