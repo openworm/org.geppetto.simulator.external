@@ -61,12 +61,23 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 
 	private CiClient myClient;
 	private CiJob jobStatus;
+    
+    private int numberProcessors = 1;
 
 	@Override
 	public void initialize(DomainModel model, IAspectConfiguration aspectConfiguration, ExperimentState experimentState, ISimulatorCallbackListener listener, GeppettoModelAccess modelAccess)
 			throws GeppettoInitializationException, GeppettoExecutionException
 	{
 		super.initialize(model, aspectConfiguration, experimentState, listener, modelAccess);
+        
+        if (aspectConfiguration!=null && aspectConfiguration.getSimulatorConfiguration()!=null)
+        {
+            if (aspectConfiguration.getSimulatorConfiguration().getParameters().get("numberProcessors")!=null &&
+                aspectConfiguration.getSimulatorConfiguration().getParameters().get("numberProcessors").length()>0)
+            {
+                numberProcessors = Integer.parseInt(aspectConfiguration.getSimulatorConfiguration().getParameters().get("numberProcessors"));
+            }
+        }
 
 		if(model instanceof ExternalDomainModel)
 		{
@@ -85,7 +96,7 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 			outputFolder = directoryToExecuteFrom;
 
 			// Rename main script to input.py (NSG requirement)
-			File renamedfilePath = new File(directoryToExecuteFrom + "/input.py");
+			File renamedfilePath = new File(directoryToExecuteFrom + "/init.py");
 			Files.copy(originalFilePath.toPath(), renamedfilePath.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
 			// Create Results Folder (it is needed because of the way the neuron code is generated in the export library)
@@ -139,7 +150,7 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
                 {
                     jobId = this.experimentState.getExperimentId();
                 }
-				jobStatus = NSGUtilities.sendJob(myClient, jobId, filePath, false);
+				jobStatus = NSGUtilities.sendJob(myClient, jobId, filePath, numberProcessors, false);
 				started = true;
 				
 				try{

@@ -46,6 +46,8 @@ import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.common.GeppettoInitializationException;
 import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.data.model.ResultsFormat;
+import org.geppetto.core.data.model.local.LocalAspectConfiguration;
+import org.geppetto.core.data.model.local.LocalSimulatorConfiguration;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.core.simulator.RemoteSimulatorConfig;
@@ -78,7 +80,7 @@ public class NetPyNENSGSimulatorServiceTest implements ISimulatorCallbackListene
         if (localTest)
         {
             System.out.println("setup NetPyNENSGSimulatorServiceTest...");
-            File dir = new File(NetPyNENSGSimulatorServiceTest.class.getResource("/netpyneConvertedModel/").getFile());
+            File dir = new File(NetPyNENSGSimulatorServiceTest.class.getResource("/netpyneConvertedModel2/").getFile());
             dirToExecute = dir.getAbsolutePath();
             fileToExecute = "/main_script.py";
 
@@ -112,7 +114,6 @@ public class NetPyNENSGSimulatorServiceTest implements ISimulatorCallbackListene
                     remoteSimulatorConfig.setPassword(w[3]);
                 
             }
-            System.out.println("sp: "+simulatorParameters);
             
             remoteSimulatorConfig.setSimulatorParameters(simulatorParameters);
             Assert.assertNotNull(remoteSimulatorConfig.getSimulatorPath());
@@ -122,8 +123,6 @@ public class NetPyNENSGSimulatorServiceTest implements ISimulatorCallbackListene
             simulatorConfig.setSimulatorName("netpyneNSGSimulator");
             simulator.setNetPyNESimulatorConfig(simulatorConfig);
 
-            System.out.println("SC: "+remoteSimulatorConfig.getSimulatorParameters().keySet());
-            System.out.println("Setup; "+dirToExecute);
         }
 	}
 
@@ -141,7 +140,14 @@ public class NetPyNENSGSimulatorServiceTest implements ISimulatorCallbackListene
             ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
             model.setFormat(ServicesRegistry.getModelFormat("NETPYNE"));
             model.setDomainModel(dirToExecute + fileToExecute);
-            simulator.initialize(model, null, null, this, null);
+            
+            Map<String, String> params = new HashMap<>();
+            params.put("numberProcessors", "8");
+            LocalSimulatorConfiguration simConf  = new LocalSimulatorConfiguration(0, "??", dirToExecute, 0, 0, params);
+            IAspectConfiguration iac = new LocalAspectConfiguration(1, "testModel", null, null, simConf);
+        
+            simulator.initialize(model, iac, null, this, null);
+            
             simulator.simulate();
             System.out.println("Sleeping...");
             Thread.sleep(6000);
@@ -168,10 +174,6 @@ public class NetPyNENSGSimulatorServiceTest implements ISimulatorCallbackListene
             ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
             model.setFormat(ServicesRegistry.getModelFormat("NETPYNE"));
             model.setDomainModel(dirToExecute + fileToExecute);
-    //        File localCompModFiledir = new File(dirToExecute,"x86_64");
-    //        System.out.println("Checking "+localCompModFiledir.getAbsolutePath() );
-    //        if (localCompModFiledir.exists())
-    //            localCompModFiledir.
 
             simulator.initialize(model, null, null, this, null);
             NSGUtilities.listJobs(simulator.getCiClient());

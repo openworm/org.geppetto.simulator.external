@@ -47,6 +47,7 @@ import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.data.model.ResultsFormat;
 import org.geppetto.core.data.model.local.LocalAspectConfiguration;
 import org.geppetto.core.data.model.local.LocalExperiment;
+import org.geppetto.core.data.model.local.LocalSimulatorConfiguration;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.core.simulator.ExternalSimulatorConfig;
@@ -90,7 +91,7 @@ public class NetPyNESimulatorServiceTest implements ISimulatorCallbackListener
 		simulator.setNetPyNESimulatorConfig(simulatorConfig);
 	}
 
-	/**
+	/** 
 	 * Test method for {@link org.geppetto.simulator.external.services.NetPyNESimulatorService}.
 	 * 
 	 * @throws Exception
@@ -101,7 +102,14 @@ public class NetPyNESimulatorServiceTest implements ISimulatorCallbackListener
 		ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
 		model.setFormat(ServicesRegistry.getModelFormat("NETPYNE"));
 		model.setDomainModel(dirToExecute + fileToExecute);
-		simulator.initialize(model, new LocalAspectConfiguration(1, "testModel", null, null, null), null, this, null);
+        
+        Map<String, String> params = new HashMap<>();
+        params.put("numberProcessors", "1");
+        LocalSimulatorConfiguration simConf  = new LocalSimulatorConfiguration(0, "??", dirToExecute, 0, 0, params);
+        IAspectConfiguration iac = new LocalAspectConfiguration(1, "testModel", null, null, simConf);
+        
+		simulator.initialize(model, iac, null, this, null);
+        
 		simulator.setProjectId(1);
 		simulator.setExperiment(new LocalExperiment(1, null, null, null, null, null, null, null, null, null, null));
 		simulator.simulate();
