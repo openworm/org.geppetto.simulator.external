@@ -34,105 +34,113 @@ import org.springframework.stereotype.Service;
 public class JNeuroMLSimulatorService extends AExternalProcessNeuronalSimulator
 {
 
-	protected File filePath = null;
+    protected File filePath = null;
 
-	private static Log logger = LogFactory.getLog(JNeuroMLSimulatorService.class);
+    private static Log logger = LogFactory.getLog(JNeuroMLSimulatorService.class);
 
-	@Autowired
-	private SimulatorConfig jneuromlSimulatorConfig;
+    @Autowired
+    private SimulatorConfig jneuromlSimulatorConfig;
 
-	@Autowired
-	private ExternalSimulatorConfig jneuromlExternalSimulatorConfig;
+    @Autowired
+    private ExternalSimulatorConfig jneuromlExternalSimulatorConfig;
 
-	@Override
-	public void initialize(DomainModel model, IAspectConfiguration aspectConfiguration, ExperimentState experimentState, ISimulatorCallbackListener listener, GeppettoModelAccess modelAccess)
-			throws GeppettoInitializationException, GeppettoExecutionException
-	{
-		super.initialize(model, aspectConfiguration, experimentState, listener, modelAccess);
+    @Override
+    public void initialize(DomainModel model, IAspectConfiguration aspectConfiguration, ExperimentState experimentState, ISimulatorCallbackListener listener, GeppettoModelAccess modelAccess)
+            throws GeppettoInitializationException, GeppettoExecutionException
+    {
+        super.initialize(model, aspectConfiguration, experimentState, listener, modelAccess);
 
-		if(model instanceof ExternalDomainModel)
-		{
-			originalFileName = (String) model.getDomainModel();
+        if(model instanceof ExternalDomainModel)
+        {
+            originalFileName = (String) model.getDomainModel();
             System.out.println("originalFileNameoriginalFileNameoriginalFileName "+originalFileName);
-		}
-		else
-		{
-			throw new GeppettoExecutionException("Unexpected domain model inside jNeuroML Simulator service");
-		}
-		this.createCommands(this.originalFileName);
-		
-	}
+        }
+        else
+        {
+            throw new GeppettoExecutionException("Unexpected domain model inside jNeuroML Simulator service");
+        }
+        this.createCommands(this.originalFileName);
 
-	/**
-	 * Creates command to be executed by an external process
-	 * 
-	 * @param originalFileName
-	 * @param aspect
-	 */
-	public void createCommands(String originalFileName)
-	{
-        
-        
-		filePath = new File(originalFileName);
-        
-		logger.info("Creating command to run " + originalFileName);
-		directoryToExecuteFrom = filePath.getParentFile().getAbsolutePath();
-		outputFolder = directoryToExecuteFrom;
+    }
 
-		if(Utilities.isWindows())
-		{
-			commands = new String[] { "mkdir results", File.separator + "jnml.bat " + filePath.getAbsolutePath() };
-		}
-		else
-		{
-			commands = new String[] { "mkdir results", "jnml " + filePath.getAbsolutePath()+" -nogui"};
-		}
+    /**
+     * Creates command to be executed by an external process
+     * 
+     * @param originalFileName
+     * @param aspect
+     */
+    public void createCommands(String originalFileName)
+    {
 
-		logger.info("Command to Execute: " + commands + " ...");
 
-	}
+        filePath = new File(originalFileName);
 
-	@Override
-	public void registerGeppettoService()
-	{
-		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.registerModelFormat("jNeuroML")));
-		ServicesRegistry.registerSimulatorService(this, modelFormats);
-	}
+        logger.info("Creating command to run " + originalFileName);
+        directoryToExecuteFrom = filePath.getParentFile().getAbsolutePath();
+        outputFolder = directoryToExecuteFrom;
 
-	@Override
-	public String getName()
-	{
-		return this.jneuromlSimulatorConfig.getSimulatorName();
-	}
+        String jnml_home = System.getenv("JNML_HOME");
+        jnml_home = jnml_home==null ? "" : jnml_home+"/";
 
-	@Override
-	public String getId()
-	{
-		return this.jneuromlSimulatorConfig.getSimulatorID();
-	}
+        if(Utilities.isWindows())
+        {
+            commands = new String[] { "mkdir results", jnml_home+File.separator + "jnml.bat " + filePath.getAbsolutePath() };
+        }
+        else
+        {
+            commands = new String[] { "mkdir results", jnml_home+"jnml " + filePath.getAbsolutePath()+" -nogui"};
+        }
 
-	@Override
-	public String getSimulatorPath()
-	{
-		return this.jneuromlExternalSimulatorConfig.getSimulatorPath();
-	}
+        String info = "Commands to execute from directory: " + directoryToExecuteFrom+":\n";
+        for (String c: commands)
+        {
+            info+="   >>  " + c+"\n";
+        }
+        logger.info(info);
 
-	/**
-	 * @param jneuromlSimulatorConfig
-	 * @deprecated for test purposes only, the configuration is autowired
-	 */
-	public void setJNeuroMLSimulatorConfig(SimulatorConfig jneuromlSimulatorConfig)
-	{
-		this.jneuromlSimulatorConfig = jneuromlSimulatorConfig;
-	}
+    }
 
-	/**
-	 * @param jneuromlExternalSimulatorConfig
-	 * @deprecated for test purposes only, the configuration is autowired
-	 */
-	public void setJNeuroMLExternalSimulatorConfig(ExternalSimulatorConfig jneuromlExternalSimulatorConfig)
-	{
-		this.jneuromlExternalSimulatorConfig = jneuromlExternalSimulatorConfig;
-	}
+    @Override
+    public void registerGeppettoService()
+    {
+        List<ModelFormat> modelFormats = new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.registerModelFormat("jNeuroML")));
+        ServicesRegistry.registerSimulatorService(this, modelFormats);
+    }
+
+    @Override
+    public String getName()
+    {
+        return this.jneuromlSimulatorConfig.getSimulatorName();
+    }
+
+    @Override
+    public String getId()
+    {
+        return this.jneuromlSimulatorConfig.getSimulatorID();
+    }
+
+    @Override
+    public String getSimulatorPath()
+    {
+        return this.jneuromlExternalSimulatorConfig.getSimulatorPath();
+    }
+
+    /**
+     * @param jneuromlSimulatorConfig
+     * @deprecated for test purposes only, the configuration is autowired
+     */
+    public void setJNeuroMLSimulatorConfig(SimulatorConfig jneuromlSimulatorConfig)
+    {
+        this.jneuromlSimulatorConfig = jneuromlSimulatorConfig;
+    }
+
+    /**
+     * @param jneuromlExternalSimulatorConfig
+     * @deprecated for test purposes only, the configuration is autowired
+     */
+    public void setJNeuroMLExternalSimulatorConfig(ExternalSimulatorConfig jneuromlExternalSimulatorConfig)
+    {
+        this.jneuromlExternalSimulatorConfig = jneuromlExternalSimulatorConfig;
+    }
 
 }
