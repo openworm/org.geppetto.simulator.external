@@ -7,6 +7,8 @@ env:
 install:
 - export main_repo_branch=$TRAVIS_BRANCH
 - if [[ ${main_repo_branch} != "master" && ${main_repo_branch} != "development" ]]; then main_repo_branch=development ; fi
+
+# Install NEURON
 - wget http://www.neuron.yale.edu/ftp/neuron/versions/v7.4/nrn-7.4.tar.gz
 - tar xzvf nrn-7.4.tar.gz
 - cd nrn-7.4
@@ -15,9 +17,9 @@ install:
 - make install
 - cd src/nrnpython
 - sudo python setup.py install
-- cd ..
-- cd ..
-- cd ..
+- cd ../../..
+
+# Install NetPyNE, libNeuroML, pyNeuroML & required libraries
 - sudo pip install netpyne
 - sudo pip install numpy
 - sudo pip install scipy
@@ -26,17 +28,22 @@ install:
 - sudo pip install pyneuroml
 - sudo apt-get install python-tk
 - sudo pip install matplotlib
+
+# Install jNeuroML
+- svn checkout svn://svn.code.sf.net/p/neuroml/code/jNeuroMLJar
+- JNML_HOME=$PWD/jNeuroMLJar
+
+# Install org.geppetto.model
 - git clone https://github.com/openworm/org.geppetto.model.git -b $main_repo_branch
 - cd org.geppetto.model
 - mvn install
 - cd ..
 
-
-- # Todo: remove for development
+# Todo: remove for development
 - if [ $TRAVIS_BRANCH == "pg_netpyne" ]; then main_repo_branch="pg_netpyne" ; fi
 - echo "Cloning branch " $main_repo_branch
 
-
+# Install org.geppetto.core
 - git clone https://github.com/openworm/org.geppetto.core.git -b $main_repo_branch
 - cd org.geppetto.core
 - mvn install
