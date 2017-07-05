@@ -31,7 +31,7 @@ install:
 
 # Install jNeuroML
 - svn checkout svn://svn.code.sf.net/p/neuroml/code/jNeuroMLJar
-- JNML_HOME=$PWD/jNeuroMLJar
+- export JNML_HOME=$PWD/jNeuroMLJar
 
 # Install org.geppetto.model
 - git clone https://github.com/openworm/org.geppetto.model.git -b $main_repo_branch
