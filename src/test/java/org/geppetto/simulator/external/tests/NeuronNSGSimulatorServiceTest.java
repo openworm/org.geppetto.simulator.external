@@ -133,7 +133,7 @@ public class NeuronNSGSimulatorServiceTest implements ISimulatorCallbackListener
 	 * @throws Exception
 	*/
 	@Test
-	public void testNeuronExecution() throws Exception
+	public void testNeuronExecution() throws GeppettoInitializationException, GeppettoExecutionException, InterruptedException
 	{
         if (localTest)
         {

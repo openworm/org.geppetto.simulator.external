@@ -43,6 +43,8 @@ import java.util.Map;
 import junit.framework.Assert;
 
 import org.geppetto.core.beans.SimulatorConfig;
+import org.geppetto.core.common.GeppettoExecutionException;
+import org.geppetto.core.common.GeppettoInitializationException;
 import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.data.model.ResultsFormat;
 import org.geppetto.core.data.model.local.LocalAspectConfiguration;
@@ -68,7 +70,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	private static boolean done = false;
 
 	@BeforeClass
-	public static void setup() throws Exception
+	public static void setup() throws GeppettoExecutionException
 	{
 		File dir = new File(NeuronSimulatorServiceTest.class.getResource("/neuronConvertedModel/").getFile());
 		dirToExecute = dir.getAbsolutePath();
@@ -83,7 +85,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 		    neuron_home = System.getenv("NEURON_HOME")+"/bin/";
 		    if (!(new File(neuron_home+"/nrniv")).exists())
 		    {
-		        throw new Exception("Please set the environment variable NEURON_HOME to point to your local install of NEURON 7.4");
+		        throw new GeppettoExecutionException("Please set the environment variable NEURON_HOME to point to your local install of NEURON 7.4");
 		    }
 		}
 		ExternalSimulatorConfig externalConfig = new ExternalSimulatorConfig();
@@ -102,7 +104,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 	 * @throws Exception
 	 */
 	@Test
-	public void testNeuronExecution() throws Exception
+	public void testNeuronExecution() throws GeppettoExecutionException, GeppettoInitializationException, InterruptedException
 	{
 		ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
 		model.setFormat(ServicesRegistry.getModelFormat("NEURON"));

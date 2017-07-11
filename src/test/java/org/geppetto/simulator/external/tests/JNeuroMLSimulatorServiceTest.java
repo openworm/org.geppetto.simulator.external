@@ -43,6 +43,8 @@ import java.util.Map;
 import junit.framework.Assert;
 
 import org.geppetto.core.beans.SimulatorConfig;
+import org.geppetto.core.common.GeppettoExecutionException;
+import org.geppetto.core.common.GeppettoInitializationException;
 import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.data.model.ResultsFormat;
 import org.geppetto.core.data.model.local.LocalAspectConfiguration;
@@ -96,7 +98,7 @@ public class JNeuroMLSimulatorServiceTest implements ISimulatorCallbackListener
 	 * @throws Exception
 	 */
 	@Test
-	public void testJNeuroMLExecution() throws Exception
+	public void testJNeuroMLExecution() throws GeppettoInitializationException, GeppettoExecutionException, InterruptedException
 	{
 		ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
 		model.setFormat(ServicesRegistry.getModelFormat("jNeuroML"));
