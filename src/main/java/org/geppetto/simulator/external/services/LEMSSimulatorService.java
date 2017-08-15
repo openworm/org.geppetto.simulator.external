@@ -34,6 +34,7 @@ import org.geppetto.model.ExperimentState;
 import org.geppetto.model.ExternalDomainModel;
 import org.geppetto.model.ModelFormat;
 import org.lemsml.jlems.core.sim.ContentError;
+import org.lemsml.jlems.core.type.Component;
 import org.lemsml.jlems.core.type.Lems;
 import org.lemsml.jlems.io.xmlio.XMLSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,6 +116,7 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 		super.simulate();
 
 	}
+    
 
 	@Override
 	public void processDone(String[] processCommand) throws GeppettoExecutionException
@@ -221,6 +223,25 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
 	public String getSimulatorPath()
 	{
 		return this.lemsExternalSimulatorConfig.getSimulatorPath();
+	}
+    
+    
+	/**
+	 * @param lemsSimulatorConfig
+	 * @deprecated for test purposes only, the configuration is autowired
+	 */
+	public void setLEMSSimulatorConfig(SimulatorConfig lemsSimulatorConfig)
+	{
+		this.lemsSimulatorConfig = lemsSimulatorConfig;
+	}
+
+	/**
+	 * @param lemsExternalSimulatorConfig
+	 * @deprecated for test purposes only, the configuration is autowired
+	 */
+	public void setLEMSExternalSimulatorConfig(ExternalSimulatorConfig lemsExternalSimulatorConfig)
+	{
+		this.lemsExternalSimulatorConfig = lemsExternalSimulatorConfig;
 	}
 
 }

@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,13 +28,27 @@ import org.ngbw.directclient.CiJob;
  */
 public class NSGUtilities {
 
-	public static CiJob sendJob(CiClient myClient, long jobId, Path filePath, boolean validateOnly) throws CiCipresException, IOException, GeppettoExecutionException, InterruptedException
+	public static CiJob sendJob(CiClient myClient, long jobId, Path filePath, int numberProcessors, boolean validateOnly) throws CiCipresException, IOException, GeppettoExecutionException, InterruptedException
 	{
 		CiJob jobStatus;
 		
 		Map<String, Collection<String>> vParams = new HashMap<String, Collection<String>>();
 		HashMap<String, String> inputParams = new HashMap<String, String>();
 		HashMap<String, String> metadata = new HashMap<String, String>();
+        
+        String tool = "OSBPYNEURON74";
+        
+        int numCores = numberProcessors;
+        int numNodes = 1;
+        int maxPerNode = 16;
+        if (numberProcessors>maxPerNode)
+        {
+            numCores = maxPerNode;
+            numNodes = (int)Math.round(numberProcessors/(float)maxPerNode);
+        }
+            
+		vParams.put("number_cores_", Arrays.asList(numCores+""));
+		vParams.put("number_nodes_", Arrays.asList(numNodes+""));
 
 		inputParams.put("infile_", filePath.toString());
 
@@ -43,11 +58,11 @@ public class NSGUtilities {
 
 		if(validateOnly)
 		{
-			jobStatus = myClient.validateJob("CLUSTALW", vParams, inputParams, metadata);
+			jobStatus = myClient.validateJob(tool, vParams, inputParams, metadata);
 		}
 		else
 		{
-			jobStatus = myClient.submitJob("PY_TG", vParams, inputParams, metadata);
+			jobStatus = myClient.submitJob(tool, vParams, inputParams, metadata);
 		}
 		jobStatus.show(true);
 		

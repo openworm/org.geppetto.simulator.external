@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class NetPyNENSGSimulatorService extends NSGSimulatorService
 {
+
 	@Autowired
 	private SimulatorConfig netPyNENSGSimulatorConfig;
 	
@@ -43,18 +44,17 @@ public class NetPyNENSGSimulatorService extends NSGSimulatorService
 
 
 	/**
-	 * @param neuronSimulatorConfig
+	 * @param netPyNENSGSimulatorConfig
 	 * @deprecated for test purposes only, the configuration is autowired
 	 */
-	public void setNeuronSimulatorConfig(SimulatorConfig netPyNENSGSimulatorConfig)
+	public void setNetPyNESimulatorConfig(SimulatorConfig netPyNESimulatorConfig)
 	{
-		this.netPyNENSGSimulatorConfig = netPyNENSGSimulatorConfig;
+		this.netPyNENSGSimulatorConfig = netPyNESimulatorConfig;
 	}
-
 
 	@Override
 	public void processFailed(String message, Exception e) {
 		this.getListener().externalProcessFailed(message, e);		
 	}
-	
+
 }

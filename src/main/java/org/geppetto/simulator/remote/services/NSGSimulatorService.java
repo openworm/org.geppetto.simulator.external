@@ -61,12 +61,23 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 
 	private CiClient myClient;
 	private CiJob jobStatus;
+    
+    private int numberProcessors = 1;
 
 	@Override
 	public void initialize(DomainModel model, IAspectConfiguration aspectConfiguration, ExperimentState experimentState, ISimulatorCallbackListener listener, GeppettoModelAccess modelAccess)
 			throws GeppettoInitializationException, GeppettoExecutionException
 	{
 		super.initialize(model, aspectConfiguration, experimentState, listener, modelAccess);
+        
+        if (aspectConfiguration!=null && aspectConfiguration.getSimulatorConfiguration()!=null)
+        {
+            if (aspectConfiguration.getSimulatorConfiguration().getParameters().get("numberProcessors")!=null &&
+                aspectConfiguration.getSimulatorConfiguration().getParameters().get("numberProcessors").length()>0)
+            {
+                numberProcessors = Integer.parseInt(aspectConfiguration.getSimulatorConfiguration().getParameters().get("numberProcessors"));
+            }
+        }
 
 		if(model instanceof ExternalDomainModel)
 		{
@@ -85,7 +96,7 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 			outputFolder = directoryToExecuteFrom;
 
 			// Rename main script to input.py (NSG requirement)
-			File renamedfilePath = new File(directoryToExecuteFrom + "/input.py");
+			File renamedfilePath = new File(directoryToExecuteFrom + "/init.py");
 			Files.copy(originalFilePath.toPath(), renamedfilePath.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
 			// Create Results Folder (it is needed because of the way the neuron code is generated in the export library)
@@ -134,7 +145,12 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 			{
 				//AQP: Should this be executed in a different thread?
 				// this.runExternalProcess(commands, directoryToExecuteFrom, originalFileName);
-				jobStatus = NSGUtilities.sendJob(myClient, this.experimentState.getExperimentId(), filePath, false);
+                long jobId = System.currentTimeMillis();
+                if (this.experimentState!=null)
+                {
+                    jobId = this.experimentState.getExperimentId();
+                }
+				jobStatus = NSGUtilities.sendJob(myClient, jobId, filePath, numberProcessors, false);
 				started = true;
 				
 				try{
@@ -155,6 +171,17 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 			{
 				ErrorData ed = ce.getErrorData();
 				logger.error("Cipres error code=" + ed.code + ", message=" + ed.displayMessage);
+				logger.error("Cipres error code=" + ed.message);
+				logger.error("Cipres error code=" + ed.paramError);
+				logger.error("Cipres error code=" + ed.limitStatus);
+				if (ed.paramError!=null)
+				{
+				    for (ParamError pe: ed.paramError)
+                    {
+                        logger.error(pe.param + " = " + pe.error); 
+                    }
+                }
+                
 				if(ed.code == ErrorData.FORM_VALIDATION)
 				{
 					for(ParamError pe : ed.paramError)
@@ -169,10 +196,17 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 					throw new GeppettoExecutionException("Usage Limit Error, type=" + ls.type + ", ceiling=" + ls.ceiling);
 				}
 			}
+			catch(javax.ws.rs.InternalServerErrorException e)
+			{
+				e.printStackTrace();
+                logger.error("- Response: "+e.getResponse());
+                logger.error("- Response: "+e.getResponse().serverError());
+				throw new GeppettoExecutionException("Error executing simulation for Neuron NSG Simulator Service: "+e.getMessage(), e);
+			}
 			catch(Exception e)
 			{
 				//e.printStackTrace();
-				throw new GeppettoExecutionException("Error executing simulation for Neuron NSG Simulator Service");
+				throw new GeppettoExecutionException("Error executing simulation for Neuron NSG Simulator Service: "+e.getMessage(), e);
 			}
 		}
 		else
@@ -278,12 +312,12 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 	}
 
 	/**
-	 * @param neuronNSGExternalSimulatorConfig
+	 * @param nsgExternalSimulatorConfig
 	 * @deprecated for test purposes only, the configuration is autowired
 	 */
-	public void setNeuronNSGExternalSimulatorConfig(RemoteSimulatorConfig neuronNSGExternalSimulatorConfig)
+	public void setNSGExternalSimulatorConfig(RemoteSimulatorConfig nsgExternalSimulatorConfig)
 	{
-		this.NSGExternalSimulatorConfig = neuronNSGExternalSimulatorConfig;
+		this.NSGExternalSimulatorConfig = nsgExternalSimulatorConfig;
 	}
 	
 	/**

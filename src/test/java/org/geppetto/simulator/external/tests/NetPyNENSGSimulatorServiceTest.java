@@ -46,26 +46,28 @@ import org.geppetto.core.common.GeppettoExecutionException;
 import org.geppetto.core.common.GeppettoInitializationException;
 import org.geppetto.core.data.model.IAspectConfiguration;
 import org.geppetto.core.data.model.ResultsFormat;
+import org.geppetto.core.data.model.local.LocalAspectConfiguration;
+import org.geppetto.core.data.model.local.LocalSimulatorConfiguration;
 import org.geppetto.core.services.registry.ServicesRegistry;
 import org.geppetto.core.simulation.ISimulatorCallbackListener;
 import org.geppetto.core.simulator.RemoteSimulatorConfig;
 import org.geppetto.model.ExternalDomainModel;
 import org.geppetto.model.GeppettoFactory;
 import org.geppetto.simulator.remote.services.NSGUtilities;
-import org.geppetto.simulator.remote.services.NeuronNSGSimulatorService;
+import org.geppetto.simulator.remote.services.NetPyNENSGSimulatorService;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.ngbw.directclient.CiCipresException;
 import org.ngbw.directclient.CiClient;
 
-public class NeuronNSGSimulatorServiceTest implements ISimulatorCallbackListener
+public class NetPyNENSGSimulatorServiceTest implements ISimulatorCallbackListener
 {
 
 	//AQP Review all these libs
 	private static String dirToExecute;
 	private static String fileToExecute;
-	private static NeuronNSGSimulatorService simulator;
+	private static NetPyNENSGSimulatorService simulator;
 	private static String resultsDir;
 	private static boolean done = false;
     
@@ -77,12 +79,12 @@ public class NeuronNSGSimulatorServiceTest implements ISimulatorCallbackListener
 	{
         if (localTest)
         {
-            System.out.println("setup NeuronNSGSimulatorServiceTest...");
-            File dir = new File(NeuronNSGSimulatorServiceTest.class.getResource("/neuronConvertedModel/").getFile());
+            System.out.println("setup NetPyNENSGSimulatorServiceTest...");
+            File dir = new File(NetPyNENSGSimulatorServiceTest.class.getResource("/netpyneConvertedModel2/").getFile());
             dirToExecute = dir.getAbsolutePath();
             fileToExecute = "/main_script.py";
 
-            simulator = new NeuronNSGSimulatorService();
+            simulator = new NetPyNENSGSimulatorService();
             simulator.registerGeppettoService();
             
 			FileReader fileReader = new FileReader(new File("src/main/java/META-INF/spring/app-config.xml"));
@@ -112,46 +114,50 @@ public class NeuronNSGSimulatorServiceTest implements ISimulatorCallbackListener
                     remoteSimulatorConfig.setPassword(w[3]);
                 
             }
-            System.out.println("sp: "+simulatorParameters);
             
             remoteSimulatorConfig.setSimulatorParameters(simulatorParameters);
             Assert.assertNotNull(remoteSimulatorConfig.getSimulatorPath());
             simulator.setNSGExternalSimulatorConfig(remoteSimulatorConfig);
             SimulatorConfig simulatorConfig = new SimulatorConfig();
-            simulatorConfig.setSimulatorID("neuronNSGSimulator");
-            simulatorConfig.setSimulatorName("neuronNSGSimulator");
-            simulator.setNeuronSimulatorConfig(simulatorConfig);
+            simulatorConfig.setSimulatorID("netpyneNSGSimulator");
+            simulatorConfig.setSimulatorName("netpyneNSGSimulator");
+            simulator.setNetPyNESimulatorConfig(simulatorConfig);
 
-            System.out.println("SC: "+remoteSimulatorConfig.getSimulatorParameters().keySet());
-            System.out.println("Setup; "+dirToExecute);
         }
 	}
 
 	/**
-	 * Test method for {@link org.geppetto.simulator.external.services.NeuronSimulatorService}.
+	 * Test method for {@link org.geppetto.simulator.external.services.NeetPyNESimulatorService}.
 	 * 
 	 * @throws Exception
-	*/
+	 */
 	@Test
-	public void testNeuronExecution() throws GeppettoInitializationException, GeppettoExecutionException, InterruptedException
+	public void testNetPyNEExecution() throws Exception
 	{
         if (localTest)
         {
-            System.out.println("testNeuronExecution...");
+            System.out.println("testNetPyNEExecution...");
             ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
-            model.setFormat(ServicesRegistry.getModelFormat("NEURON"));
+            model.setFormat(ServicesRegistry.getModelFormat("NETPYNE"));
             model.setDomainModel(dirToExecute + fileToExecute);
-            simulator.initialize(model, null, null, this, null);
+            
+            Map<String, String> params = new HashMap<>();
+            params.put("numberProcessors", "8");
+            LocalSimulatorConfiguration simConf  = new LocalSimulatorConfiguration(0, "??", dirToExecute, 0, 0, params);
+            IAspectConfiguration iac = new LocalAspectConfiguration(1, "testModel", null, null, simConf);
+        
+            simulator.initialize(model, iac, null, this, null);
+            
             simulator.simulate();
             System.out.println("Sleeping...");
             Thread.sleep(6000);
             Assert.assertTrue(done);
-            System.out.println("Done testNeuronExecution...");
+            System.out.println("Done testNetPyNEExecution...");
         }
-	} 
+	}
 	
 	/**
-	 * Test method for {@link org.geppetto.simulator.external.services.NeuronSimulatorService}.
+	 * Test method for {@link org.geppetto.simulator.external.services.NetPyNESimulatorService}.
 	 * @throws GeppettoExecutionException 
 	 * @throws GeppettoInitializationException 
 	 * @throws CiCipresException 
@@ -160,51 +166,47 @@ public class NeuronNSGSimulatorServiceTest implements ISimulatorCallbackListener
 	 * @throws Exception
 	 */
 	@Test
-	public void testNeuronList() throws GeppettoInitializationException, GeppettoExecutionException, CiCipresException, InterruptedException
+	public void testNetPyNEList() throws GeppettoInitializationException, GeppettoExecutionException, CiCipresException, InterruptedException
 	{
         if (localTest)
         {
-            System.out.println("testNeuronList...");
+            System.out.println("testNetPyNEList...");
             ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
-            model.setFormat(ServicesRegistry.getModelFormat("NEURON"));
+            model.setFormat(ServicesRegistry.getModelFormat("NETPYNE"));
             model.setDomainModel(dirToExecute + fileToExecute);
-    //        File localCompModFiledir = new File(dirToExecute,"x86_64");
-    //        System.out.println("Checking "+localCompModFiledir.getAbsolutePath() );
-    //        if (localCompModFiledir.exists())
-    //            localCompModFiledir.
 
             simulator.initialize(model, null, null, this, null);
             NSGUtilities.listJobs(simulator.getCiClient());
             Thread.sleep(2000);
-            System.out.println("Done testNeuronList...");
+            System.out.println("Done testNetPyNEList...");
         }
 	}
 	
 	/**
-	 * Test method for {@link org.geppetto.simulator.external.services.NeuronSimulatorService}.
+	 * Test method for {@link org.geppetto.simulator.external.services.NetPyNESimulatorService}.
 	 * 
 	 * @throws Exception
 	 */
 	@Test
-	public void testNeuronDeleteJobs() throws Exception
+	public void testNetPyNEDeleteJobs() throws Exception
 	{
 //		ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
-//		model.setFormat(ServicesRegistry.getModelFormat("NEURON"));
+//		model.setFormat(ServicesRegistry.getModelFormat("NETPYNE"));
 //		model.setDomainModel(dirToExecute + fileToExecute);
 //		simulator.initialize(model, null, null, this, null);
 //		simulator.deleteAllJobs();
 	}
 	
 	/**
-	 * Test method for {@link org.geppetto.simulator.external.services.NeuronSimulatorService}.
+	 * Test method for {@link org.geppetto.simulator.external.services.NetPyNESimulatorService}.
 	 * 
 	 * @throws Exception
 	 */
 	@Test
-	public void testNeuronProcessDone() throws Exception
+	public void testNetPyNEProcessDone() throws Exception
 	{
 //		ExternalDomainModel model = GeppettoFactory.eINSTANCE.createExternalDomainModel();
-//		model.setFormat(ServicesRegistry.getModelFormat("NEURON"));
+//		model.setFormat(ServicesRegistry.getModelFormat("NETPYNE"));
 //		model.setDomainModel(dirToExecute + fileToExecute);
 //		simulator.initialize(model, null, null, this, null);
 //		simulator.processDone();

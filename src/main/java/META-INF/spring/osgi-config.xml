@@ -16,6 +16,13 @@
 	<bean id="neuronSimulator" scope="prototype" class="org.geppetto.simulator.external.services.NeuronSimulatorService">
 	<aop:scoped-proxy proxy-target-class="false"/>
 	</bean>
+    
+	<!-- Exports the service implementation to other bundles by its service interface -->
+	<osgi:service id="NetpyneSimulatorExporter" ref="netpyneSimulator" interface="org.geppetto.core.simulator.ISimulator">
+	</osgi:service>
+	<bean id="netpyneSimulator" scope="prototype" class="org.geppetto.simulator.external.services.NetPyNESimulatorService">
+	<aop:scoped-proxy proxy-target-class="false"/>
+	</bean>
 	
 	<osgi:service id="NetPyNENSGSimulatorExporter" ref="netPyNENSGSimulator" interface="org.geppetto.core.simulator.ISimulator">
 	</osgi:service>
@@ -32,6 +39,12 @@
 	<osgi:service id="LEMSSimulatorExporter" ref="lemsSimulator" interface="org.geppetto.core.simulator.ISimulator">
 	</osgi:service>
 	<bean id="lemsSimulator" scope="prototype" class="org.geppetto.simulator.external.services.LEMSSimulatorService">
+	<aop:scoped-proxy proxy-target-class="false"/>
+	</bean>
+	
+	<osgi:service id="JNeuroMLSimulatorExporter" ref="jneuromlSimulator" interface="org.geppetto.core.simulator.ISimulator">
+	</osgi:service>
+	<bean id="jneuromlSimulator" scope="prototype" class="org.geppetto.simulator.external.services.JNeuroMLSimulatorService">
 	<aop:scoped-proxy proxy-target-class="false"/>
 	</bean>
 	

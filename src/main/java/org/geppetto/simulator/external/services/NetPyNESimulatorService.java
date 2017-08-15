@@ -23,25 +23,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Wrapper class for NEURON
+ * Wrapper class for NetPyNE
  * 
+ * @author Padraig Gleeson
  * @author Jesus R Martinez (jesus@metacell.us)
  * @author mcantarelli
  *
  */
 @Service
-public class NeuronSimulatorService extends AExternalProcessNeuronalSimulator
+public class NetPyNESimulatorService extends AExternalProcessNeuronalSimulator
 {
 
 	protected File filePath = null;
 
-	private static Log logger = LogFactory.getLog(NeuronSimulatorService.class);
+    private static Log logger = LogFactory.getLog(NetPyNESimulatorService.class);
 
 	@Autowired
-	private SimulatorConfig neuronSimulatorConfig;
+	private SimulatorConfig netpyneSimulatorConfig;
 
 	@Autowired
-	private ExternalSimulatorConfig neuronExternalSimulatorConfig;
+    private ExternalSimulatorConfig netpyneExternalSimulatorConfig;
+    
+    private int numberProcessors = 1;
 
 	@Override
 	public void initialize(DomainModel model, IAspectConfiguration aspectConfiguration, ExperimentState experimentState, ISimulatorCallbackListener listener, GeppettoModelAccess modelAccess)
@@ -49,13 +52,24 @@ public class NeuronSimulatorService extends AExternalProcessNeuronalSimulator
 	{
 		super.initialize(model, aspectConfiguration, experimentState, listener, modelAccess);
 
+        if (aspectConfiguration.getSimulatorConfiguration()!=null)
+        {
+            if (aspectConfiguration.getSimulatorConfiguration().getParameters().get("numberProcessors")!=null &&
+                aspectConfiguration.getSimulatorConfiguration().getParameters().get("numberProcessors").length()>0)
+            {
+                numberProcessors = Integer.parseInt(aspectConfiguration.getSimulatorConfiguration().getParameters().get("numberProcessors"));
+            }
+        }
+
 		if(model instanceof ExternalDomainModel)
 		{
 			originalFileName = (String) model.getDomainModel();
 		}
 		else
 		{
-			throw new GeppettoExecutionException("Unexpected domain model inside NEURON Simulator service");
+            throw new GeppettoExecutionException("Unexpected domain model inside NetPyNE Simulator service: \n"
+                +model.getClass().getCanonicalName()+"\n"
+            +model.getDomainModel()+"\n"+model.getFormat());
 		}
 		this.createCommands(this.originalFileName);
 		
@@ -77,12 +91,21 @@ public class NeuronSimulatorService extends AExternalProcessNeuronalSimulator
 
 		if(Utilities.isWindows())
 		{
+            //Might work...?
 			commands = new String[] { getSimulatorPath() + "rxvt.exe -e " + getSimulatorPath() + "sh " + getSimulatorPath().replace("/bin/", "/lib/") + "mknrndll.sh",
 					getSimulatorPath() + "mkdir.exe results", getSimulatorPath() + "nrniv.exe -python " + filePath.getAbsolutePath() };
 		}
 		else
 		{
-			commands = new String[] { getSimulatorPath() + "nrnivmodl", "mkdir results", getSimulatorPath() + "nrniv -python " + filePath.getAbsolutePath() };
+            if (numberProcessors==1)
+            {
+                commands = new String[] { getSimulatorPath() + "nrnivmodl", "mkdir results", getSimulatorPath() + "nrniv -python " + filePath.getAbsolutePath()+" -nogui"};
+            }
+            else
+            {
+                commands = new String[] { getSimulatorPath() + "nrnivmodl", "mkdir results", "mpiexec -np "+numberProcessors+" "+getSimulatorPath() + "nrniv -mpi " + filePath.getAbsolutePath()+"" };
+            }
+            
 		}
 
 		String info = "Commands to execute from directory: " + directoryToExecuteFrom+":\n";
@@ -97,44 +120,44 @@ public class NeuronSimulatorService extends AExternalProcessNeuronalSimulator
 	@Override
 	public void registerGeppettoService()
 	{
-		List<ModelFormat> modelFormats = new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.registerModelFormat("NEURON")));
+        List<ModelFormat> modelFormats = new ArrayList<ModelFormat>(Arrays.asList(ServicesRegistry.registerModelFormat("NetPyNE")));
 		ServicesRegistry.registerSimulatorService(this, modelFormats);
 	}
 
 	@Override
 	public String getName()
 	{
-		return this.neuronSimulatorConfig.getSimulatorName();
+		return this.netpyneSimulatorConfig.getSimulatorName();
 	}
 
 	@Override
 	public String getId()
 	{
-		return this.neuronSimulatorConfig.getSimulatorID();
+		return this.netpyneSimulatorConfig.getSimulatorID();
 	}
 
 	@Override
 	public String getSimulatorPath()
 	{
-		return this.neuronExternalSimulatorConfig.getSimulatorPath();
+        return this.netpyneExternalSimulatorConfig.getSimulatorPath();
 	}
 
 	/**
-	 * @param neuronSimulatorConfig
+	 * @param netpyneSimulatorConfig
 	 * @deprecated for test purposes only, the configuration is autowired
 	 */
-	public void setNeuronSimulatorConfig(SimulatorConfig neuronSimulatorConfig)
+    public void setNetPyNESimulatorConfig(SimulatorConfig netpyneSimulatorConfig)
 	{
-		this.neuronSimulatorConfig = neuronSimulatorConfig;
+		this.netpyneSimulatorConfig = netpyneSimulatorConfig;
 	}
 
 	/**
-	 * @param neuronExternalSimulatorConfig
+     * @param netpyneExternalSimulatorConfig
 	 * @deprecated for test purposes only, the configuration is autowired
 	 */
-	public void setNeuronExternalSimulatorConfig(ExternalSimulatorConfig neuronExternalSimulatorConfig)
+    public void setNetPyNEExternalSimulatorConfig(ExternalSimulatorConfig netpyneExternalSimulatorConfig)
 	{
-		this.neuronExternalSimulatorConfig = neuronExternalSimulatorConfig;
+        this.netpyneExternalSimulatorConfig = netpyneExternalSimulatorConfig;
 	}
 
 }
