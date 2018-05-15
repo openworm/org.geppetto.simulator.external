@@ -73,7 +73,14 @@ public abstract class AExternalProcessNeuronalSimulator extends AExternalProcess
 			
 			results.put(datConverter.getRecordingsFile(),ResultsFormat.GEPPETTO_RECORDING);
 
-			this.getListener().endOfSteps(this.aspectConfiguration, results);
+                        input = new BufferedReader(new FileReader(process.getOutputFolder() + "/report.txt"));
+                        StringBuffer reportString = new StringBuffer();
+                        while((line = input.readLine()) != null){
+                            reportString.append(line).append("\\n");
+                        }
+                        getExperiment().setDetails("{\"id\":"+getExperiment().getId()+",\"exception\":\"\",\"message\":\""+reportString.toString()+"\"}");
+
+                        this.getListener().endOfSteps(this.aspectConfiguration, results);
 		}
 		catch(Exception e)
 		{
