@@ -1,7 +1,7 @@
 language: java
 env:
   matrix:
-  - NEURON_HOME=$TRAVIS_BUILD_DIR/nrn-7.4/x86_64/bin/
+  - NEURON_HOME=$TRAVIS_BUILD_DIR/nrn-7.5/x86_64/bin/
   global:
     secure: X2mbfFMOql9DE5orv5mg/GFPAwTzDb4SBqyLe5g1TaR4EdB06q43mvxqQyEWu3VW97EOvpunthGcBdzn8Zi0EVchjktgWVeS3yOetnC92JF9RgU51lRe/v58CsZhpaE3rMfNu0cvBu3iIwuDrj77HZSYqb3YBuwuVvkle6qjQeE=
 install:
@@ -9,9 +9,9 @@ install:
 - if [[ ${main_repo_branch} != "master" && ${main_repo_branch} != "development" ]]; then main_repo_branch=development ; fi
 
 # Install NEURON
-- wget http://www.neuron.yale.edu/ftp/neuron/versions/v7.4/nrn-7.4.tar.gz
-- tar xzvf nrn-7.4.tar.gz
-- cd nrn-7.4
+- wget http://www.neuron.yale.edu/ftp/neuron/versions/v7.5/nrn-7.5.tar.gz
+- tar xzvf nrn-7.5.tar.gz
+- cd nrn-7.5
 - ./configure --prefix `pwd` --without-iv --with-nrnpython
 - make
 - make install
@@ -26,7 +26,7 @@ install:
 - sudo pip install lxml
 - sudo pip install libneuroml
 - sudo pip install pyneuroml
-- sudo apt-get install python-tk
+#- sudo apt-get install python-tk
 - sudo pip install matplotlib
 
 # Install jNeuroML
