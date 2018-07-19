@@ -196,16 +196,10 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 					throw new GeppettoExecutionException("Usage Limit Error, type=" + ls.type + ", ceiling=" + ls.ceiling);
 				}
 			}
-			catch(javax.ws.rs.InternalServerErrorException e)
-			{
-				e.printStackTrace();
-                logger.error("- Response: "+e.getResponse());
-                logger.error("- Response: "+e.getResponse().serverError());
-				throw new GeppettoExecutionException("Error executing simulation for Neuron NSG Simulator Service: "+e.getMessage(), e);
-			}
 			catch(Exception e)
 			{
-				//e.printStackTrace();
+				e.printStackTrace();
+                logger.error("- Response: "+e.getMessage());
 				throw new GeppettoExecutionException("Error executing simulation for Neuron NSG Simulator Service: "+e.getMessage(), e);
 			}
 		}
