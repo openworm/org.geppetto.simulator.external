@@ -205,8 +205,7 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 			}
 			catch(Exception e)
 			{
-				e.printStackTrace();
-                logger.error("- Response: "+e.getMessage());
+				//e.printStackTrace();
 				throw new GeppettoExecutionException("Error executing simulation for Neuron NSG Simulator Service: "+e.getMessage(), e);
 			}
 		}
