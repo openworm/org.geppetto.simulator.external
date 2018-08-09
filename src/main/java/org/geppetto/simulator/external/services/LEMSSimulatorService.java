@@ -119,7 +119,7 @@ public class LEMSSimulatorService extends AExternalProcessNeuronalSimulator
     
 
 	@Override
-	public void processDone(String token,String[] processCommand) throws GeppettoExecutionException
+	public void processDone(String[] processCommand) throws GeppettoExecutionException
 	{
 		try
 		{
