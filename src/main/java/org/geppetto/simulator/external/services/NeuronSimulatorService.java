@@ -138,9 +138,9 @@ public class NeuronSimulatorService extends AExternalProcessNeuronalSimulator
 	}
 	
 	@Override
-	public void processDone(String[] processCommand) throws GeppettoExecutionException
+	public void processDone(String token,String[] processCommand) throws GeppettoExecutionException
 	{
-		super.processDone(processCommand);
+		super.processDone(token,processCommand);
 	}
 
 }
