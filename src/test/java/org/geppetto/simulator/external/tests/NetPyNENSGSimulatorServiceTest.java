@@ -150,7 +150,7 @@ public class NetPyNENSGSimulatorServiceTest implements ISimulatorCallbackListene
             
             simulator.simulate();
             System.out.println("Sleeping...");
-            Thread.sleep(6000);
+            Thread.sleep(10000);
             Assert.assertTrue(done);
             System.out.println("Done testNetPyNEExecution...");
         }

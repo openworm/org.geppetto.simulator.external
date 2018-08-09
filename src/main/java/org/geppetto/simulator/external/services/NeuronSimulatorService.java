@@ -136,11 +136,4 @@ public class NeuronSimulatorService extends AExternalProcessNeuronalSimulator
 	{
 		this.neuronExternalSimulatorConfig = neuronExternalSimulatorConfig;
 	}
-	
-	@Override
-	public void processDone(String token,String[] processCommand) throws GeppettoExecutionException
-	{
-		super.processDone(token,processCommand);
-	}
-
 }

@@ -44,7 +44,7 @@ install:
 - echo "Cloning branch " $main_repo_branch
 
 # Install org.geppetto.core
-- git clone https://github.com/openworm/org.geppetto.core.git -b $main_repo_branch
+- git clone https://github.com/openworm/org.geppetto.core.git -b persistence-less-neuron
 - cd org.geppetto.core
 - mvn install
 - cd ..
