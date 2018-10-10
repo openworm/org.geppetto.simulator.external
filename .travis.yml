@@ -39,8 +39,6 @@ install:
 - mvn install
 - cd ..
 
-# Todo: remove for development
-- if [ $TRAVIS_BRANCH == "pg_netpyne" ]; then main_repo_branch="pg_netpyne" ; fi
 - echo "Cloning branch " $main_repo_branch
 
 # Install org.geppetto.core
