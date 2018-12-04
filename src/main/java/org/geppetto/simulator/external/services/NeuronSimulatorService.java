@@ -136,5 +136,4 @@ public class NeuronSimulatorService extends AExternalProcessNeuronalSimulator
 	{
 		this.neuronExternalSimulatorConfig = neuronExternalSimulatorConfig;
 	}
-
 }
