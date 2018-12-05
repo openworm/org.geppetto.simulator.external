@@ -22,7 +22,7 @@
 	
 	<!-- Add flag for External Simulation Run Mode --> 
 	<bean id="neuronExternalSimulatorConfig" class="org.geppetto.core.simulator.ExternalSimulatorConfig"> 
-		<property name="simulatorPath" value="/home/walrus/code/neuron/nrn/x86_64/" />
+		<property name="simulatorPath" value="REPLACE_WITH_LOCAL_PATH_TO_NEURON" />
 	</bean>
 		
 	<!-- Add flag for Simulation Run Mode --> 
@@ -55,7 +55,7 @@
 	
 	<!-- Add flag for External Simulation Run Mode --> 
 	<bean id="jneuromlExternalSimulatorConfig" class="org.geppetto.core.simulator.ExternalSimulatorConfig"> 
-		<property name="simulatorPath" value="/home/walrus/code/jNeuroMLJar" />
+		<property name="simulatorPath" value="REPLACE_WITH_LOCAL_PATH_TO_JNEUROML" />
 	</bean>
 	
 	<!-- Add flag for Simulation Run Mode --> 
