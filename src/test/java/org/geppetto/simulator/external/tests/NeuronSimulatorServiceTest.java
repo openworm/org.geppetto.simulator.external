@@ -113,7 +113,7 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 		simulator.setProjectId(1);
 		simulator.setExperiment(new LocalExperiment(1, null, null, null, null, null, null, null, null, null, null));
 		simulator.simulate();
-		Thread.sleep(6000);
+		Thread.sleep(18000);
 		Assert.assertTrue(done);
 	}
 
