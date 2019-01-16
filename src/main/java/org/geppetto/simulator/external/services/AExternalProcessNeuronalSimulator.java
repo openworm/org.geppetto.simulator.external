@@ -23,8 +23,12 @@ import org.geppetto.core.simulator.AExternalProcessSimulator;
  */
 public abstract class AExternalProcessNeuronalSimulator extends AExternalProcessSimulator
 {
-	
+	private Map<File,ResultsFormat> results;
 
+	public Map<File,ResultsFormat> getResults(){
+		return this.results;
+	}
+	
 	@Override
 	public void processDone(String[] processCommand) throws GeppettoExecutionException
 	{
@@ -36,7 +40,7 @@ public abstract class AExternalProcessNeuronalSimulator extends AExternalProcess
 
 			ConvertDATToRecording datConverter = new ConvertDATToRecording(PathConfiguration.createExperimentTmpPath(Scope.RUN, projectId, getExperiment().getId(), aspectConfiguration.getInstance(), PathConfiguration.getName("results", true)+ ".h5"),this.geppettoModelAccess);
 
-			Map<File,ResultsFormat> results=new HashMap<File,ResultsFormat>();
+			results=new HashMap<File,ResultsFormat>();
 			
 			File mappingResultsFile = new File(process.getOutputFolder() + "/outputMapping.dat");
 			results.put(mappingResultsFile,ResultsFormat.RAW);
@@ -73,7 +77,7 @@ public abstract class AExternalProcessNeuronalSimulator extends AExternalProcess
 			
 			results.put(datConverter.getRecordingsFile(),ResultsFormat.GEPPETTO_RECORDING);
 
-			this.getListener().endOfSteps(this.aspectConfiguration, results);
+			this.getListener().endOfSteps(this.aspectConfiguration, results);			
 		}
 		catch(Exception e)
 		{
