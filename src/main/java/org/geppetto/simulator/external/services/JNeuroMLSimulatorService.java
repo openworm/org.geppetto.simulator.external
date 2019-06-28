@@ -57,7 +57,7 @@ public class JNeuroMLSimulatorService extends AExternalProcessNeuronalSimulator
         }
         else
         {
-            throw new GeppettoExecutionException("Unexpected domain model inside jNeuroML Simulator service");
+            throw new GeppettoExecutionException("Unexpected domain model inside jNeuroML Simulator service: "+model);
         }
         this.createCommands(this.originalFileName);
 

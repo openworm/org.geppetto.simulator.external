@@ -99,7 +99,7 @@ public class NetPyNESimulatorService extends AExternalProcessNeuronalSimulator
 		{
             if (numberProcessors==1)
             {
-                commands = new String[] { getSimulatorPath() + "nrnivmodl", "mkdir results", getSimulatorPath() + "nrniv -python " + filePath.getAbsolutePath()+" -nogui"};
+                commands = new String[] { getSimulatorPath() + "nrnivmodl", "mkdir results", "python " + filePath.getAbsolutePath()+" -nogui"};
             }
             else
             {

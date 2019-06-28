@@ -82,7 +82,7 @@ public class NeuronSimulatorService extends AExternalProcessNeuronalSimulator
 		}
 		else
 		{
-			commands = new String[] { getSimulatorPath() + "nrnivmodl", "mkdir results", getSimulatorPath() + "nrniv -python " + filePath.getAbsolutePath() };
+			commands = new String[] { getSimulatorPath() + "nrnivmodl", "mkdir results",  "python " + filePath.getAbsolutePath() };
 		}
 
 		String info = "Commands to execute from directory: " + directoryToExecuteFrom+":\n";
