@@ -44,6 +44,9 @@ public abstract class AExternalProcessNeuronalSimulator extends AExternalProcess
 			
 			File mappingResultsFile = new File(process.getOutputFolder() + "/outputMapping.dat");
 			results.put(mappingResultsFile,ResultsFormat.RAW);
+            
+			File reportFile = new File(process.getOutputFolder() + "/report.txt");
+			results.put(reportFile,ResultsFormat.RAW);
 			
 			BufferedReader input;
 

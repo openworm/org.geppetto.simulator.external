@@ -172,7 +172,10 @@ public class NeuronSimulatorServiceTest implements ISimulatorCallbackListener
 			}
 		}
 
-		Assert.assertEquals(2, results.size());
+		Assert.assertEquals(3, results.size());
+        
+        
+        
 		done = true;
 	}
 
