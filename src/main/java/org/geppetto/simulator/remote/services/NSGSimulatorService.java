@@ -169,7 +169,7 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 				catch(GeppettoExecutionException e){
 					//AQP we should return something about the job status
 					logger.error("Error executing job in remote server");
-					throw new GeppettoExecutionException("Error executing job");
+					throw new GeppettoExecutionException("Error executing job", e);
 				}
 				
 			}

@@ -130,6 +130,11 @@ public class NSGUtilities {
 				currentFolder = outputFileFolder;
 				isOutput = true;
 			}
+			else if (currentEntry.getName().contains("report.txt"))
+			{
+				currentFolder = outputFileFolder;
+				isOutput = true;
+			}
 			
 			if (isOutput){
 				File destPath = new File(currentFolder, currentEntry.getName().substring(currentEntry.getName().lastIndexOf("/")+1));
