@@ -34,15 +34,16 @@ install:
 - export JNML_HOME=$PWD/jNeuroMLJar
 
 # Install org.geppetto.model
-- git clone https://github.com/openworm/org.geppetto.model.git -b $main_repo_branch
+- git clone https://github.com/openworm/org.geppetto.model.git
 - cd org.geppetto.model
+- if [[ `git branch -a | egrep "remotes/origin/${TRAVIS_BRANCH}"` ]]; then git checkout $TRAVIS_BRANCH ; else echo "Branch $TRAVIS_BRANCH does not exist for the model bundle, checking out development ..." && git checkout development; fi
+- git status
 - mvn install
 - cd ..
 
-- echo "Cloning branch " $main_repo_branch
-
-# Install org.geppetto.core
-- git clone https://github.com/openworm/org.geppetto.core.git -b $TRAVIS_BRANCH
+- git clone https://github.com/openworm/org.geppetto.core.git
 - cd org.geppetto.core
+- if [[ `git branch -a | egrep "remotes/origin/${TRAVIS_BRANCH}"` ]]; then git checkout $TRAVIS_BRANCH ; else echo "Branch $TRAVIS_BRANCH does not exist for the core bundle, checking out development ..." && git checkout development; fi
+- git status
 - mvn install
 - cd ..
