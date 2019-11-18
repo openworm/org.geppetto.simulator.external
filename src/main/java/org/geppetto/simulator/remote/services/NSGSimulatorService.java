@@ -150,7 +150,13 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
                 {
                     jobId = this.experimentState.getExperimentId();
                 }
-				jobStatus = NSGUtilities.sendJob(myClient, jobId, filePath, numberProcessors, false);
+                String info = Long.toString(jobId);
+                info += "-"+this.model.getDomainModel();
+                info += "-"+this.getName().replaceAll("\\s", "_");
+                info += "-"+numberProcessors+"procs";
+                info += "-"+NSGExternalSimulatorConfig.getUsername();
+                
+				jobStatus = NSGUtilities.sendJob(myClient, jobId, filePath, numberProcessors, false, info);
 				started = true;
 				
 				try{
@@ -163,7 +169,7 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 				catch(GeppettoExecutionException e){
 					//AQP we should return something about the job status
 					logger.error("Error executing job in remote server");
-					throw new GeppettoExecutionException("Error executing job");
+					throw new GeppettoExecutionException("Error executing job", e);
 				}
 				
 			}
@@ -243,6 +249,12 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 
 			File mappingResultsFile = new File(outputFolder + "/outputMapping.dat");
 			results.put(mappingResultsFile, ResultsFormat.RAW);
+            
+			File reportFile = new File(outputFolder + "/report.txt");
+            
+            
+            
+			results.put(reportFile,ResultsFormat.RAW);
 
 			BufferedReader input;
 
