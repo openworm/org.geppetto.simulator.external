@@ -28,7 +28,7 @@ import org.ngbw.directclient.CiJob;
  */
 public class NSGUtilities {
 
-	public static CiJob sendJob(CiClient myClient, long jobId, Path filePath, int numberProcessors, boolean validateOnly) throws CiCipresException, IOException, GeppettoExecutionException, InterruptedException
+	public static CiJob sendJob(CiClient myClient, long jobId, Path filePath, int numberProcessors, boolean validateOnly, String info) throws CiCipresException, IOException, GeppettoExecutionException, InterruptedException
 	{
 		CiJob jobStatus;
 		
@@ -54,7 +54,7 @@ public class NSGUtilities {
 
 		metadata.put("statusEmail", "true");
 		// metadata.put("clientJobName", jobName);
-		metadata.put("clientJobId", Long.toString(jobId));
+		metadata.put("clientJobId", info);
 
 		if(validateOnly)
 		{
@@ -126,6 +126,11 @@ public class NSGUtilities {
 				isOutput = true;
 			}
 			else if (currentEntry.getName().contains("time.dat"))
+			{
+				currentFolder = outputFileFolder;
+				isOutput = true;
+			}
+			else if (currentEntry.getName().contains("report.txt"))
 			{
 				currentFolder = outputFileFolder;
 				isOutput = true;
