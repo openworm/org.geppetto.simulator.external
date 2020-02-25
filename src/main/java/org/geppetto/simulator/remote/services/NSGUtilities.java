@@ -36,7 +36,7 @@ public class NSGUtilities {
 		HashMap<String, String> inputParams = new HashMap<String, String>();
 		HashMap<String, String> metadata = new HashMap<String, String>();
         
-        String tool = "OSBPYNEURON74";
+        String tool = "OSBPYNEURON77";
         
         int numCores = numberProcessors;
         int numNodes = 1;
