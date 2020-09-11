@@ -6,7 +6,7 @@ env:
     secure: X2mbfFMOql9DE5orv5mg/GFPAwTzDb4SBqyLe5g1TaR4EdB06q43mvxqQyEWu3VW97EOvpunthGcBdzn8Zi0EVchjktgWVeS3yOetnC92JF9RgU51lRe/v58CsZhpaE3rMfNu0cvBu3iIwuDrj77HZSYqb3YBuwuVvkle6qjQeE=
 install:
 - export model_repo_branch=$TRAVIS_BRANCH
-- if [[ ${model_repo_branch} != "master" && ${model_repo_branch} != "development" ]]; then model_repo_branch=development ; fi
+- if [[ ${model_repo_branch} != "master" && ${model_repo_branch} != "development" ]]; then model_repo_branch=v0.4.1-alpha ; fi
 - export core_repo_branch=$TRAVIS_BRANCH
 - if [[ ${core_repo_branch} != "master" && ${core_repo_branch} != "development" ]]; then core_repo_branch=livemix ; fi
 
