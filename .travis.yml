@@ -51,3 +51,9 @@ install:
 - svn checkout svn://svn.code.sf.net/p/neuroml/code/jNeuroMLJar
 - export JNML_HOME=$PWD/jNeuroMLJar
 
+script:
+- pwd
+- cd $TRAVIS_BUILD_DIR/org.geppetto.simulator.external 
+- mvn clean install
+- mvn dependency:tree
+
