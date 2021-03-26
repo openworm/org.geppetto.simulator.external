@@ -1,0 +1,79 @@
+name: Simulator External Workflow
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:  
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses : actions/checkout@v2.3.4    
+      - name: Set global bariable with current branch name
+        shell: bash
+        run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+        id: git_branch
+    
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+        
+      - name : Install neuron
+        run : |
+          ls
+          sudo apt-get install libx11-dev git bison flex automake libtool libxext-dev libncurses-dev python3-dev xfonts-100dpi cython3 libopenmpi-dev python3-scipy make zlib1g-dev
+          wget https://neuron.yale.edu/ftp/neuron/versions/v7.7/nrn-7.7.tar.gz
+          tar xzvf nrn-7.7.tar.gz
+          cd nrn-7.7
+          ./configure --prefix `pwd` --without-iv --with-nrnpython=python3
+          make -j
+          make install -j
+          cd src/nrnpython
+          sudo python3 setup.py install
+          cd ../../..
+          echo "NEURON_HOME=$PWD/nrn-7.7/x86_64/bin/" >> $GITHUB_ENV        
+
+      - name : Install jNeuroML
+        run : |
+          svn checkout svn://svn.code.sf.net/p/neuroml/code/jNeuroMLJar
+          echo "JNML_HOME=$PWD/jNeuroMLJar" >> $GITHUB_ENV
+              
+      - name: Install python-tk
+        run: sudo apt-get install python-tk
+      
+      - name: Install PIP Dependencies
+        run: python -m pip install --upgrade pip netpyne numpy scipy lxml libneuroml pyneuroml matplotlib
+    
+      - name : Checkout org.geppetto.model
+        uses : actions/checkout@v2.3.4
+        with : 
+          repository:  openworm/org.geppetto.model.git
+          path : ./org.geppetto.model
+          ref: development
+      - name : Build org.geppetto.model
+        run : |
+          cd ./org.geppetto.model
+          # Checkout current branch that activated the git actions workflow, if fails checkout development
+          git checkout ${{ steps.git_branch.outputs.branch }} || git checkout development
+          mvn -e clean install
+          cd ..
+        
+      - name : Checkout org.geppetto.core
+        uses : actions/checkout@v2.3.4
+        with : 
+          repository:  openworm/org.geppetto.core.git
+          path : ./org.geppetto.core
+          ref: development
+      - name : Build org.geppetto.core
+        run : |
+          cd ./org.geppetto.core
+          git checkout ${{ steps.git_branch.outputs.branch }} || git checkout development
+          mvn -e clean install
+          cd ..
+       
+      - name : Build simulator.external
+        run : |
+          mvn -e clean install
+          cd ..
