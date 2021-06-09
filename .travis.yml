@@ -16,14 +16,14 @@ install:
 - git clone https://github.com/openworm/org.geppetto.model.git -b $model_repo_branch
 - cd org.geppetto.model
 - git status
-- mvn install
+- mvn -Dhttps.protocols=TLSv1.2 install
 - cd ..
 
 - echo "Using branch for org.geppetto.core $model_repo_branch"
 - git clone https://github.com/openworm/org.geppetto.core.git -b $core_repo_branch
 - cd org.geppetto.core
 - git status
-- mvn install
+- mvn -Dhttps.protocols=TLSv1.2 install
 - cd ..
 
 # Install NEURON
@@ -53,6 +53,6 @@ install:
 
 script:
 - pwd
-- mvn clean install
+- mvn -Dhttps.protocols=TLSv1.2 install
 - mvn dependency:tree
 
