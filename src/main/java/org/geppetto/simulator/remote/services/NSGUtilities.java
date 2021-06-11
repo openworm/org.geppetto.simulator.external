@@ -36,19 +36,22 @@ public class NSGUtilities {
 		HashMap<String, String> inputParams = new HashMap<String, String>();
 		HashMap<String, String> metadata = new HashMap<String, String>();
         
-        String tool = "OSBPYNEURON77";
+        //String tool = "OSBPYNEURON77";
+        String tool = "NEURON_EXPANSE";
         
-        int numCores = numberProcessors;
+        int numTasks = numberProcessors;
         int numNodes = 1;
-        int maxPerNode = 16;
+        int maxPerNode = 128; //for Expanse...
         if (numberProcessors>maxPerNode)
         {
-            numCores = maxPerNode;
+            numTasks = maxPerNode;
             numNodes = (int)Math.round(numberProcessors/(float)maxPerNode);
         }
             
-		vParams.put("number_cores_", Arrays.asList(numCores+""));
-		vParams.put("number_nodes_", Arrays.asList(numNodes+""));
+        vParams.put("number_cores_", Arrays.asList(1+""));
+        vParams.put("number_nodes_", Arrays.asList(numNodes+""));
+        vParams.put("tasks_per_node_", Arrays.asList(numTasks+""));
+        vParams.put("filename_", Arrays.asList("input.py"));
 
 		inputParams.put("infile_", filePath.toString());
 

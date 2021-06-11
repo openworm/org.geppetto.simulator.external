@@ -96,7 +96,7 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
 			outputFolder = directoryToExecuteFrom;
 
 			// Rename main script to input.py (NSG requirement)
-			File renamedfilePath = new File(directoryToExecuteFrom + "/init.py");
+			File renamedfilePath = new File(directoryToExecuteFrom + "/input.py");
 			Files.copy(originalFilePath.toPath(), renamedfilePath.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
 			// Create Results Folder (it is needed because of the way the neuron code is generated in the export library)
@@ -150,7 +150,7 @@ public class NSGSimulatorService extends AExternalProcessNeuronalSimulator
                 {
                     jobId = this.experimentState.getExperimentId();
                 }
-                String info = Long.toString(jobId);
+                String info = "OSBJOB-"+Long.toString(jobId);
                 info += "-"+this.model.getDomainModel();
                 info += "-"+this.getName().replaceAll("\\s", "_");
                 info += "-"+numberProcessors+"procs";
